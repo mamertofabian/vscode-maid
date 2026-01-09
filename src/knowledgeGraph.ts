@@ -18,7 +18,8 @@ export class GraphTreeItem extends vscode.TreeItem {
     public readonly nodeType: GraphNodeType | "category" | "edge",
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly graphNode?: GraphNode,
-    public readonly filePath?: string
+    public readonly filePath?: string,
+    public readonly artifactFilePath?: string
   ) {
     super(label, collapsibleState);
 
@@ -27,9 +28,10 @@ export class GraphTreeItem extends vscode.TreeItem {
     this.tooltip = this.getTooltip();
     this.description = this.getDescription();
 
-    // Make file nodes openable
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+
+    // Make file and manifest nodes openable
     if (filePath && (nodeType === "file" || nodeType === "manifest")) {
-      const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
       if (workspaceRoot) {
         const fullPath = path.isAbsolute(filePath)
           ? filePath
@@ -41,6 +43,35 @@ export class GraphTreeItem extends vscode.TreeItem {
           arguments: [this.resourceUri],
         };
       }
+    }
+
+    // Make artifact nodes navigable to their definition
+    if (nodeType === "artifact" && graphNode && artifactFilePath && workspaceRoot) {
+      const fullPath = path.isAbsolute(artifactFilePath)
+        ? artifactFilePath
+        : path.join(workspaceRoot, artifactFilePath);
+      this.command = {
+        command: "vscode-maid.goToArtifactDefinition",
+        title: "Go to Definition",
+        arguments: [
+          fullPath,
+          graphNode.name || "",
+          graphNode.artifact_type || "function",
+        ],
+      };
+    }
+
+    // Make module nodes navigable to their main file
+    if (nodeType === "module" && graphNode && artifactFilePath && workspaceRoot) {
+      const fullPath = path.isAbsolute(artifactFilePath)
+        ? artifactFilePath
+        : path.join(workspaceRoot, artifactFilePath);
+      this.resourceUri = vscode.Uri.file(fullPath);
+      this.command = {
+        command: "vscode.open",
+        title: "Open Module",
+        arguments: [this.resourceUri],
+      };
     }
   }
 
@@ -323,13 +354,22 @@ export class KnowledgeGraphTreeDataProvider
       const label = this.getNodeLabel(node);
       const filePath = node.path || undefined;
 
+      // For artifacts and modules, look up the containing file via edges
+      let artifactFilePath: string | undefined;
+      if (node.type === "artifact") {
+        artifactFilePath = this.findArtifactFile(node.id);
+      } else if (node.type === "module") {
+        artifactFilePath = this.findModuleFile(node);
+      }
+
       items.push(
         new GraphTreeItem(
           label,
           node.type,
           vscode.TreeItemCollapsibleState.None,
           node,
-          filePath
+          filePath,
+          artifactFilePath
         )
       );
     }
@@ -338,6 +378,104 @@ export class KnowledgeGraphTreeDataProvider
     items.sort((a, b) => a.label.localeCompare(b.label));
 
     return items;
+  }
+
+  /**
+   * Find the file path for an artifact by traversing graph edges.
+   */
+  private findArtifactFile(artifactId: string): string | undefined {
+    if (!this.graphData?.edges) {
+      return undefined;
+    }
+
+    // Look for edges where this artifact is the source and target is a file
+    // Common edge types: "defined_in", "contains" (reversed), etc.
+    for (const edge of this.graphData.edges) {
+      // Check if artifact -> file relationship
+      if (edge.source === artifactId) {
+        const targetNode = this.graphData.nodes.find((n) => n.id === edge.target);
+        if (targetNode?.type === "file" && targetNode.path) {
+          return targetNode.path;
+        }
+      }
+
+      // Check if file -> artifact relationship (reversed)
+      if (edge.target === artifactId) {
+        const sourceNode = this.graphData.nodes.find((n) => n.id === edge.source);
+        if (sourceNode?.type === "file" && sourceNode.path) {
+          return sourceNode.path;
+        }
+      }
+    }
+
+    // Fallback: try to find file from artifact ID (some systems encode file in ID)
+    // e.g., "src/utils.py::MyClass::my_method"
+    const idParts = artifactId.split("::");
+    if (idParts.length > 0 && idParts[0].includes(".")) {
+      return idParts[0];
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Find the file path for a module.
+   */
+  private findModuleFile(node: GraphNode): string | undefined {
+    // First, try to find via edges
+    if (this.graphData?.edges) {
+      for (const edge of this.graphData.edges) {
+        // Check if module -> file relationship
+        if (edge.source === node.id) {
+          const targetNode = this.graphData.nodes.find((n) => n.id === edge.target);
+          if (targetNode?.type === "file" && targetNode.path) {
+            return targetNode.path;
+          }
+        }
+
+        // Check if file -> module relationship (reversed)
+        if (edge.target === node.id) {
+          const sourceNode = this.graphData.nodes.find((n) => n.id === edge.source);
+          if (sourceNode?.type === "file" && sourceNode.path) {
+            return sourceNode.path;
+          }
+        }
+      }
+    }
+
+    // Try to construct path from module name
+    // e.g., "mypackage.utils" -> "mypackage/utils.py" or "mypackage/utils/__init__.py"
+    if (node.name) {
+      const modulePath = node.name.replace(/\./g, "/");
+
+      // Check if it's a file node that matches
+      if (this.graphData?.nodes) {
+        for (const fileNode of this.graphData.nodes) {
+          if (fileNode.type === "file" && fileNode.path) {
+            // Check for direct module file (e.g., utils.py)
+            if (fileNode.path.endsWith(`${modulePath}.py`) ||
+                fileNode.path.endsWith(`${modulePath}.ts`) ||
+                fileNode.path.endsWith(`${modulePath}.js`)) {
+              return fileNode.path;
+            }
+            // Check for package __init__.py
+            if (fileNode.path.endsWith(`${modulePath}/__init__.py`) ||
+                fileNode.path.endsWith(`${modulePath}/index.ts`) ||
+                fileNode.path.endsWith(`${modulePath}/index.js`)) {
+              return fileNode.path;
+            }
+          }
+        }
+      }
+    }
+
+    // Fallback: try to find file from module ID
+    const idParts = node.id.split("::");
+    if (idParts.length > 0 && idParts[0].includes(".")) {
+      return idParts[0];
+    }
+
+    return undefined;
   }
 
   private getNodeLabel(node: GraphNode): string {

@@ -5,6 +5,7 @@
  */
 
 import * as vscode from "vscode";
+import * as path from "path";
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -27,6 +28,9 @@ import {
 } from "./manifestExplorer";
 import { KnowledgeGraphTreeDataProvider } from "./knowledgeGraph";
 import { MaidTestRunner } from "./testRunner";
+import { ManifestIndex } from "./manifestIndex";
+import { ManifestDefinitionProvider } from "./definitionProvider";
+import { ManifestReferenceProvider, FileReferenceProvider } from "./referenceProvider";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -35,6 +39,7 @@ let manifestProvider: ManifestTreeDataProvider | undefined;
 let trackedFilesProvider: TrackedFilesTreeDataProvider | undefined;
 let knowledgeGraphProvider: KnowledgeGraphTreeDataProvider | undefined;
 let testRunner: MaidTestRunner | undefined;
+let manifestIndex: ManifestIndex | undefined;
 
 // Constants for version checking
 const PYPI_API_URL = "https://pypi.org/pypi/maid-lsp/json";
@@ -635,6 +640,267 @@ function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
 }
 
 /**
+ * Register definition and reference providers for navigation.
+ */
+async function registerNavigationProviders(
+  context: vscode.ExtensionContext
+): Promise<void> {
+  log("Registering navigation providers...");
+
+  // Create and initialize the manifest index
+  manifestIndex = new ManifestIndex(context);
+  await manifestIndex.initialize(getOutputChannel());
+
+  // Register definition provider for manifest files
+  context.subscriptions.push(
+    vscode.languages.registerDefinitionProvider(
+      { pattern: "**/*.manifest.json" },
+      new ManifestDefinitionProvider(manifestIndex)
+    )
+  );
+  log("Definition provider registered for *.manifest.json");
+
+  // Register reference provider for manifest files
+  context.subscriptions.push(
+    vscode.languages.registerReferenceProvider(
+      { pattern: "**/*.manifest.json" },
+      new ManifestReferenceProvider(manifestIndex)
+    )
+  );
+  log("Reference provider registered for *.manifest.json");
+
+  // Register reference provider for all files (to find manifest references)
+  context.subscriptions.push(
+    vscode.languages.registerReferenceProvider(
+      { pattern: "**/*" },
+      new FileReferenceProvider(manifestIndex)
+    )
+  );
+  log("File reference provider registered for all files");
+
+  // Register supersession navigation commands
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.goToParentManifest", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || !editor.document.uri.fsPath.endsWith(".manifest.json")) {
+        vscode.window.showWarningMessage("This command is only available in manifest files");
+        return;
+      }
+
+      const chain = manifestIndex?.getSupersessionChain(editor.document.uri.fsPath);
+      if (!chain || chain.parents.length === 0) {
+        vscode.window.showInformationMessage("No parent manifest found (this manifest is not superseded by any other)");
+        return;
+      }
+
+      if (chain.parents.length === 1) {
+        // Open the single parent
+        const uri = vscode.Uri.file(chain.parents[0]);
+        await vscode.window.showTextDocument(uri);
+      } else {
+        // Show quick pick for multiple parents
+        const items = chain.parents.map((p) => ({
+          label: vscode.workspace.asRelativePath(p),
+          path: p,
+        }));
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: "Select parent manifest to open",
+        });
+        if (selected) {
+          const uri = vscode.Uri.file(selected.path);
+          await vscode.window.showTextDocument(uri);
+        }
+      }
+    })
+  );
+  log("goToParentManifest command registered");
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.goToChildManifests", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || !editor.document.uri.fsPath.endsWith(".manifest.json")) {
+        vscode.window.showWarningMessage("This command is only available in manifest files");
+        return;
+      }
+
+      const chain = manifestIndex?.getSupersessionChain(editor.document.uri.fsPath);
+      if (!chain || chain.children.length === 0) {
+        vscode.window.showInformationMessage("No child manifests found (this manifest does not supersede any other)");
+        return;
+      }
+
+      if (chain.children.length === 1) {
+        // Open the single child
+        const uri = vscode.Uri.file(chain.children[0]);
+        await vscode.window.showTextDocument(uri);
+      } else {
+        // Show quick pick for multiple children
+        const items = chain.children.map((p) => ({
+          label: vscode.workspace.asRelativePath(p),
+          path: p,
+        }));
+        const selected = await vscode.window.showQuickPick(items, {
+          placeHolder: "Select child manifest to open",
+        });
+        if (selected) {
+          const uri = vscode.Uri.file(selected.path);
+          await vscode.window.showTextDocument(uri);
+        }
+      }
+    })
+  );
+  log("goToChildManifests command registered");
+
+  // Register command for navigating to artifact definitions (used by knowledge graph)
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-maid.goToArtifactDefinition",
+      async (filePath: string, artifactName: string, artifactType: string) => {
+        if (!filePath || !artifactName) {
+          vscode.window.showWarningMessage("Missing file path or artifact name");
+          return;
+        }
+
+        try {
+          const uri = vscode.Uri.file(filePath);
+          const document = await vscode.workspace.openTextDocument(uri);
+          const content = document.getText();
+
+          // Get file extension to determine language
+          const ext = path.extname(filePath).toLowerCase();
+          const position = findArtifactPosition(content, artifactName, artifactType, ext);
+
+          if (position) {
+            const editor = await vscode.window.showTextDocument(document);
+            editor.selection = new vscode.Selection(position, position);
+            editor.revealRange(
+              new vscode.Range(position, position),
+              vscode.TextEditorRevealType.InCenter
+            );
+          } else {
+            // Fallback: just open the file
+            await vscode.window.showTextDocument(document);
+            vscode.window.showInformationMessage(
+              `Could not find ${artifactType} "${artifactName}" in file, opened file instead`
+            );
+          }
+        } catch (error: any) {
+          vscode.window.showErrorMessage(`Failed to open file: ${error.message}`);
+        }
+      }
+    )
+  );
+  log("goToArtifactDefinition command registered");
+
+  log("Navigation providers registered");
+}
+
+/**
+ * Find the position of an artifact definition in file content.
+ */
+function findArtifactPosition(
+  content: string,
+  name: string,
+  type: string,
+  ext: string
+): vscode.Position | undefined {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const patterns: RegExp[] = [];
+
+  // Python patterns
+  if (ext === ".py") {
+    switch (type) {
+      case "class":
+        patterns.push(new RegExp(`^\\s*class\\s+${escapedName}\\s*[:\\(]`, "m"));
+        break;
+      case "function":
+        patterns.push(new RegExp(`^\\s*(?:async\\s+)?def\\s+${escapedName}\\s*\\(`, "m"));
+        break;
+      case "method":
+        patterns.push(new RegExp(`^\\s+(?:async\\s+)?def\\s+${escapedName}\\s*\\(`, "m"));
+        break;
+      case "attribute":
+        patterns.push(new RegExp(`^\\s*${escapedName}\\s*[:=]`, "m"));
+        patterns.push(new RegExp(`self\\.${escapedName}\\s*=`, "m"));
+        break;
+    }
+  }
+
+  // TypeScript/JavaScript patterns
+  if ([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"].includes(ext)) {
+    switch (type) {
+      case "class":
+        patterns.push(new RegExp(`^\\s*(?:export\\s+)?class\\s+${escapedName}\\s*[{<]`, "m"));
+        break;
+      case "function":
+        patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:async\\s+)?function\\s+${escapedName}\\s*[<(]`, "m"));
+        patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*(?:async\\s+)?(?:\\([^)]*\\)|[^=])\\s*=>`, "m"));
+        patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*function`, "m"));
+        break;
+      case "method":
+        patterns.push(new RegExp(`^\\s+(?:async\\s+)?${escapedName}\\s*\\(`, "m"));
+        break;
+      case "attribute":
+      case "interface":
+        patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:const|let|var|interface|type)\\s+${escapedName}\\s*[:=<{]`, "m"));
+        break;
+    }
+  }
+
+  // Go patterns
+  if (ext === ".go") {
+    switch (type) {
+      case "function":
+        patterns.push(new RegExp(`^func\\s+${escapedName}\\s*\\(`, "m"));
+        break;
+      case "method":
+        patterns.push(new RegExp(`^func\\s+\\([^)]+\\)\\s+${escapedName}\\s*\\(`, "m"));
+        break;
+      case "class":
+        patterns.push(new RegExp(`^type\\s+${escapedName}\\s+struct`, "m"));
+        break;
+      case "interface":
+        patterns.push(new RegExp(`^type\\s+${escapedName}\\s+interface`, "m"));
+        break;
+    }
+  }
+
+  // Rust patterns
+  if (ext === ".rs") {
+    switch (type) {
+      case "function":
+        patterns.push(new RegExp(`^\\s*(?:pub\\s+)?(?:async\\s+)?fn\\s+${escapedName}\\s*[<(]`, "m"));
+        break;
+      case "class":
+        patterns.push(new RegExp(`^\\s*(?:pub\\s+)?struct\\s+${escapedName}\\s*[{<]`, "m"));
+        break;
+      case "interface":
+        patterns.push(new RegExp(`^\\s*(?:pub\\s+)?trait\\s+${escapedName}\\s*[{<]`, "m"));
+        break;
+    }
+  }
+
+  // Try each pattern
+  for (const pattern of patterns) {
+    const match = pattern.exec(content);
+    if (match) {
+      const lines = content.substring(0, match.index).split("\n");
+      return new vscode.Position(lines.length - 1, 0);
+    }
+  }
+
+  // Fallback: simple word search
+  const simplePattern = new RegExp(`\\b${escapedName}\\b`);
+  const match = simplePattern.exec(content);
+  if (match) {
+    const lines = content.substring(0, match.index).split("\n");
+    return new vscode.Position(lines.length - 1, lines[lines.length - 1].length);
+  }
+
+  return undefined;
+}
+
+/**
  * Extension activation.
  */
 export async function activate(
@@ -681,6 +947,9 @@ export async function activate(
   // Register workspace listeners
   registerWorkspaceListeners(context);
 
+  // Register navigation providers (Go to Definition, Find References)
+  await registerNavigationProviders(context);
+
   // Start the language client
   startLanguageClient(context);
 
@@ -725,6 +994,12 @@ export function deactivate(): Thenable<void> | undefined {
   if (testRunner) {
     testRunner.dispose();
     testRunner = undefined;
+  }
+
+  // Dispose manifest index
+  if (manifestIndex) {
+    manifestIndex.dispose();
+    manifestIndex = undefined;
   }
 
   // Stop LSP client

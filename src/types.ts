@@ -215,3 +215,51 @@ export interface ArtifactContains {
   args?: Array<{ name: string; type: string }>;
   returns?: { type: string };
 }
+
+/**
+ * Types for manifest index (Go to Definition / References)
+ */
+
+/**
+ * Category of file reference in a manifest
+ */
+export type FileReferenceCategory =
+  | "creatable"
+  | "editable"
+  | "readonly"
+  | "supersedes"
+  | "expectedArtifact";
+
+/**
+ * A reference to a file within a manifest
+ */
+export interface FileReference {
+  manifestPath: string;
+  category: FileReferenceCategory;
+  line: number;
+  column: number;
+}
+
+/**
+ * A reference to an artifact within a manifest
+ */
+export interface ArtifactReference {
+  manifestPath: string;
+  filePath: string;
+  artifactType: "function" | "class" | "method" | "attribute";
+  artifactName: string;
+  line: number;
+  column: number;
+}
+
+/**
+ * Indexed data for a single manifest
+ */
+export interface ManifestIndexEntry {
+  manifestPath: string;
+  goal?: string;
+  referencedFiles: Map<string, FileReference[]>;
+  artifacts: Map<string, ArtifactReference[]>;
+  supersedes: string[];
+  supersededBy: string[];
+}

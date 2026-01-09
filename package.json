@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/mamertofabian/vscode-maid#readme",
   "license": "MIT",
+  "icon": "images/logo-128.png",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -133,6 +134,30 @@
         "title": "Refresh Knowledge Graph",
         "category": "MAID",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "vscode-maid.goToParentManifest",
+        "title": "Go to Parent Manifest",
+        "category": "MAID",
+        "icon": "$(arrow-up)"
+      },
+      {
+        "command": "vscode-maid.goToChildManifests",
+        "title": "Go to Child Manifests",
+        "category": "MAID",
+        "icon": "$(arrow-down)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-maid.goToParentManifest",
+        "key": "alt+up",
+        "when": "resourceFilename =~ /\\.manifest\\.json$/"
+      },
+      {
+        "command": "vscode-maid.goToChildManifests",
+        "key": "alt+down",
+        "when": "resourceFilename =~ /\\.manifest\\.json$/"
       }
     ],
     "menus": {
@@ -207,6 +232,14 @@
         {
           "command": "vscode-maid.validateManifest",
           "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.goToParentManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.goToChildManifests",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
         }
       ]
     },
@@ -243,6 +276,7 @@
     "vscode-languageclient": "^9.0.0"
   },
   "dependencies": {
+    "jsonc-parser": "^3.2.0",
     "vscode-languageclient": "^9.0.0"
   }
 }
