@@ -2,7 +2,19 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
-## [0.1.2] - 2024-01-09
+## [0.1.3] - 2026-01-09
+
+### Added
+- Automatic version checking for maid-lsp server (checks PyPI every 24 hours)
+- Smart installation method detection (automatically detects uv tool, pipx, or pip)
+- New command: "MAID: Check for MAID LSP Updates" for manual version checking
+- Update notifications with appropriate upgrade command based on installation method
+- User preferences persistence (dismissed versions, last check timestamp)
+
+### Fixed
+- Update command now uses correct package manager (uv tool upgrade, pipx upgrade, or pip install)
+
+## [0.1.2] - 2026-01-09
 
 ### Added
 - Initial release of MAID for VS Code extension
