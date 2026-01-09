@@ -143,7 +143,7 @@ export async function activate(
   // Register command to recheck installation
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "maid.checkInstallation",
+      "vscode-maid.checkInstallation",
       checkInstallationStatus
     )
   );
