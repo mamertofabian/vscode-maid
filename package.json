@@ -49,6 +49,11 @@
         "command": "vscode-maid.checkInstallation",
         "title": "Check MAID LSP Installation",
         "category": "MAID"
+      },
+      {
+        "command": "vscode-maid.checkForUpdates",
+        "title": "Check for MAID LSP Updates",
+        "category": "MAID"
       }
     ],
     "configuration": {

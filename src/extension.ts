@@ -6,10 +6,168 @@ import {
 } from "vscode-languageclient/node";
 import { exec } from "child_process";
 import { promisify } from "util";
+import * as https from "https";
 
 const execAsync = promisify(exec);
 
 let client: LanguageClient | undefined;
+
+// Constants for version checking
+const PYPI_API_URL = "https://pypi.org/pypi/maid-lsp/json";
+const VERSION_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const LAST_VERSION_CHECK_KEY = "maidLsp.lastVersionCheck";
+const DISMISSED_VERSION_KEY = "maidLsp.dismissedVersion";
+
+/**
+ * Get the installed maid-lsp version.
+ */
+async function getInstalledVersion(): Promise<string | null> {
+  try {
+    const { stdout } = await execAsync("maid-lsp --version");
+    // Extract version number from output (e.g., "maid-lsp 0.2.1" -> "0.2.1")
+    const match = stdout.trim().match(/(\d+\.\d+\.\d+)/);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch the latest version from PyPI.
+ */
+async function getLatestVersion(): Promise<string | null> {
+  return new Promise((resolve) => {
+    https
+      .get(PYPI_API_URL, { timeout: 5000 }, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          try {
+            const json = JSON.parse(data);
+            resolve(json.info?.version || null);
+          } catch {
+            resolve(null);
+          }
+        });
+      })
+      .on("error", () => resolve(null))
+      .on("timeout", () => resolve(null));
+  });
+}
+
+/**
+ * Compare two semver version strings.
+ * Returns true if newVersion > currentVersion
+ */
+function isNewerVersion(currentVersion: string, newVersion: string): boolean {
+  const current = currentVersion.split(".").map(Number);
+  const latest = newVersion.split(".").map(Number);
+
+  for (let i = 0; i < 3; i++) {
+    if (latest[i] > current[i]) return true;
+    if (latest[i] < current[i]) return false;
+  }
+  return false;
+}
+
+/**
+ * Detect how maid-lsp was installed.
+ * Returns the appropriate upgrade command.
+ */
+async function detectInstallationMethod(): Promise<string> {
+  // Check for uv tool
+  try {
+    const { stdout } = await execAsync("uv tool list");
+    if (stdout.includes("maid-lsp")) {
+      return "uv tool upgrade maid-lsp";
+    }
+  } catch {
+    // uv not available or maid-lsp not installed as tool
+  }
+
+  // Check for pipx
+  try {
+    const { stdout } = await execAsync("pipx list");
+    if (stdout.includes("maid-lsp")) {
+      return "pipx upgrade maid-lsp";
+    }
+  } catch {
+    // pipx not available or maid-lsp not installed via pipx
+  }
+
+  // Fallback to pip
+  return "pip install --upgrade maid-lsp";
+}
+
+/**
+ * Check for updates and show notification if available.
+ */
+async function checkForUpdates(
+  context: vscode.ExtensionContext,
+  force = false
+): Promise<void> {
+  // Check if we should skip (unless forced)
+  if (!force) {
+    const lastCheck = context.globalState.get<number>(LAST_VERSION_CHECK_KEY);
+    const now = Date.now();
+    if (lastCheck && now - lastCheck < VERSION_CHECK_INTERVAL_MS) {
+      return; // Checked recently, skip
+    }
+  }
+
+  const installedVersion = await getInstalledVersion();
+  if (!installedVersion) {
+    return; // Can't determine installed version
+  }
+
+  const latestVersion = await getLatestVersion();
+  if (!latestVersion) {
+    if (force) {
+      vscode.window.showWarningMessage(
+        "Unable to check for maid-lsp updates. Please try again later."
+      );
+    }
+    return; // Can't fetch latest version
+  }
+
+  // Update last check timestamp
+  await context.globalState.update(LAST_VERSION_CHECK_KEY, Date.now());
+
+  // Check if user dismissed this version
+  const dismissedVersion = context.globalState.get<string>(
+    DISMISSED_VERSION_KEY
+  );
+  if (!force && dismissedVersion === latestVersion) {
+    return; // User already dismissed this version
+  }
+
+  // Check if update is available
+  if (isNewerVersion(installedVersion, latestVersion)) {
+    const choice = await vscode.window.showInformationMessage(
+      `maid-lsp ${latestVersion} is available (you have ${installedVersion})`,
+      "Update Now",
+      "Dismiss",
+      "Don't Show Again"
+    );
+
+    if (choice === "Update Now") {
+      // Detect installation method and use appropriate command
+      const updateCommand = await detectInstallationMethod();
+      const terminal = vscode.window.createTerminal("MAID Updater");
+      terminal.sendText(updateCommand);
+      terminal.show();
+      vscode.window.showInformationMessage(
+        `Update command sent to terminal: ${updateCommand}\nPlease restart VS Code after the update completes.`
+      );
+    } else if (choice === "Don't Show Again") {
+      await context.globalState.update(DISMISSED_VERSION_KEY, latestVersion);
+    }
+  } else if (force) {
+    vscode.window.showInformationMessage(
+      `maid-lsp is up to date (${installedVersion})`
+    );
+  }
+}
 
 /**
  * Check if maid-lsp is installed and accessible.
@@ -147,6 +305,16 @@ export async function activate(
       checkInstallationStatus
     )
   );
+
+  // Register command to manually check for updates
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.checkForUpdates", () =>
+      checkForUpdates(context, true)
+    )
+  );
+
+  // Check for updates automatically (throttled to once per day)
+  checkForUpdates(context, false);
 }
 
 export function deactivate(): Thenable<void> | undefined {
