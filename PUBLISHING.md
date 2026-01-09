@@ -142,6 +142,29 @@ Ensure `package.json` includes:
 - Verify publisher name matches
 - Ensure all required fields in `package.json`
 
+## Published Extension Information
+
+**Extension successfully published on January 9, 2026**
+
+- **Extension ID**: `aidrivencoder.vscode-maid`
+- **Display Name**: MAID - Manifest-driven AI Development
+- **Current Version**: 0.1.2
+- **Publisher**: aidrivencoder
+- **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
+- **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
+- **Publisher Profile**: https://marketplace.visualstudio.com/publishers/aidrivencoder
+
+### Installation Command
+```bash
+code --install-extension aidrivencoder.vscode-maid
+```
+
+### Publishing Notes
+- Display name was changed from "MAID for VS Code" to "MAID - Manifest-driven AI Development" to avoid similarity with existing "Marp for VS Code" extension
+- Extension uses esbuild for bundling to ensure all dependencies are included in the package
+- Bundled extension size: ~347KB (single file)
+- Total package size: ~89KB (compressed)
+
 ## CI/CD (Optional)
 
 Set up GitHub Actions for automatic publishing:
