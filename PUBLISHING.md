@@ -27,7 +27,7 @@ This guide explains how to publish the MAID for VS Code extension to both the Mi
 
 1. **Open VSX Account**
    - Create account at https://open-vsx.org/
-   - No publisher setup needed initially
+   - Log in with GitHub account
 
 2. **Install ovsx CLI**
    ```bash
@@ -38,6 +38,23 @@ This guide explains how to publish the MAID for VS Code extension to both the Mi
    - Go to https://open-vsx.org/user-settings/tokens
    - Generate a new access token
    - Save token securely (different from Microsoft token)
+
+4. **⚠️ IMPORTANT: Claim Namespace Ownership (ONE-TIME, REQUIRED)**
+
+   After publishing, your extension will show with a warning icon ⚠️ until you claim namespace ownership.
+
+   **To get verified status:**
+   - Go to https://github.com/EclipseFdn/open-vsx.org/issues
+   - Create a new issue requesting namespace ownership
+   - Title: `Request ownership of namespace: aidrivencoder`
+   - Provide justification (you're the extension author/maintainer)
+   - Wait for approval from Eclipse Foundation
+   - Once approved, your extension will show with a verified shield icon ✓
+
+   **This is a one-time process per namespace and is required to:**
+   - Remove the warning icon from your extension
+   - Display your extension as "verified"
+   - Get full control over namespace members and permissions
 
 ## Publishing Steps
 
@@ -208,6 +225,19 @@ Ensure `package.json` includes:
 
 ### Open VSX Issues
 
+**⚠️ "Extension shows warning icon / not verified"**
+
+This is NORMAL for newly published extensions. To fix:
+
+1. Your extension is published but shows as "unverified" until you claim namespace ownership
+2. Go to https://github.com/EclipseFdn/open-vsx.org/issues
+3. Create issue: "Request ownership of namespace: `aidrivencoder`"
+4. Explain you're the extension author/maintainer
+5. Wait for Eclipse Foundation approval (usually a few days)
+6. Once approved, warning icon disappears and verified shield icon ✓ appears
+
+**This is a ONE-TIME process per namespace and must be done for verified status.**
+
 **"Namespace does not exist"**
 - Create namespace first: `ovsx create-namespace <publisher-name> -p <token>`
 
@@ -245,18 +275,18 @@ code --install-extension aidrivencoder.vscode-maid
 
 ### Open VSX Registry
 
-**Status**: Not yet published
+**Status**: Published (awaiting namespace ownership claim for verification)
 
-**Installation Command (after publishing):**
-```bash
-# For Cursor IDE, VSCodium, etc.
-# The extension will be available in the Extensions marketplace within these editors
-```
+**Open VSX URL**: https://open-vsx.org/extension/aidrivencoder/vscode-maid
 
-**Publish Command:**
-```bash
-ovsx publish -p <your-open-vsx-token>
-```
+**Installation:**
+- Available in Cursor IDE Extensions marketplace
+- Search for "MAID" or "vscode-maid"
+
+**⚠️ Verification Status:**
+- Extension currently shows warning icon until namespace ownership is claimed
+- Create issue at https://github.com/EclipseFdn/open-vsx.org/issues to claim ownership
+- Once approved, extension will show verified shield icon ✓
 
 ### Publishing Notes
 - Display name was changed from "MAID for VS Code" to "MAID - Manifest-driven AI Development" to avoid similarity with existing "Marp for VS Code" extension
