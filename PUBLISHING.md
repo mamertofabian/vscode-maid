@@ -148,7 +148,7 @@ Ensure `package.json` includes:
 
 - **Extension ID**: `aidrivencoder.vscode-maid`
 - **Display Name**: MAID - Manifest-driven AI Development
-- **Current Version**: 0.1.2
+- **Current Version**: 0.1.3
 - **Publisher**: aidrivencoder
 - **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
@@ -162,8 +162,12 @@ code --install-extension aidrivencoder.vscode-maid
 ### Publishing Notes
 - Display name was changed from "MAID for VS Code" to "MAID - Manifest-driven AI Development" to avoid similarity with existing "Marp for VS Code" extension
 - Extension uses esbuild for bundling to ensure all dependencies are included in the package
-- Bundled extension size: ~347KB (single file)
+- Bundled extension size: ~349KB (single file)
 - Total package size: ~89KB (compressed)
+
+### Version History
+- **v0.1.3** (2026-01-09): Added automatic maid-lsp version checking with smart update detection
+- **v0.1.2** (2026-01-09): Initial release with LSP integration and bundling support
 
 ## CI/CD (Optional)
 
