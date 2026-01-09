@@ -16,6 +16,36 @@ import {
 import { log, findManifestFiles, isManifestPath, debounce } from "./utils";
 
 /**
+ * Extracts the file path from a string that may contain command prefixes.
+ * For example: "pytest tests/test.py" -> "tests/test.py"
+ */
+function extractFilePath(arg: string): string {
+  // Common test command prefixes to strip
+  const commandPrefixes = [
+    /^pytest\s+/,
+    /^python\s+-m\s+pytest\s+/,
+    /^python\s+pytest\s+/,
+    /^npm\s+test\s+--\s+/,
+    /^npm\s+run\s+test\s+--\s+/,
+    /^yarn\s+test\s+--\s+/,
+    /^node\s+/,
+    /^cargo\s+test\s+--\s+/,
+  ];
+
+  let cleaned = arg.trim();
+  
+  // Try to strip command prefixes
+  for (const prefix of commandPrefixes) {
+    if (prefix.test(cleaned)) {
+      cleaned = cleaned.replace(prefix, "").trim();
+      break;
+    }
+  }
+
+  return cleaned;
+}
+
+/**
  * TreeItem for manifest explorer.
  */
 export class ManifestTreeItem extends vscode.TreeItem {
@@ -434,18 +464,20 @@ export class ManifestTreeDataProvider
         // Show test files from validation command
         if (manifest.validationCommand && Array.isArray(manifest.validationCommand) && manifest.validationCommand.length > 0) {
           // Extract test files from validation command (files that look like paths)
-          const testFiles = manifest.validationCommand.filter((arg: string) => {
-            // Look for arguments that look like file paths (contain / or \ or end with test extensions)
-            return (
-              (arg.includes("/") || arg.includes("\\")) &&
-              (arg.endsWith(".ts") || arg.endsWith(".tsx") || arg.endsWith(".js") ||
-               arg.endsWith(".jsx") || arg.endsWith(".py") || arg.endsWith(".rs") ||
-               arg.endsWith(".spec.ts") || arg.endsWith(".spec.tsx") ||
-               arg.endsWith(".test.ts") || arg.endsWith(".test.tsx") ||
-               arg.endsWith(".spec.js") || arg.endsWith(".spec.jsx") ||
-               arg.endsWith(".test.js") || arg.endsWith(".test.jsx"))
-            );
-          });
+          const testFiles = manifest.validationCommand
+            .map((arg: string) => extractFilePath(arg))
+            .filter((filePath: string) => {
+              // Look for arguments that look like file paths (contain / or \ or end with test extensions)
+              return (
+                (filePath.includes("/") || filePath.includes("\\")) &&
+                (filePath.endsWith(".ts") || filePath.endsWith(".tsx") || filePath.endsWith(".js") ||
+                 filePath.endsWith(".jsx") || filePath.endsWith(".py") || filePath.endsWith(".rs") ||
+                 filePath.endsWith(".spec.ts") || filePath.endsWith(".spec.tsx") ||
+                 filePath.endsWith(".test.ts") || filePath.endsWith(".test.tsx") ||
+                 filePath.endsWith(".spec.js") || filePath.endsWith(".spec.jsx") ||
+                 filePath.endsWith(".test.js") || filePath.endsWith(".test.jsx"))
+              );
+            });
 
           if (testFiles.length > 0) {
             const testFilesCategory = new ManifestTreeItem(
@@ -631,15 +663,17 @@ export class ManifestTreeDataProvider
       case "testFiles":
         if (categoryItems) {
           for (const file of categoryItems) {
+            // Extract clean file path (in case it still contains command prefixes)
+            const cleanPath = extractFilePath(file);
             let uri: vscode.Uri | undefined;
             if (workspaceRoot) {
-              const fullPath = path.isAbsolute(file)
-                ? file
-                : path.join(workspaceRoot, file);
+              const fullPath = path.isAbsolute(cleanPath)
+                ? cleanPath
+                : path.join(workspaceRoot, cleanPath);
               uri = vscode.Uri.file(fullPath);
             }
             const fileItem = new ManifestTreeItem(
-              file,
+              cleanPath,
               "testFile",
               vscode.TreeItemCollapsibleState.None,
               uri
