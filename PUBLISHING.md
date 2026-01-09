@@ -1,13 +1,13 @@
 # Publishing Guide
 
-This guide explains how to publish the MAID LSP extension to the VS Code Marketplace.
+This guide explains how to publish the MAID for VS Code extension to the VS Code Marketplace.
 
 ## Prerequisites
 
 1. **VS Code Publisher Account**
    - Go to https://marketplace.visualstudio.com/manage
    - Sign in with your Microsoft/GitHub account
-   - Create a publisher (e.g., "maid-team")
+   - Create a publisher (e.g., "aidrivencoder")
    - Update `package.json` with your publisher name
 
 2. **Install vsce**
@@ -111,7 +111,7 @@ Ensure `package.json` includes:
 
 1. **Update README** with marketplace badge:
    ```markdown
-   [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=maid-team.maid-lsp)
+   [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.maid-lsp)
    ```
 
 2. **Create GitHub Release**:

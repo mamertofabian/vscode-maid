@@ -1,23 +1,26 @@
 {
   "name": "maid-lsp",
-  "displayName": "MAID LSP",
-  "description": "Language Server Protocol support for MAID manifest validation with real-time diagnostics, code actions, and hover information",
+  "displayName": "MAID for VS Code",
+  "description": "VS Code extension for MAID (Manifest-driven AI Development) with LSP integration, manifest exploration, test execution, and validation features",
   "version": "0.1.2",
-  "publisher": "maid-team",
+  "publisher": "aidrivencoder",
   "engines": {
     "vscode": "^1.74.0"
   },
   "categories": [
     "Linters",
-    "Programming Languages"
+    "Programming Languages",
+    "Other"
   ],
   "keywords": [
     "maid",
-    "lsp",
     "manifest",
     "validation",
+    "lsp",
     "language-server",
-    "json"
+    "json",
+    "test",
+    "ide"
   ],
   "activationEvents": [
     "onLanguage:json",
@@ -46,11 +49,11 @@
       {
         "command": "maid-lsp.checkInstallation",
         "title": "Check MAID LSP Installation",
-        "category": "MAID LSP"
+        "category": "MAID"
       }
     ],
     "configuration": {
-      "title": "MAID LSP",
+      "title": "MAID",
       "properties": {
         "maid-lsp.path": {
           "type": "string",

@@ -1,11 +1,12 @@
 # Change Log
 
-All notable changes to the "MAID LSP" extension will be documented in this file.
+All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
 ## [0.1.2] - 2024-01-09
 
 ### Added
-- Initial release of MAID LSP VS Code extension
+- Initial release of MAID for VS Code extension
+- LSP integration for real-time manifest validation
 - Real-time validation diagnostics for `.manifest.json` files
 - Auto-detection of `maid-lsp` installation with helpful prompts
 - Support for code actions and hover information

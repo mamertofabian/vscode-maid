@@ -1,18 +1,27 @@
-# MAID LSP
+# MAID for VS Code
 
-[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=maid-team.maid-lsp)
+[![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.maid-lsp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Language Server Protocol support for [MAID (Manifest-driven AI Development)](https://github.com/mamertofabian/maid-runner) manifest validation in VS Code and Cursor.
+VS Code extension for [MAID (Manifest-driven AI Development)](https://github.com/mamertofabian/maid-runner) with comprehensive IDE integration for manifest validation, exploration, and test execution.
 
 ## Features
 
-- ✅ **Real-time Validation** - Instant feedback as you edit `.manifest.json` files
+### Currently Available
+
+- ✅ **Real-time Validation** - Instant feedback as you edit `.manifest.json` files via LSP
 - ✅ **Auto-install Detection** - Automatically detects if `maid-lsp` is installed and guides you through installation
 - ✅ **Code Actions** - Quick fixes for common validation errors
 - ✅ **Hover Information** - Detailed artifact information on hover
 - ✅ **Diagnostics** - Validation errors and warnings in Problems panel
 - ✅ **Debounced Updates** - Efficient 100ms debouncing for smooth editing experience
+
+### Planned Features
+
+- 🔄 **Manifest Explorer Sidebar** - Browse and navigate manifests in your workspace
+- 🔄 **Test Execution Integration** - Run MAID tests directly from the IDE
+- 🔄 **Inline Validation Indicators** - Visual feedback in the editor
+- 🔄 **Status Bar Integration** - Real-time validation status display
 
 ## Requirements
 
@@ -25,7 +34,7 @@ Language Server Protocol support for [MAID (Manifest-driven AI Development)](htt
 
 1. Open VS Code or Cursor
 2. Go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
-3. Search for "MAID LSP"
+3. Search for "MAID" or "MAID for VS Code"
 4. Click Install
 
 ### Manual Installation
@@ -86,7 +95,7 @@ On Windows:
 
 ## Commands
 
-- **MAID LSP: Check MAID LSP Installation** - Verify installation status and get help if needed
+- **MAID: Check MAID LSP Installation** - Verify installation status and get help if needed
 
 Access via Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 
@@ -95,7 +104,7 @@ Access via Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 ### Extension doesn't activate
 
 1. Check that `maid-lsp` is installed: Run `maid-lsp --version` in terminal
-2. If not installed, use the command "MAID LSP: Check MAID LSP Installation"
+2. If not installed, use the command "MAID: Check MAID LSP Installation"
 3. Verify Python is in PATH: `python --version`
 
 ### No diagnostics appearing

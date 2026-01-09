@@ -48,7 +48,7 @@ npm run compile
 
 1. Open `manifests/test-error.manifest.json`
 2. You should see an error about missing `goal` field
-3. Check Output panel → Select "MAID LSP" to see server logs
+3. Check Output panel → Select "MAID" to see server logs
 
 ## Troubleshooting
 
@@ -64,7 +64,7 @@ npm run compile
 
 ### No diagnostics appearing
 
-- Check Output panel → "MAID LSP" for errors
+- Check Output panel → "MAID" for errors
 - Verify `maid-runner` is installed: `maid --version`
 - Restart VS Code/Cursor after installation
 

@@ -42,7 +42,7 @@ async function promptMaidLspInstall(): Promise<void> {
     return;
   }
 
-  const terminal = vscode.window.createTerminal("MAID LSP Installer");
+  const terminal = vscode.window.createTerminal("MAID Installer");
   const commands: Record<string, string> = {
     "Install via pip": "pip install --user maid-lsp",
     "Install via pipx": "pipx install maid-lsp",
@@ -91,7 +91,7 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
   // Create and start the client
   client = new LanguageClient(
     "maid-lsp",
-    "MAID LSP",
+    "MAID",
     serverOptions,
     clientOptions
   );

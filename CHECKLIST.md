@@ -32,7 +32,7 @@
 
 ## ✅ Package.json Configuration
 
-- [x] Publisher: `maid-team` (update before publishing)
+- [x] Publisher: `aidrivencoder`
 - [x] Version: `0.1.2`
 - [x] Activation events configured
 - [x] Commands registered
@@ -53,8 +53,8 @@
 
 ### Required Updates
 
-1. **Publisher Name**: Update `package.json` publisher from `"maid-team"` to your actual publisher name
-   - Create publisher at: https://marketplace.visualstudio.com/manage
+1. **Publisher Name**: Verify publisher `"aidrivencoder"` matches your VS Code Marketplace publisher
+   - Create publisher at: https://marketplace.visualstudio.com/manage if not already created
 
 2. **Repository URLs**: Verify GitHub repository URL matches your actual repo
    - Current: `https://github.com/mamertofabian/vscode-maid.git`
