@@ -2,6 +2,11 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.3.2] - 2026-01-09
+
+### Fixed
+- Test files in manifest view now display only file paths without command prefixes (e.g., "pytest")
+
 ## [0.3.1] - 2026-01-09
 
 ### Fixed
