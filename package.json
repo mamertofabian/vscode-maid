@@ -23,8 +23,7 @@
     "ide"
   ],
   "activationEvents": [
-    "onLanguage:json",
-    "onCommand:vscode-maid.checkInstallation"
+    "onLanguage:json"
   ],
   "main": "./out/extension.js",
   "repository": {
@@ -62,7 +61,9 @@
         },
         "maid-lsp.args": {
           "type": "array",
-          "default": ["--stdio"],
+          "default": [
+            "--stdio"
+          ],
           "description": "Arguments to pass to maid-lsp"
         }
       }
