@@ -2,6 +2,28 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.2.0] - 2026-01-09
+
+### Added
+- **Manifest Explorer** - New sidebar panel showing all manifest files in workspace with expandable sections:
+  - Goal and context overview
+  - Tasks with status indicators
+  - Artifacts with file paths
+  - Test files list
+  - Dependencies
+- **Tracked Files View** - Shows all files tracked by the currently selected manifest
+- **Knowledge Graph View** - Displays entity relationships defined in manifests
+- **Test Runner Integration** - Run tests directly from the manifest explorer:
+  - Run all tests command
+  - Run tests for specific manifest (context menu and inline button)
+  - Watch mode support
+- **Manifest Validation** - Validate manifests via context menu or command palette
+- Context menu actions for manifest files in explorer and editor
+
+### Changed
+- Major version bump reflecting significant new features
+- Enhanced extension description to highlight new capabilities
+
 ## [0.1.4] - 2026-01-09
 
 ### Added

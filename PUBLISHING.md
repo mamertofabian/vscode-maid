@@ -262,7 +262,7 @@ This is NORMAL for newly published extensions. To fix:
 
 - **Extension ID**: `aidrivencoder.vscode-maid`
 - **Display Name**: MAID - Manifest-driven AI Development
-- **Current Version**: 0.1.4
+- **Current Version**: 0.2.0
 - **Publisher**: aidrivencoder
 - **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
@@ -295,6 +295,7 @@ code --install-extension aidrivencoder.vscode-maid
 - Total package size: ~89KB (compressed)
 
 ### Version History
+- **v0.2.0** (2026-01-09): Added Manifest Explorer, Tracked Files, Knowledge Graph, and Test Runner integration
 - **v0.1.4** (2026-01-09): Added comprehensive logging and fixed Cursor IDE compatibility
 - **v0.1.3** (2026-01-09): Added automatic maid-lsp version checking with smart update detection
 - **v0.1.2** (2026-01-09): Initial release with LSP integration and bundling support

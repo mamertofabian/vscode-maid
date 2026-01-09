@@ -1,27 +1,29 @@
 # MAID for VS Code
 
-[![Version](https://img.shields.io/badge/version-0.1.4-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 VS Code extension for [MAID (Manifest-driven AI Development)](https://github.com/mamertofabian/maid-runner) with comprehensive IDE integration for manifest validation, exploration, and test execution.
 
 ## Features
 
-### Currently Available
+### Manifest Explorer & Navigation
+- ✅ **Manifest Explorer Sidebar** - Browse all manifests in your workspace with expandable sections
+- ✅ **Tracked Files View** - See all files tracked by the selected manifest
+- ✅ **Knowledge Graph View** - Visualize entity relationships defined in manifests
 
+### Test Execution
+- ✅ **Run Tests** - Execute tests directly from the manifest explorer
+- ✅ **Per-Manifest Testing** - Run tests for specific manifests via context menu
+- ✅ **Watch Mode** - Continuous test execution during development
+
+### Validation & Diagnostics
 - ✅ **Real-time Validation** - Instant feedback as you edit `.manifest.json` files via LSP
 - ✅ **Auto-install Detection** - Automatically detects if `maid-lsp` is installed and guides you through installation
 - ✅ **Code Actions** - Quick fixes for common validation errors
 - ✅ **Hover Information** - Detailed artifact information on hover
 - ✅ **Diagnostics** - Validation errors and warnings in Problems panel
 - ✅ **Debounced Updates** - Efficient 100ms debouncing for smooth editing experience
-
-### Planned Features
-
-- 🔄 **Manifest Explorer Sidebar** - Browse and navigate manifests in your workspace
-- 🔄 **Test Execution Integration** - Run MAID tests directly from the IDE
-- 🔄 **Inline Validation Indicators** - Visual feedback in the editor
-- 🔄 **Status Bar Integration** - Real-time validation status display
 
 ## Requirements
 
