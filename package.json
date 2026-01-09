@@ -1,0 +1,82 @@
+{
+  "name": "maid-lsp",
+  "displayName": "MAID LSP",
+  "description": "Language Server Protocol support for MAID manifest validation with real-time diagnostics, code actions, and hover information",
+  "version": "0.1.2",
+  "publisher": "maid-team",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "maid",
+    "lsp",
+    "manifest",
+    "validation",
+    "language-server",
+    "json"
+  ],
+  "activationEvents": [
+    "onLanguage:json",
+    "onCommand:maid-lsp.checkInstallation"
+  ],
+  "main": "./out/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mamertofabian/vscode-maid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mamertofabian/vscode-maid/issues"
+  },
+  "homepage": "https://github.com/mamertofabian/vscode-maid#readme",
+  "license": "MIT",
+  "contributes": {
+    "languages": [
+      {
+        "id": "json",
+        "filenames": [
+          "*.manifest.json"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "maid-lsp.checkInstallation",
+        "title": "Check MAID LSP Installation",
+        "category": "MAID LSP"
+      }
+    ],
+    "configuration": {
+      "title": "MAID LSP",
+      "properties": {
+        "maid-lsp.path": {
+          "type": "string",
+          "default": "maid-lsp",
+          "description": "Path to the maid-lsp executable. Use 'maid-lsp' if it's in your PATH."
+        },
+        "maid-lsp.args": {
+          "type": "array",
+          "default": ["--stdio"],
+          "description": "Arguments to pass to maid-lsp"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.74.0",
+    "typescript": "^5.0.0",
+    "vscode-languageclient": "^9.0.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.0"
+  }
+}
