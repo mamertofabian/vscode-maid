@@ -1,8 +1,10 @@
 # Publishing Guide
 
-This guide explains how to publish the MAID for VS Code extension to the VS Code Marketplace.
+This guide explains how to publish the MAID for VS Code extension to both the Microsoft VS Code Marketplace and Open VSX Registry (used by Cursor IDE, VSCodium, and other VS Code-compatible editors).
 
 ## Prerequisites
+
+### For Microsoft VS Code Marketplace
 
 1. **VS Code Publisher Account**
    - Go to https://marketplace.visualstudio.com/manage
@@ -20,6 +22,22 @@ This guide explains how to publish the MAID for VS Code extension to the VS Code
    - User Settings → Personal Access Tokens
    - Create token with "Marketplace (Manage)" scope
    - Save token securely
+
+### For Open VSX Registry (Cursor IDE, VSCodium, etc.)
+
+1. **Open VSX Account**
+   - Create account at https://open-vsx.org/
+   - No publisher setup needed initially
+
+2. **Install ovsx CLI**
+   ```bash
+   npm install -g ovsx
+   ```
+
+3. **Personal Access Token**
+   - Go to https://open-vsx.org/user-settings/tokens
+   - Generate a new access token
+   - Save token securely (different from Microsoft token)
 
 ## Publishing Steps
 
@@ -61,7 +79,9 @@ This creates a `.vsix` file you can test locally.
    - Test auto-install prompt
    - Test code actions and hover
 
-### 5. Publish to Marketplace
+### 5. Publish to Marketplaces
+
+#### Publish to Microsoft VS Code Marketplace
 
 **First time publishing:**
 ```bash
@@ -79,14 +99,56 @@ vsce publish
 
 The version must be incremented from the previous release.
 
+#### Publish to Open VSX Registry
+
+**First time publishing (create namespace):**
+```bash
+# Create your publisher namespace (one-time setup)
+ovsx create-namespace <your-publisher-name> -p <your-open-vsx-token>
+
+# Publish the extension
+ovsx publish -p <your-open-vsx-token>
+```
+
+**Subsequent updates:**
+```bash
+ovsx publish -p <your-open-vsx-token>
+```
+
+**Publish from .vsix file:**
+```bash
+ovsx publish vscode-maid-0.1.3.vsix -p <your-open-vsx-token>
+```
+
+**Complete workflow (publish to both marketplaces):**
+```bash
+# 1. Build and package
+npm run compile
+vsce package
+
+# 2. Publish to Microsoft Marketplace
+vsce publish
+
+# 3. Publish to Open VSX (uses same .vsix)
+ovsx publish -p <your-open-vsx-token>
+```
+
 ## Alternative: Manual Upload
 
+### Microsoft Marketplace
 1. Package the extension: `vsce package`
 2. Go to https://marketplace.visualstudio.com/manage
 3. Click "New extension" → "Visual Studio Code"
 4. Upload the `.vsix` file
 5. Fill in marketplace metadata
 6. Submit for review
+
+### Open VSX Registry
+1. Package the extension: `vsce package`
+2. Go to https://open-vsx.org/user-settings/extensions
+3. Click "Upload Extension"
+4. Select the `.vsix` file
+5. Extension is published immediately (no review process)
 
 ## Versioning
 
@@ -126,23 +188,45 @@ Ensure `package.json` includes:
 
 ## Troubleshooting
 
-### "Extension name already exists"
+### Microsoft Marketplace Issues
+
+**"Extension name already exists"**
 - Choose a different name or use your publisher prefix
 
-### "Invalid publisher"
+**"Invalid publisher"**
 - Create publisher at marketplace.visualstudio.com/manage
 - Update `package.json` with correct publisher
 
-### "Version already exists"
+**"Version already exists"**
 - Increment version in `package.json`
 - Update `CHANGELOG.md`
 
-### Publishing fails
+**Publishing fails**
 - Check Personal Access Token permissions
 - Verify publisher name matches
 - Ensure all required fields in `package.json`
 
+### Open VSX Issues
+
+**"Namespace does not exist"**
+- Create namespace first: `ovsx create-namespace <publisher-name> -p <token>`
+
+**"Namespace already exists"**
+- You can only create a namespace that matches your account name
+- Or request access to an existing namespace
+
+**"Invalid access token"**
+- Verify token at https://open-vsx.org/user-settings/tokens
+- Make sure you're using Open VSX token, not Microsoft token
+
+**Extension not showing in Cursor IDE**
+- Restart Cursor IDE after publishing
+- Search for exact extension name in Extensions marketplace
+- Check Open VSX registry: https://open-vsx.org/extension/<publisher>/<extension-name>
+
 ## Published Extension Information
+
+### Microsoft VS Code Marketplace
 
 **Extension successfully published on January 9, 2026**
 
@@ -154,9 +238,24 @@ Ensure `package.json` includes:
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
 - **Publisher Profile**: https://marketplace.visualstudio.com/publishers/aidrivencoder
 
-### Installation Command
+**Installation Command:**
 ```bash
 code --install-extension aidrivencoder.vscode-maid
+```
+
+### Open VSX Registry
+
+**Status**: Not yet published
+
+**Installation Command (after publishing):**
+```bash
+# For Cursor IDE, VSCodium, etc.
+# The extension will be available in the Extensions marketplace within these editors
+```
+
+**Publish Command:**
+```bash
+ovsx publish -p <your-open-vsx-token>
 ```
 
 ### Publishing Notes
@@ -171,7 +270,7 @@ code --install-extension aidrivencoder.vscode-maid
 
 ## CI/CD (Optional)
 
-Set up GitHub Actions for automatic publishing:
+Set up GitHub Actions for automatic publishing to both marketplaces:
 
 ```yaml
 # .github/workflows/publish.yml
@@ -185,10 +284,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: npm install -g @vscode/vsce
+      - run: npm install -g @vscode/vsce ovsx
       - run: npm install
       - run: npm run compile
+
+      # Publish to Microsoft VS Code Marketplace
       - run: vsce publish -p ${{ secrets.VSCE_PAT }}
+
+      # Publish to Open VSX Registry
+      - run: ovsx publish -p ${{ secrets.OVSX_PAT }}
 ```
 
-Store Personal Access Token as `VSCE_PAT` secret in GitHub repository settings.
+Store tokens as secrets in GitHub repository settings:
+- `VSCE_PAT` - Microsoft Marketplace Personal Access Token
+- `OVSX_PAT` - Open VSX Personal Access Token
