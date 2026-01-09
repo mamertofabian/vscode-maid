@@ -15,6 +15,7 @@ esbuild.js
 tsconfig.json
 
 # Documentation for development
+CLAUDE.md
 CHECKLIST.md
 SETUP.md
 PUBLISHING.md
