@@ -2,6 +2,19 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.3.0] - 2026-01-09
+
+### Added
+- **Knowledge Graph Visualizer** - Interactive webview panel to visualize entity relationships from manifests
+- **Project Dashboard** - New dashboard webview showing project overview and manifest statistics
+- **Go to Definition** - Navigate to artifact files, test files, and related manifests directly from JSON references
+- **Find References** - Find all manifest references to a specific file or artifact
+
+### Changed
+- Test files now displayed as expandable category in manifest explorer (instead of validation command)
+- Activity bar icon updated to monochrome design for better VS Code integration
+- New geometric MAID logo with PNG exports for better visual identity
+
 ## [0.2.0] - 2026-01-09
 
 ### Added
