@@ -1,0 +1,39 @@
+# Development files
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+
+# Build files
+esbuild.js
+tsconfig.json
+
+# Documentation for development
+CHECKLIST.md
+SETUP.md
+PUBLISHING.md
+
+# Python virtual environment
+.venv/**
+
+# Node modules (bundled by esbuild)
+node_modules/**
+
+# Git
+.git/**
+.github/**
+
+# MAID manifests (development only)
+manifests/**
+
+# Test files
+**/*.test.*
+
+# IDE files
+.qodo/**
