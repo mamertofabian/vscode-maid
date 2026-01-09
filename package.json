@@ -54,6 +54,11 @@
         "command": "vscode-maid.checkForUpdates",
         "title": "Check for MAID LSP Updates",
         "category": "MAID"
+      },
+      {
+        "command": "vscode-maid.showLogs",
+        "title": "Show Logs",
+        "category": "MAID"
       }
     ],
     "configuration": {
