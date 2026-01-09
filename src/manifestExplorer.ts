@@ -10,6 +10,8 @@ import {
   ManifestTreeItemContext,
   ManifestInfo,
   ManifestTask,
+  ExpectedArtifact,
+  ArtifactContains,
 } from "./types";
 import { log, findManifestFiles, isManifestPath, debounce } from "./utils";
 
@@ -49,9 +51,18 @@ export class ManifestTreeItem extends vscode.TreeItem {
       case "task":
         return "maidTask";
       case "artifact":
-        return "maidArtifact";
+      case "expectedArtifact":
+        return "maidExpectedArtifact";
       case "file":
         return "maidFile";
+      case "creatableFile":
+        return "maidCreatableFile";
+      case "editableFile":
+        return "maidEditableFile";
+      case "readonlyFile":
+        return "maidReadonlyFile";
+      case "validationCommand":
+        return "maidValidationCommand";
       case "category":
         return "maidCategory";
       default:
@@ -84,6 +95,20 @@ export class ManifestTreeItem extends vscode.TreeItem {
         return new vscode.ThemeIcon("file");
       case "file":
         return new vscode.ThemeIcon("file");
+      case "creatableFile":
+        return new vscode.ThemeIcon("new-file", new vscode.ThemeColor("charts.green"));
+      case "editableFile":
+        return new vscode.ThemeIcon("edit", new vscode.ThemeColor("charts.blue"));
+      case "readonlyFile":
+        return new vscode.ThemeIcon("lock", new vscode.ThemeColor("charts.yellow"));
+      case "expectedArtifact":
+        return new vscode.ThemeIcon("symbol-file", new vscode.ThemeColor("charts.purple"));
+      case "artifactContains":
+        return new vscode.ThemeIcon("symbol-method", new vscode.ThemeColor("charts.orange"));
+      case "supersedes":
+        return new vscode.ThemeIcon("references", new vscode.ThemeColor("charts.red"));
+      case "validationCommand":
+        return new vscode.ThemeIcon("terminal", new vscode.ThemeColor("terminal.ansiCyan"));
       case "category":
         return new vscode.ThemeIcon("folder");
       default:
@@ -324,35 +349,108 @@ export class ManifestTreeDataProvider
       try {
         const content = await vscode.workspace.fs.readFile(element.resourceUri);
         const manifest = JSON.parse(Buffer.from(content).toString());
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-        // Show tasks if available
+        // Show supersedes if present
+        if (manifest.supersedes && Array.isArray(manifest.supersedes) && manifest.supersedes.length > 0) {
+          const supersedesCategory = new ManifestTreeItem(
+            `Supersedes (${manifest.supersedes.length})`,
+            "category",
+            vscode.TreeItemCollapsibleState.Collapsed
+          );
+          supersedesCategory.iconPath = new vscode.ThemeIcon("references", new vscode.ThemeColor("charts.red"));
+          (supersedesCategory as any).categoryType = "supersedes";
+          (supersedesCategory as any).items = manifest.supersedes;
+          (supersedesCategory as any).workspaceRoot = workspaceRoot;
+          items.push(supersedesCategory);
+        }
+
+        // Show creatable files
+        if (manifest.creatableFiles && Array.isArray(manifest.creatableFiles) && manifest.creatableFiles.length > 0) {
+          const creatableCategory = new ManifestTreeItem(
+            `Creatable Files (${manifest.creatableFiles.length})`,
+            "category",
+            vscode.TreeItemCollapsibleState.Collapsed
+          );
+          creatableCategory.iconPath = new vscode.ThemeIcon("new-file", new vscode.ThemeColor("charts.green"));
+          (creatableCategory as any).categoryType = "creatableFiles";
+          (creatableCategory as any).items = manifest.creatableFiles;
+          (creatableCategory as any).workspaceRoot = workspaceRoot;
+          items.push(creatableCategory);
+        }
+
+        // Show editable files
+        if (manifest.editableFiles && Array.isArray(manifest.editableFiles) && manifest.editableFiles.length > 0) {
+          const editableCategory = new ManifestTreeItem(
+            `Editable Files (${manifest.editableFiles.length})`,
+            "category",
+            vscode.TreeItemCollapsibleState.Collapsed
+          );
+          editableCategory.iconPath = new vscode.ThemeIcon("edit", new vscode.ThemeColor("charts.blue"));
+          (editableCategory as any).categoryType = "editableFiles";
+          (editableCategory as any).items = manifest.editableFiles;
+          (editableCategory as any).workspaceRoot = workspaceRoot;
+          items.push(editableCategory);
+        }
+
+        // Show readonly files
+        if (manifest.readonlyFiles && Array.isArray(manifest.readonlyFiles) && manifest.readonlyFiles.length > 0) {
+          const readonlyCategory = new ManifestTreeItem(
+            `Read-only Files (${manifest.readonlyFiles.length})`,
+            "category",
+            vscode.TreeItemCollapsibleState.Collapsed
+          );
+          readonlyCategory.iconPath = new vscode.ThemeIcon("lock", new vscode.ThemeColor("charts.yellow"));
+          (readonlyCategory as any).categoryType = "readonlyFiles";
+          (readonlyCategory as any).items = manifest.readonlyFiles;
+          (readonlyCategory as any).workspaceRoot = workspaceRoot;
+          items.push(readonlyCategory);
+        }
+
+        // Show expected artifacts
+        if (manifest.expectedArtifacts) {
+          const artifacts = Array.isArray(manifest.expectedArtifacts)
+            ? manifest.expectedArtifacts
+            : [manifest.expectedArtifacts];
+
+          if (artifacts.length > 0 && artifacts[0]) {
+            const artifactsCategory = new ManifestTreeItem(
+              `Expected Artifacts (${artifacts.length})`,
+              "category",
+              vscode.TreeItemCollapsibleState.Collapsed
+            );
+            artifactsCategory.iconPath = new vscode.ThemeIcon("symbol-file", new vscode.ThemeColor("charts.purple"));
+            (artifactsCategory as any).categoryType = "expectedArtifacts";
+            (artifactsCategory as any).items = artifacts;
+            (artifactsCategory as any).workspaceRoot = workspaceRoot;
+            items.push(artifactsCategory);
+          }
+        }
+
+        // Show validation command
+        if (manifest.validationCommand && Array.isArray(manifest.validationCommand) && manifest.validationCommand.length > 0) {
+          const validationItem = new ManifestTreeItem(
+            manifest.validationCommand.join(" "),
+            "validationCommand",
+            vscode.TreeItemCollapsibleState.None
+          );
+          validationItem.description = "validation command";
+          items.push(validationItem);
+        }
+
+        // Legacy support: Show tasks if available (for older manifest formats)
         if (manifest.tasks && Array.isArray(manifest.tasks)) {
           const tasksCategory = new ManifestTreeItem(
             `Tasks (${manifest.tasks.length})`,
             "category",
-            vscode.TreeItemCollapsibleState.Collapsed,
-            undefined,
-            undefined
+            vscode.TreeItemCollapsibleState.Collapsed
           );
-          // Store tasks in the category for later retrieval
+          (tasksCategory as any).categoryType = "tasks";
           (tasksCategory as any).tasks = manifest.tasks;
           (tasksCategory as any).parentUri = element.resourceUri;
           items.push(tasksCategory);
         }
 
-        // Show artifacts/files if available
-        if (manifest.artifacts && Array.isArray(manifest.artifacts)) {
-          const artifactsCategory = new ManifestTreeItem(
-            `Artifacts (${manifest.artifacts.length})`,
-            "category",
-            vscode.TreeItemCollapsibleState.Collapsed,
-            undefined,
-            undefined
-          );
-          (artifactsCategory as any).artifacts = manifest.artifacts;
-          (artifactsCategory as any).parentUri = element.resourceUri;
-          items.push(artifactsCategory);
-        }
       } catch (error) {
         log(`[ManifestExplorer] Error parsing manifest: ${error}`, "error");
         const errorItem = new ManifestTreeItem(
@@ -373,39 +471,220 @@ export class ManifestTreeDataProvider
   ): ManifestTreeItem[] {
     const items: ManifestTreeItem[] = [];
     const anyElement = element as any;
+    const categoryType = anyElement.categoryType;
+    const categoryItems = anyElement.items;
+    const workspaceRoot = anyElement.workspaceRoot;
 
-    // Handle tasks category
-    if (anyElement.tasks) {
-      for (const task of anyElement.tasks) {
-        const taskItem = new ManifestTreeItem(
-          task.id || task.name || "Unnamed Task",
-          "task",
-          vscode.TreeItemCollapsibleState.None,
-          anyElement.parentUri,
-          undefined,
-          task
-        );
-        items.push(taskItem);
-      }
-    }
+    // Handle different category types
+    switch (categoryType) {
+      case "supersedes":
+        if (categoryItems) {
+          for (const superseded of categoryItems) {
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot && superseded) {
+              const fullPath = path.isAbsolute(superseded)
+                ? superseded
+                : path.join(workspaceRoot, superseded);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const supersedesItem = new ManifestTreeItem(
+              superseded,
+              "supersedes",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(supersedesItem);
+          }
+        }
+        break;
 
-    // Handle artifacts category
-    if (anyElement.artifacts) {
-      for (const artifact of anyElement.artifacts) {
-        const artifactPath =
-          typeof artifact === "string" ? artifact : artifact.path || artifact;
-        const artifactItem = new ManifestTreeItem(
-          artifactPath,
-          "artifact",
-          vscode.TreeItemCollapsibleState.None,
-          undefined,
-          undefined
-        );
-        items.push(artifactItem);
-      }
+      case "creatableFiles":
+        if (categoryItems) {
+          for (const file of categoryItems) {
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot) {
+              const fullPath = path.isAbsolute(file)
+                ? file
+                : path.join(workspaceRoot, file);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const fileItem = new ManifestTreeItem(
+              file,
+              "creatableFile",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(fileItem);
+          }
+        }
+        break;
+
+      case "editableFiles":
+        if (categoryItems) {
+          for (const file of categoryItems) {
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot) {
+              const fullPath = path.isAbsolute(file)
+                ? file
+                : path.join(workspaceRoot, file);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const fileItem = new ManifestTreeItem(
+              file,
+              "editableFile",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(fileItem);
+          }
+        }
+        break;
+
+      case "readonlyFiles":
+        if (categoryItems) {
+          for (const file of categoryItems) {
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot) {
+              const fullPath = path.isAbsolute(file)
+                ? file
+                : path.join(workspaceRoot, file);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const fileItem = new ManifestTreeItem(
+              file,
+              "readonlyFile",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(fileItem);
+          }
+        }
+        break;
+
+      case "expectedArtifacts":
+        if (categoryItems) {
+          for (const artifact of categoryItems) {
+            const hasContains = artifact.contains && Array.isArray(artifact.contains) && artifact.contains.length > 0;
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot && artifact.file) {
+              const fullPath = path.isAbsolute(artifact.file)
+                ? artifact.file
+                : path.join(workspaceRoot, artifact.file);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const artifactItem = new ManifestTreeItem(
+              artifact.file || "Unknown file",
+              "expectedArtifact",
+              hasContains ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            // Store contains for child expansion
+            if (hasContains) {
+              (artifactItem as any).categoryType = "artifactContains";
+              (artifactItem as any).items = artifact.contains;
+            }
+            items.push(artifactItem);
+          }
+        }
+        break;
+
+      case "artifactContains":
+        if (categoryItems) {
+          for (const contained of categoryItems) {
+            const typeIcon = this.getArtifactTypeIcon(contained.type);
+            const label = this.formatArtifactContains(contained);
+            const containsItem = new ManifestTreeItem(
+              label,
+              "artifactContains",
+              vscode.TreeItemCollapsibleState.None
+            );
+            containsItem.iconPath = typeIcon;
+            containsItem.tooltip = this.formatArtifactTooltip(contained);
+            items.push(containsItem);
+          }
+        }
+        break;
+
+      case "tasks":
+        // Legacy tasks support
+        if (anyElement.tasks) {
+          for (const task of anyElement.tasks) {
+            const taskItem = new ManifestTreeItem(
+              task.id || task.name || "Unnamed Task",
+              "task",
+              vscode.TreeItemCollapsibleState.None,
+              anyElement.parentUri,
+              undefined,
+              task
+            );
+            items.push(taskItem);
+          }
+        }
+        break;
     }
 
     return items;
+  }
+
+  /**
+   * Get icon for artifact type.
+   */
+  private getArtifactTypeIcon(type: string): vscode.ThemeIcon {
+    switch (type) {
+      case "class":
+        return new vscode.ThemeIcon("symbol-class", new vscode.ThemeColor("symbolIcon.classForeground"));
+      case "function":
+        return new vscode.ThemeIcon("symbol-function", new vscode.ThemeColor("symbolIcon.functionForeground"));
+      case "method":
+        return new vscode.ThemeIcon("symbol-method", new vscode.ThemeColor("symbolIcon.methodForeground"));
+      case "attribute":
+        return new vscode.ThemeIcon("symbol-field", new vscode.ThemeColor("symbolIcon.fieldForeground"));
+      default:
+        return new vscode.ThemeIcon("symbol-misc");
+    }
+  }
+
+  /**
+   * Format artifact contains for display.
+   */
+  private formatArtifactContains(contained: ArtifactContains): string {
+    let label = contained.name;
+    if (contained.type === "function" || contained.type === "method") {
+      if (contained.args && contained.args.length > 0) {
+        const args = contained.args.map(a => `${a.name}: ${a.type}`).join(", ");
+        label += `(${args})`;
+      } else {
+        label += "()";
+      }
+      if (contained.returns) {
+        label += ` -> ${contained.returns.type}`;
+      }
+    }
+    return label;
+  }
+
+  /**
+   * Format artifact tooltip.
+   */
+  private formatArtifactTooltip(contained: ArtifactContains): string {
+    const lines: string[] = [];
+    lines.push(`${contained.type}: ${contained.name}`);
+    if (contained.description) {
+      lines.push("");
+      lines.push(contained.description);
+    }
+    if (contained.args && contained.args.length > 0) {
+      lines.push("");
+      lines.push("Arguments:");
+      for (const arg of contained.args) {
+        lines.push(`  ${arg.name}: ${arg.type}`);
+      }
+    }
+    if (contained.returns) {
+      lines.push("");
+      lines.push(`Returns: ${contained.returns.type}`);
+    }
+    return lines.join("\n");
   }
 
   /**

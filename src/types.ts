@@ -173,7 +173,14 @@ export type ManifestTreeItemType =
   | "task"
   | "artifact"
   | "file"
-  | "category";
+  | "category"
+  | "creatableFile"
+  | "editableFile"
+  | "readonlyFile"
+  | "expectedArtifact"
+  | "artifactContains"
+  | "supersedes"
+  | "validationCommand";
 
 /**
  * Context value for TreeView items (used for menu visibility)
@@ -183,4 +190,28 @@ export type ManifestTreeItemContext =
   | "maidTask"
   | "maidArtifact"
   | "maidFile"
-  | "maidCategory";
+  | "maidCategory"
+  | "maidCreatableFile"
+  | "maidEditableFile"
+  | "maidReadonlyFile"
+  | "maidExpectedArtifact"
+  | "maidValidationCommand";
+
+/**
+ * Expected artifact definition in a manifest
+ */
+export interface ExpectedArtifact {
+  file: string;
+  contains: ArtifactContains[];
+}
+
+/**
+ * Artifact contains entry (function, class, etc.)
+ */
+export interface ArtifactContains {
+  type: "function" | "class" | "attribute" | "method";
+  name: string;
+  description?: string;
+  args?: Array<{ name: string; type: string }>;
+  returns?: { type: string };
+}
