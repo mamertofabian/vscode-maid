@@ -1,45 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs>
-    <linearGradient id="geo1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#F472B6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="geo2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#38BDF8;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="geo3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#A78BFA;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="topGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" style="stop-color:#38BDF8;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:1" />
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Monochrome version for VS Code activity bar -->
+  <!-- Uses currentColor so VS Code can apply theme colors -->
 
-  <!-- Background -->
-  <rect x="4" y="4" width="120" height="120" rx="20" fill="#18181B"/>
+  <!-- Top geometric element - manifest indicator -->
+  <path d="M 8 1 L 16 1 L 16 4 L 12 6 L 8 4 Z" fill="currentColor"/>
 
-  <!-- Top geometric element - document/manifest indicator -->
-  <path d="M 44 12 L 84 12 L 84 28 L 64 36 L 44 28 Z" fill="url(#topGrad)" opacity="0.9"/>
+  <!-- Left hexagon piece -->
+  <path d="M 2 13 L 5 8 L 8 8 L 8 19 L 5 19 Z" fill="currentColor"/>
 
-  <!-- Connecting lines from top element to M -->
-  <line x1="52" y1="28" x2="38" y2="44" stroke="#F472B6" stroke-width="2" opacity="0.6"/>
-  <line x1="76" y1="28" x2="90" y2="44" stroke="#8B5CF6" stroke-width="2" opacity="0.6"/>
+  <!-- Center diamond (the V of M) -->
+  <path d="M 8 8 L 12 17 L 16 8 L 13.5 8 L 12 12 L 10.5 8 Z" fill="currentColor"/>
 
-  <!-- Hexagonal/geometric M shape - taller version -->
-  <!-- Left hexagon piece - extended upward -->
-  <path d="M 16 68 L 32 44 L 44 44 L 44 96 L 32 96 Z" fill="url(#geo1)"/>
-
-  <!-- Center diamond (the V of M) - taller -->
-  <path d="M 44 44 L 64 88 L 84 44 L 72 44 L 64 64 L 56 44 Z" fill="url(#geo2)"/>
-
-  <!-- Right hexagon piece - extended upward -->
-  <path d="M 84 44 L 96 44 L 112 68 L 96 96 L 84 96 Z" fill="url(#geo3)"/>
+  <!-- Right hexagon piece -->
+  <path d="M 16 8 L 19 8 L 22 13 L 19 19 L 16 19 Z" fill="currentColor"/>
 
   <!-- Validation dots at bottom -->
-  <circle cx="48" cy="112" r="5" fill="#22C55E"/>
-  <circle cx="64" cy="112" r="5" fill="#22C55E"/>
-  <circle cx="80" cy="112" r="5" fill="#22C55E"/>
+  <circle cx="9" cy="22" r="1.2" fill="currentColor"/>
+  <circle cx="12" cy="22" r="1.2" fill="currentColor"/>
+  <circle cx="15" cy="22" r="1.2" fill="currentColor"/>
 </svg>
