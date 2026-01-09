@@ -1,54 +1,46 @@
+/**
+ * MAID VS Code Extension
+ * Provides LSP integration, manifest exploration, test execution, and validation features
+ * for Manifest-driven AI Development (MAID).
+ */
+
 import * as vscode from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
 } from "vscode-languageclient/node";
-import { exec } from "child_process";
-import { promisify } from "util";
 import * as https from "https";
 
-const execAsync = promisify(exec);
+import {
+  log,
+  setOutputChannel,
+  getOutputChannel,
+  checkMaidLspInstalled,
+  getInstalledVersion,
+  isManifestPath,
+} from "./utils";
+import { MaidStatusBar } from "./statusBar";
+import {
+  ManifestTreeDataProvider,
+  TrackedFilesTreeDataProvider,
+} from "./manifestExplorer";
+import { KnowledgeGraphTreeDataProvider } from "./knowledgeGraph";
+import { MaidTestRunner } from "./testRunner";
 
+// Module-level state
 let client: LanguageClient | undefined;
-let outputChannel: vscode.OutputChannel | undefined;
+let statusBar: MaidStatusBar | undefined;
+let manifestProvider: ManifestTreeDataProvider | undefined;
+let trackedFilesProvider: TrackedFilesTreeDataProvider | undefined;
+let knowledgeGraphProvider: KnowledgeGraphTreeDataProvider | undefined;
+let testRunner: MaidTestRunner | undefined;
 
 // Constants for version checking
 const PYPI_API_URL = "https://pypi.org/pypi/maid-lsp/json";
 const VERSION_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const LAST_VERSION_CHECK_KEY = "maidLsp.lastVersionCheck";
 const DISMISSED_VERSION_KEY = "maidLsp.dismissedVersion";
-
-/**
- * Log a message to the output channel.
- */
-function log(message: string, level: "info" | "warn" | "error" = "info"): void {
-  if (!outputChannel) {
-    return;
-  }
-  const timestamp = new Date().toISOString();
-  const prefix = level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
-  outputChannel.appendLine(`[${timestamp}] [${prefix}] ${message}`);
-}
-
-/**
- * Get the installed maid-lsp version.
- */
-async function getInstalledVersion(): Promise<string | null> {
-  try {
-    log("Checking installed maid-lsp version...");
-    const { stdout } = await execAsync("maid-lsp --version");
-    log(`maid-lsp --version output: ${stdout.trim()}`);
-    // Extract version number from output (e.g., "maid-lsp 0.2.1" -> "0.2.1")
-    const match = stdout.trim().match(/(\d+\.\d+\.\d+)/);
-    const version = match ? match[1] : null;
-    log(`Extracted version: ${version}`);
-    return version;
-  } catch (error) {
-    log(`Failed to get maid-lsp version: ${error}`, "error");
-    return null;
-  }
-}
 
 /**
  * Fetch the latest version from PyPI.
@@ -104,6 +96,10 @@ function isNewerVersion(currentVersion: string, newVersion: string): boolean {
  */
 async function detectInstallationMethod(): Promise<string> {
   log("Detecting maid-lsp installation method...");
+
+  const { exec } = await import("child_process");
+  const { promisify } = await import("util");
+  const execAsync = promisify(exec);
 
   // Check for uv tool
   try {
@@ -203,31 +199,6 @@ async function checkForUpdates(
 }
 
 /**
- * Check if maid-lsp is installed and accessible.
- */
-async function checkMaidLspInstalled(): Promise<boolean> {
-  try {
-    log("Checking if maid-lsp is installed...");
-    log(`Current PATH: ${process.env.PATH}`);
-    const { stdout, stderr } = await execAsync("maid-lsp --version");
-    log(`maid-lsp found! stdout: ${stdout.trim()}`);
-    if (stderr) {
-      log(`maid-lsp stderr: ${stderr.trim()}`, "warn");
-    }
-    return true;
-  } catch (error: any) {
-    log(`maid-lsp not found or error occurred: ${error.message}`, "error");
-    if (error.code) {
-      log(`Error code: ${error.code}`, "error");
-    }
-    if (error.stderr) {
-      log(`Error stderr: ${error.stderr}`, "error");
-    }
-    return false;
-  }
-}
-
-/**
  * Prompt user to install maid-lsp with helpful options.
  */
 async function promptMaidLspInstall(): Promise<void> {
@@ -270,6 +241,8 @@ async function promptMaidLspInstall(): Promise<void> {
  */
 function startLanguageClient(context: vscode.ExtensionContext): void {
   log("Starting MAID LSP client...");
+
+  const outputChannel = getOutputChannel();
 
   // Get configuration
   const config = vscode.workspace.getConfiguration("maid-lsp");
@@ -354,6 +327,17 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
       },
       handleDiagnostics: (uri, diagnostics, next) => {
         log(`[LSP Middleware] Received diagnostics for ${uri.toString()}: ${diagnostics.length} issue(s)`);
+
+        // Update status bar with diagnostics
+        if (statusBar) {
+          const activeEditor = vscode.window.activeTextEditor;
+          if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
+            const errors = diagnostics.filter(d => d.severity === 1).length;
+            const warnings = diagnostics.filter(d => d.severity === 2).length;
+            statusBar.updateStatus(errors, warnings);
+          }
+        }
+
         if (diagnostics.length > 0) {
           diagnostics.forEach((diag, index) => {
             log(`  [${index + 1}] Line ${diag.range.start.line + 1}, Col ${diag.range.start.character}: ${diag.severity === 1 ? 'ERROR' : diag.severity === 2 ? 'WARNING' : diag.severity === 3 ? 'INFO' : 'HINT'} - ${diag.message}`);
@@ -414,6 +398,17 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
             if (uri.fsPath.endsWith(".manifest.json")) {
               const diagnostics = vscode.languages.getDiagnostics(uri);
               log(`[Diagnostics Event] ${uri.fsPath}: ${diagnostics.length} issues`);
+
+              // Update status bar for active document
+              if (statusBar) {
+                const activeEditor = vscode.window.activeTextEditor;
+                if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
+                  const errors = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length;
+                  const warnings = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Warning).length;
+                  statusBar.updateStatus(errors, warnings);
+                }
+              }
+
               if (diagnostics.length > 0) {
                 diagnostics.forEach((diag, index) => {
                   log(`  [${index + 1}] Line ${diag.range.start.line + 1}: ${diag.severity === vscode.DiagnosticSeverity.Error ? 'ERROR' : diag.severity === vscode.DiagnosticSeverity.Warning ? 'WARNING' : 'INFO'} - ${diag.message}`);
@@ -440,12 +435,12 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
 async function checkInstallationStatus(): Promise<void> {
   const isInstalled = await checkMaidLspInstalled();
   if (isInstalled) {
-    try {
-      const { stdout } = await execAsync("maid-lsp --version");
+    const version = await getInstalledVersion();
+    if (version) {
       vscode.window.showInformationMessage(
-        `MAID LSP is installed: ${stdout.trim()}`
+        `MAID LSP is installed: maid-lsp ${version}`
       );
-    } catch (error) {
+    } else {
       vscode.window.showInformationMessage("MAID LSP is installed");
     }
   } else {
@@ -453,54 +448,144 @@ async function checkInstallationStatus(): Promise<void> {
   }
 }
 
-export async function activate(
-  context: vscode.ExtensionContext
-): Promise<void> {
-  // Create output channel first
-  outputChannel = vscode.window.createOutputChannel("MAID");
-  context.subscriptions.push(outputChannel);
+/**
+ * Register all TreeView providers.
+ */
+function registerTreeViews(context: vscode.ExtensionContext): void {
+  log("Registering TreeView providers...");
 
-  log("=".repeat(60));
-  log("MAID Extension Activating");
-  log(`VS Code version: ${vscode.version}`);
-  log(`Extension version: 0.1.4`);
-  log(`Platform: ${process.platform}`);
-  log(`Architecture: ${process.arch}`);
-  log(`Node version: ${process.version}`);
-  log(`Workspace folders: ${vscode.workspace.workspaceFolders?.length || 0}`);
-  log("=".repeat(60));
+  // Manifest explorer
+  manifestProvider = new ManifestTreeDataProvider();
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("maidManifests", manifestProvider)
+  );
+  context.subscriptions.push(manifestProvider);
 
-  // Check if maid-lsp is installed
-  const isInstalled = await checkMaidLspInstalled();
-  if (!isInstalled) {
-    log("maid-lsp is not installed, prompting user for installation");
-    await promptMaidLspInstall();
-    // Register command to check installation later
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        "vscode-maid.checkInstallation",
-        checkInstallationStatus
-      )
-    );
-    log("Skipping LSP client activation until maid-lsp is installed");
-    // Don't activate the client yet - user needs to install first
-    return;
-  }
+  // Tracked files
+  trackedFilesProvider = new TrackedFilesTreeDataProvider();
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("maidTrackedFiles", trackedFilesProvider)
+  );
+  context.subscriptions.push(trackedFilesProvider);
 
-  log("maid-lsp is installed, proceeding with activation");
+  // Knowledge graph
+  knowledgeGraphProvider = new KnowledgeGraphTreeDataProvider();
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("maidKnowledgeGraph", knowledgeGraphProvider)
+  );
+  context.subscriptions.push(knowledgeGraphProvider);
 
-  // Add workspace document listeners for debugging
+  log("TreeView providers registered");
+}
+
+/**
+ * Register all commands.
+ */
+function registerCommands(context: vscode.ExtensionContext): void {
+  log("Registering commands...");
+
+  // Installation check
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-maid.checkInstallation",
+      checkInstallationStatus
+    )
+  );
+
+  // Update check
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.checkForUpdates", () =>
+      checkForUpdates(context, true)
+    )
+  );
+
+  // Show logs
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.showLogs", () => {
+      const outputChannel = getOutputChannel();
+      if (outputChannel) {
+        outputChannel.show();
+      }
+    })
+  );
+
+  // Refresh manifests
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.refreshManifests", () => {
+      if (manifestProvider) {
+        manifestProvider.refresh();
+      }
+    })
+  );
+
+  // Refresh tracked files
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.refreshTrackedFiles", () => {
+      if (trackedFilesProvider) {
+        trackedFilesProvider.refresh();
+      }
+    })
+  );
+
+  // Refresh knowledge graph
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.refreshKnowledgeGraph", () => {
+      if (knowledgeGraphProvider) {
+        knowledgeGraphProvider.refresh();
+      }
+    })
+  );
+
+  // Test runner commands
+  testRunner = new MaidTestRunner();
+  context.subscriptions.push(testRunner);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.runTests", () => {
+      testRunner?.runAllTests();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.runTestsWatch", () => {
+      testRunner?.runTestsWatch();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.runTestsForManifest", (arg?: unknown) => {
+      testRunner?.runTestsForManifest(arg);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.validateManifest", (arg?: unknown) => {
+      testRunner?.runValidation(arg);
+    })
+  );
+
+  log("Commands registered");
+}
+
+/**
+ * Register workspace event listeners.
+ */
+function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
+  log("Registering workspace listeners...");
+
+  // Document open listener
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
-      if (document.uri.fsPath.endsWith(".manifest.json")) {
+      if (isManifestPath(document.uri.fsPath)) {
         log(`[Workspace Event] Manifest file opened: ${document.uri.fsPath}`);
       }
     })
   );
 
+  // Document change listener
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (event.document.uri.fsPath.endsWith(".manifest.json")) {
+      if (isManifestPath(event.document.uri.fsPath)) {
         log(`[Workspace Event] Manifest file changed: ${event.document.uri.fsPath}`);
       }
     })
@@ -509,8 +594,13 @@ export async function activate(
   // CRITICAL: Add save listener at workspace level since server doesn't support save notifications
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(async (document) => {
-      if (document.uri.fsPath.endsWith(".manifest.json")) {
+      if (isManifestPath(document.uri.fsPath)) {
         log(`[Workspace Event] Manifest file SAVED: ${document.uri.fsPath}`);
+
+        // Set status bar to validating
+        if (statusBar) {
+          statusBar.setValidating();
+        }
 
         // Force re-validation by closing and reopening the document
         if (client) {
@@ -541,32 +631,58 @@ export async function activate(
     })
   );
 
+  log("Workspace listeners registered");
+}
+
+/**
+ * Extension activation.
+ */
+export async function activate(
+  context: vscode.ExtensionContext
+): Promise<void> {
+  // Create output channel first
+  const outputChannel = vscode.window.createOutputChannel("MAID");
+  context.subscriptions.push(outputChannel);
+  setOutputChannel(outputChannel);
+
+  log("=".repeat(60));
+  log("MAID Extension Activating");
+  log(`VS Code version: ${vscode.version}`);
+  log(`Extension version: 0.1.4`);
+  log(`Platform: ${process.platform}`);
+  log(`Architecture: ${process.arch}`);
+  log(`Node version: ${process.version}`);
+  log(`Workspace folders: ${vscode.workspace.workspaceFolders?.length || 0}`);
+  log("=".repeat(60));
+
+  // Initialize status bar (always available)
+  statusBar = new MaidStatusBar();
+  context.subscriptions.push(statusBar);
+
+  // Register TreeViews (always available)
+  registerTreeViews(context);
+
+  // Register commands (always available)
+  registerCommands(context);
+
+  // Check if maid-lsp is installed
+  const isInstalled = await checkMaidLspInstalled();
+  if (!isInstalled) {
+    log("maid-lsp is not installed, prompting user for installation");
+    statusBar.setNotInstalled();
+    await promptMaidLspInstall();
+    log("Skipping LSP client activation until maid-lsp is installed");
+    // Don't activate the client yet - user needs to install first
+    return;
+  }
+
+  log("maid-lsp is installed, proceeding with activation");
+
+  // Register workspace listeners
+  registerWorkspaceListeners(context);
+
   // Start the language client
   startLanguageClient(context);
-
-  // Register command to recheck installation
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-maid.checkInstallation",
-      checkInstallationStatus
-    )
-  );
-
-  // Register command to manually check for updates
-  context.subscriptions.push(
-    vscode.commands.registerCommand("vscode-maid.checkForUpdates", () =>
-      checkForUpdates(context, true)
-    )
-  );
-
-  // Register command to show output channel
-  context.subscriptions.push(
-    vscode.commands.registerCommand("vscode-maid.showLogs", () => {
-      if (outputChannel) {
-        outputChannel.show();
-      }
-    })
-  );
 
   // Check for updates automatically (throttled to once per day)
   log("Checking for maid-lsp updates...");
@@ -575,8 +691,43 @@ export async function activate(
   log("MAID Extension activation complete");
 }
 
+/**
+ * Extension deactivation.
+ */
 export function deactivate(): Thenable<void> | undefined {
   log("MAID Extension deactivating...");
+
+  // Dispose status bar
+  if (statusBar) {
+    statusBar.dispose();
+    statusBar = undefined;
+  }
+
+  // Dispose manifest provider
+  if (manifestProvider) {
+    manifestProvider.dispose();
+    manifestProvider = undefined;
+  }
+
+  // Dispose tracked files provider
+  if (trackedFilesProvider) {
+    trackedFilesProvider.dispose();
+    trackedFilesProvider = undefined;
+  }
+
+  // Dispose knowledge graph provider
+  if (knowledgeGraphProvider) {
+    knowledgeGraphProvider.dispose();
+    knowledgeGraphProvider = undefined;
+  }
+
+  // Dispose test runner
+  if (testRunner) {
+    testRunner.dispose();
+    testRunner = undefined;
+  }
+
+  // Stop LSP client
   if (!client) {
     log("No LSP client to stop");
     return undefined;
