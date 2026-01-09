@@ -2,6 +2,28 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.1.4] - 2026-01-09
+
+### Added
+- Comprehensive logging system with output channel for debugging
+- New command: "MAID: Show Logs" to view extension activity
+- Workspace-level save handler for immediate diagnostic updates
+- LSP middleware logging for document events (open, change, save)
+- Server capability logging to track LSP features
+- PATH environment logging to diagnose installation issues
+- Diagnostic event tracking with detailed issue reporting
+
+### Fixed
+- Diagnostics not updating after saving files in Cursor IDE
+- Red squiggles persisting after fixing issues until file reopened
+- "Ignoring notification for unknown method" warnings in output
+- LSP server not supporting save notifications properly
+
+### Changed
+- Removed file watcher that caused unsupported method warnings
+- Improved error handling with detailed logging at all stages
+- Enhanced debugging capabilities for troubleshooting extension issues
+
 ## [0.1.3] - 2026-01-09
 
 ### Added

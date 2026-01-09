@@ -463,7 +463,7 @@ export async function activate(
   log("=".repeat(60));
   log("MAID Extension Activating");
   log(`VS Code version: ${vscode.version}`);
-  log(`Extension version: 0.1.3`);
+  log(`Extension version: 0.1.4`);
   log(`Platform: ${process.platform}`);
   log(`Architecture: ${process.arch}`);
   log(`Node version: ${process.version}`);
