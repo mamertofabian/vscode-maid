@@ -63,6 +63,8 @@ export class ManifestTreeItem extends vscode.TreeItem {
         return "maidReadonlyFile";
       case "validationCommand":
         return "maidValidationCommand";
+      case "testFile":
+        return "maidTestFile";
       case "category":
         return "maidCategory";
       default:
@@ -109,6 +111,8 @@ export class ManifestTreeItem extends vscode.TreeItem {
         return new vscode.ThemeIcon("references", new vscode.ThemeColor("charts.red"));
       case "validationCommand":
         return new vscode.ThemeIcon("terminal", new vscode.ThemeColor("terminal.ansiCyan"));
+      case "testFile":
+        return new vscode.ThemeIcon("beaker", new vscode.ThemeColor("terminal.ansiCyan"));
       case "category":
         return new vscode.ThemeIcon("folder");
       default:
@@ -427,15 +431,34 @@ export class ManifestTreeDataProvider
           }
         }
 
-        // Show validation command
+        // Show test files from validation command
         if (manifest.validationCommand && Array.isArray(manifest.validationCommand) && manifest.validationCommand.length > 0) {
-          const validationItem = new ManifestTreeItem(
-            manifest.validationCommand.join(" "),
-            "validationCommand",
-            vscode.TreeItemCollapsibleState.None
-          );
-          validationItem.description = "validation command";
-          items.push(validationItem);
+          // Extract test files from validation command (files that look like paths)
+          const testFiles = manifest.validationCommand.filter((arg: string) => {
+            // Look for arguments that look like file paths (contain / or \ or end with test extensions)
+            return (
+              (arg.includes("/") || arg.includes("\\")) &&
+              (arg.endsWith(".ts") || arg.endsWith(".tsx") || arg.endsWith(".js") ||
+               arg.endsWith(".jsx") || arg.endsWith(".py") || arg.endsWith(".rs") ||
+               arg.endsWith(".spec.ts") || arg.endsWith(".spec.tsx") ||
+               arg.endsWith(".test.ts") || arg.endsWith(".test.tsx") ||
+               arg.endsWith(".spec.js") || arg.endsWith(".spec.jsx") ||
+               arg.endsWith(".test.js") || arg.endsWith(".test.jsx"))
+            );
+          });
+
+          if (testFiles.length > 0) {
+            const testFilesCategory = new ManifestTreeItem(
+              `Test Files (${testFiles.length})`,
+              "category",
+              vscode.TreeItemCollapsibleState.Collapsed
+            );
+            testFilesCategory.iconPath = new vscode.ThemeIcon("beaker", new vscode.ThemeColor("terminal.ansiCyan"));
+            (testFilesCategory as any).categoryType = "testFiles";
+            (testFilesCategory as any).items = testFiles;
+            (testFilesCategory as any).workspaceRoot = workspaceRoot;
+            items.push(testFilesCategory);
+          }
         }
 
         // Legacy support: Show tasks if available (for older manifest formats)
@@ -601,6 +624,27 @@ export class ManifestTreeDataProvider
             containsItem.iconPath = typeIcon;
             containsItem.tooltip = this.formatArtifactTooltip(contained);
             items.push(containsItem);
+          }
+        }
+        break;
+
+      case "testFiles":
+        if (categoryItems) {
+          for (const file of categoryItems) {
+            let uri: vscode.Uri | undefined;
+            if (workspaceRoot) {
+              const fullPath = path.isAbsolute(file)
+                ? file
+                : path.join(workspaceRoot, file);
+              uri = vscode.Uri.file(fullPath);
+            }
+            const fileItem = new ManifestTreeItem(
+              file,
+              "testFile",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(fileItem);
           }
         }
         break;

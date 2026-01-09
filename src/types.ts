@@ -180,7 +180,8 @@ export type ManifestTreeItemType =
   | "expectedArtifact"
   | "artifactContains"
   | "supersedes"
-  | "validationCommand";
+  | "validationCommand"
+  | "testFile";
 
 /**
  * Context value for TreeView items (used for menu visibility)
@@ -195,7 +196,8 @@ export type ManifestTreeItemContext =
   | "maidEditableFile"
   | "maidReadonlyFile"
   | "maidExpectedArtifact"
-  | "maidValidationCommand";
+  | "maidValidationCommand"
+  | "maidTestFile";
 
 /**
  * Expected artifact definition in a manifest
