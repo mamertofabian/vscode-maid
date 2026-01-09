@@ -23,7 +23,8 @@
     "ide"
   ],
   "activationEvents": [
-    "onLanguage:json"
+    "onLanguage:json",
+    "onView:maidManifests"
   ],
   "main": "./out/extension.js",
   "repository": {
@@ -36,6 +37,37 @@
   "homepage": "https://github.com/mamertofabian/vscode-maid#readme",
   "license": "MIT",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "maid-explorer",
+          "title": "MAID",
+          "icon": "resources/maid-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "maid-explorer": [
+        {
+          "id": "maidManifests",
+          "name": "Manifests"
+        },
+        {
+          "id": "maidTrackedFiles",
+          "name": "Tracked Files"
+        },
+        {
+          "id": "maidKnowledgeGraph",
+          "name": "Knowledge Graph"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "maidManifests",
+        "contents": "No manifest files found in workspace.\n[Create Manifest](command:vscode-maid.createManifest)\n[Learn about MAID](https://github.com/mamertofabian/maid-runner)"
+      }
+    ],
     "languages": [
       {
         "id": "json",
@@ -59,8 +91,125 @@
         "command": "vscode-maid.showLogs",
         "title": "Show Logs",
         "category": "MAID"
+      },
+      {
+        "command": "vscode-maid.refreshManifests",
+        "title": "Refresh Manifests",
+        "category": "MAID",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "vscode-maid.runTests",
+        "title": "Run Tests",
+        "category": "MAID",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vscode-maid.runTestsWatch",
+        "title": "Run Tests (Watch Mode)",
+        "category": "MAID",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "vscode-maid.runTestsForManifest",
+        "title": "Run Tests for This Manifest",
+        "category": "MAID",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vscode-maid.validateManifest",
+        "title": "Validate Manifest",
+        "category": "MAID",
+        "icon": "$(check)"
+      },
+      {
+        "command": "vscode-maid.refreshTrackedFiles",
+        "title": "Refresh Tracked Files",
+        "category": "MAID",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "vscode-maid.refreshKnowledgeGraph",
+        "title": "Refresh Knowledge Graph",
+        "category": "MAID",
+        "icon": "$(refresh)"
       }
     ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-maid.refreshManifests",
+          "when": "view == maidManifests",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.runTests",
+          "when": "view == maidManifests",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.refreshTrackedFiles",
+          "when": "view == maidTrackedFiles",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.refreshKnowledgeGraph",
+          "when": "view == maidKnowledgeGraph",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vscode-maid.runTestsForManifest",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-maid.validateManifest",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "maid@1"
+        },
+        {
+          "command": "vscode-maid.runTestsForManifest",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "maid@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "vscode-maid.runTestsForManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@1"
+        },
+        {
+          "command": "vscode-maid.validateManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vscode-maid.runTestsForManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@1"
+        },
+        {
+          "command": "vscode-maid.validateManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vscode-maid.runTestsForManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.validateManifest",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        }
+      ]
+    },
     "configuration": {
       "title": "MAID",
       "properties": {
