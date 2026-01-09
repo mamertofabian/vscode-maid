@@ -37,3 +37,6 @@ manifests/**
 
 # IDE files
 .qodo/**
+
+# Environment files
+.env
