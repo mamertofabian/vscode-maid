@@ -23,8 +23,9 @@ PUBLISHING.md
 # Python virtual environment
 .venv/**
 
-# Node modules (bundled by esbuild)
+# Node modules (bundled by esbuild, except jsonc-parser which has dynamic requires)
 node_modules/**
+!node_modules/jsonc-parser/**
 
 # Git
 .git/**
