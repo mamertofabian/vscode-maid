@@ -129,7 +129,7 @@ export async function activate(
     // Register command to check installation later
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        "maid-lsp.checkInstallation",
+        "vscode-maid.checkInstallation",
         checkInstallationStatus
       )
     );
@@ -143,7 +143,7 @@ export async function activate(
   // Register command to recheck installation
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "maid-lsp.checkInstallation",
+      "maid.checkInstallation",
       checkInstallationStatus
     )
   );

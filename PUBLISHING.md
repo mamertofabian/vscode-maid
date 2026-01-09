@@ -111,7 +111,7 @@ Ensure `package.json` includes:
 
 1. **Update README** with marketplace badge:
    ```markdown
-   [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.maid-lsp)
+   [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
    ```
 
 2. **Create GitHub Release**:

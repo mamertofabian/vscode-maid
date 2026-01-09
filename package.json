@@ -1,5 +1,5 @@
 {
-  "name": "maid-lsp",
+  "name": "vscode-maid",
   "displayName": "MAID for VS Code",
   "description": "VS Code extension for MAID (Manifest-driven AI Development) with LSP integration, manifest exploration, test execution, and validation features",
   "version": "0.1.2",
@@ -24,7 +24,7 @@
   ],
   "activationEvents": [
     "onLanguage:json",
-    "onCommand:maid-lsp.checkInstallation"
+    "onCommand:vscode-maid.checkInstallation"
   ],
   "main": "./out/extension.js",
   "repository": {
@@ -47,7 +47,7 @@
     ],
     "commands": [
       {
-        "command": "maid-lsp.checkInstallation",
+        "command": "vscode-maid.checkInstallation",
         "title": "Check MAID LSP Installation",
         "category": "MAID"
       }
