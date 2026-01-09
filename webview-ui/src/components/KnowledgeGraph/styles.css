@@ -1,0 +1,288 @@
+/**
+ * Styles for the Knowledge Graph visualizer components.
+ */
+
+.knowledge-graph-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.knowledge-graph-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--spacing-md);
+  color: var(--foreground-secondary);
+}
+
+.knowledge-graph-error .error-message {
+  color: var(--error);
+}
+
+/* Controls */
+.graph-controls {
+  flex-shrink: 0;
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.controls-row:last-child {
+  margin-bottom: 0;
+}
+
+.search-container {
+  flex: 1;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.refresh-button {
+  flex-shrink: 0;
+}
+
+.filters {
+  flex-wrap: wrap;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.node-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.node-indicator.manifest {
+  background: var(--node-manifest);
+}
+
+.node-indicator.file {
+  background: var(--node-file);
+  border-radius: 50%;
+}
+
+.node-indicator.module {
+  background: var(--node-module);
+  transform: rotate(45deg);
+}
+
+.node-indicator.artifact {
+  background: var(--node-artifact);
+  border-radius: 50%;
+}
+
+.stats {
+  font-size: 0.85em;
+  color: var(--foreground-secondary);
+}
+
+.stat {
+  margin-right: var(--spacing-md);
+}
+
+/* Main content area */
+.knowledge-graph-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.network-container {
+  flex: 1;
+  position: relative;
+}
+
+.network-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Node Details Panel */
+.node-details {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--background-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.node-details-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--background-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.node-type-badge {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  font-size: 0.8em;
+  color: white;
+}
+
+.node-type-badge[data-type="manifest"] {
+  background: var(--node-manifest);
+}
+
+.node-type-badge[data-type="file"] {
+  background: var(--node-file);
+}
+
+.node-type-badge[data-type="module"] {
+  background: var(--node-module);
+}
+
+.node-type-badge[data-type="artifact"] {
+  background: var(--node-artifact);
+}
+
+.node-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-title h3 {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-type-label {
+  font-size: 0.8em;
+  color: var(--foreground-secondary);
+  text-transform: capitalize;
+}
+
+.close-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  color: var(--foreground-secondary);
+  font-size: 18px;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+}
+
+.close-button:hover {
+  background: var(--background-secondary);
+  color: var(--foreground);
+}
+
+.node-details-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+.node-details-content > div {
+  margin-bottom: var(--spacing-md);
+}
+
+.node-details-content > div:last-child {
+  margin-bottom: 0;
+}
+
+.node-details-content h4 {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-xs);
+}
+
+.node-details-content p {
+  font-size: 0.9em;
+  margin: 0;
+}
+
+.path-value {
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.85em;
+}
+
+.node-signature code {
+  display: block;
+  padding: var(--spacing-sm);
+  background: var(--background-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.node-attributes dl {
+  margin: 0;
+}
+
+.attribute-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.85em;
+}
+
+.attribute-row dt {
+  color: var(--foreground-secondary);
+  min-width: 80px;
+}
+
+.attribute-row dd {
+  flex: 1;
+  margin: 0;
+  word-break: break-word;
+}
+
+.node-details-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+.open-button {
+  width: 100%;
+}
+
+/* vis-network navigation buttons styling */
+.vis-network .vis-navigation .vis-button {
+  background-color: var(--background-tertiary) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.vis-network .vis-navigation .vis-button:hover {
+  background-color: var(--background-secondary) !important;
+}

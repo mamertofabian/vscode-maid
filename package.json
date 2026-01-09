@@ -146,6 +146,18 @@
         "title": "Go to Child Manifests",
         "category": "MAID",
         "icon": "$(arrow-down)"
+      },
+      {
+        "command": "vscode-maid.showKnowledgeGraphVisualizer",
+        "title": "Show Knowledge Graph Visualizer",
+        "category": "MAID",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "vscode-maid.showDashboard",
+        "title": "Show Project Dashboard",
+        "category": "MAID",
+        "icon": "$(dashboard)"
       }
     ],
     "keybindings": [
@@ -180,6 +192,16 @@
         {
           "command": "vscode-maid.refreshKnowledgeGraph",
           "when": "view == maidKnowledgeGraph",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.showKnowledgeGraphVisualizer",
+          "when": "view == maidKnowledgeGraph",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.showDashboard",
+          "when": "view == maidManifests",
           "group": "navigation"
         }
       ],

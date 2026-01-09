@@ -1,0 +1,77 @@
+/**
+ * CSS variables that map to VS Code's theme system.
+ * These variables allow the webview to seamlessly integrate with any VS Code theme.
+ */
+
+:root {
+  /* Typography */
+  --font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  --font-size: var(--vscode-font-size, 13px);
+  --font-weight: var(--vscode-font-weight, 400);
+
+  /* Colors - Background */
+  --background: var(--vscode-editor-background, #1e1e1e);
+  --background-secondary: var(--vscode-sideBar-background, #252526);
+  --background-tertiary: var(--vscode-editorWidget-background, #2d2d30);
+
+  /* Colors - Foreground */
+  --foreground: var(--vscode-editor-foreground, #cccccc);
+  --foreground-secondary: var(--vscode-descriptionForeground, #858585);
+  --foreground-muted: var(--vscode-disabledForeground, #6b6b6b);
+
+  /* Colors - Accent */
+  --primary: var(--vscode-button-background, #0e639c);
+  --primary-hover: var(--vscode-button-hoverBackground, #1177bb);
+  --primary-foreground: var(--vscode-button-foreground, #ffffff);
+
+  /* Colors - Status */
+  --error: var(--vscode-errorForeground, #f14c4c);
+  --warning: var(--vscode-editorWarning-foreground, #cca700);
+  --success: var(--vscode-testing-iconPassed, #73c991);
+  --info: var(--vscode-editorInfo-foreground, #3794ff);
+
+  /* Colors - Border */
+  --border: var(--vscode-panel-border, #80808059);
+  --border-secondary: var(--vscode-widget-border, #303031);
+
+  /* Colors - Input */
+  --input-background: var(--vscode-input-background, #3c3c3c);
+  --input-foreground: var(--vscode-input-foreground, #cccccc);
+  --input-border: var(--vscode-input-border, transparent);
+  --input-placeholder: var(--vscode-input-placeholderForeground, #858585);
+
+  /* Colors - Focus */
+  --focus-border: var(--vscode-focusBorder, #007fd4);
+
+  /* Colors - Link */
+  --link: var(--vscode-textLink-foreground, #3794ff);
+  --link-hover: var(--vscode-textLink-activeForeground, #3794ff);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* Border Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  /* Graph Node Colors */
+  --node-manifest: #4A90D9;
+  --node-file: #7CB342;
+  --node-module: #9C27B0;
+  --node-artifact: #FF9800;
+
+  /* Graph Edge Colors */
+  --edge-default: #808080;
+  --edge-supersedes: #4A90D9;
+  --edge-contains: #7CB342;
+  --edge-implements: #FF9800;
+}

@@ -31,6 +31,8 @@ import { MaidTestRunner } from "./testRunner";
 import { ManifestIndex } from "./manifestIndex";
 import { ManifestDefinitionProvider } from "./definitionProvider";
 import { ManifestReferenceProvider, FileReferenceProvider } from "./referenceProvider";
+import { KnowledgeGraphPanel } from "./webview/knowledgeGraphPanel";
+import { DashboardPanel } from "./webview/dashboardPanel";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -566,6 +568,19 @@ function registerCommands(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateManifest", (arg?: unknown) => {
       testRunner?.runValidation(arg);
+    })
+  );
+
+  // Webview panel commands
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.showKnowledgeGraphVisualizer", () => {
+      KnowledgeGraphPanel.createOrShow(context.extensionUri);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.showDashboard", () => {
+      DashboardPanel.createOrShow(context.extensionUri);
     })
   );
 
