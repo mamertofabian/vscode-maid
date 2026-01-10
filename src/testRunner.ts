@@ -153,6 +153,78 @@ export class MaidTestRunner {
   }
 
   /**
+   * Run coherence validation for a specific manifest.
+   */
+  async runCoherenceValidation(arg?: unknown): Promise<void> {
+    // Try to extract URI from argument
+    let manifestUri = this.extractUri(arg);
+
+    // If no URI provided, try to get from active editor
+    if (!manifestUri) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && isManifestFile(activeEditor.document.uri)) {
+        manifestUri = activeEditor.document.uri;
+      }
+    }
+
+    if (!manifestUri) {
+      vscode.window.showErrorMessage(
+        "No manifest file selected. Please open or select a .manifest.json file."
+      );
+      return;
+    }
+
+    const manifestPath = manifestUri.fsPath;
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
+    
+    log(`[TestRunner] Running coherence validation from MAID root: ${maidRoot}`);
+    log(`[TestRunner] Running coherence validation for manifest: ${relativeManifestPath}`);
+
+    const terminal = this.getTerminal();
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`);
+    terminal.show();
+  }
+
+  /**
+   * Run manifest chain validation for a specific manifest.
+   */
+  async runChainValidation(arg?: unknown): Promise<void> {
+    // Try to extract URI from argument
+    let manifestUri = this.extractUri(arg);
+
+    // If no URI provided, try to get from active editor
+    if (!manifestUri) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && isManifestFile(activeEditor.document.uri)) {
+        manifestUri = activeEditor.document.uri;
+      }
+    }
+
+    if (!manifestUri) {
+      vscode.window.showErrorMessage(
+        "No manifest file selected. Please open or select a .manifest.json file."
+      );
+      return;
+    }
+
+    const manifestPath = manifestUri.fsPath;
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
+    
+    log(`[TestRunner] Running chain validation from MAID root: ${maidRoot}`);
+    log(`[TestRunner] Running chain validation for manifest: ${relativeManifestPath}`);
+
+    const terminal = this.getTerminal();
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`);
+    terminal.show();
+  }
+
+  /**
    * Run validation for a specific manifest.
    */
   async runValidation(arg?: unknown): Promise<void> {

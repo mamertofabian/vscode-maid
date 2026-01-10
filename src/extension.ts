@@ -35,6 +35,8 @@ import { ManifestReferenceProvider, FileReferenceProvider } from "./referencePro
 import { KnowledgeGraphPanel } from "./webview/knowledgeGraphPanel";
 import { DashboardPanel } from "./webview/dashboardPanel";
 import { HistoryPanel } from "./webview/historyPanel";
+import { ManifestChainPanel } from "./webview/manifestChainPanel";
+import { FileManifestsTreeDataProvider } from "./fileManifestsProvider";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -43,6 +45,7 @@ let manifestProvider: ManifestTreeDataProvider | undefined;
 let trackedFilesProvider: TrackedFilesTreeDataProvider | undefined;
 let knowledgeGraphProvider: KnowledgeGraphTreeDataProvider | undefined;
 let historyProvider: ManifestHistoryTreeDataProvider | undefined;
+let fileManifestsProvider: FileManifestsTreeDataProvider | undefined;
 let testRunner: MaidTestRunner | undefined;
 let manifestIndex: ManifestIndex | undefined;
 
@@ -470,6 +473,9 @@ function registerTreeViews(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider("maidManifests", manifestProvider)
   );
   context.subscriptions.push(manifestProvider);
+  
+  // Update manifest provider with manifest index after it's initialized
+  // (will be done in registerNavigationProviders)
 
   // Tracked files
   trackedFilesProvider = new TrackedFilesTreeDataProvider();
@@ -491,6 +497,13 @@ function registerTreeViews(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider("maidManifestHistory", historyProvider)
   );
   context.subscriptions.push(historyProvider);
+
+  // File manifests (will be updated with manifestIndex after it's initialized)
+  fileManifestsProvider = new FileManifestsTreeDataProvider(undefined);
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("maidFileManifests", fileManifestsProvider)
+  );
+  context.subscriptions.push(fileManifestsProvider);
 
   log("TreeView providers registered");
 }
@@ -562,6 +575,15 @@ function registerCommands(context: vscode.ExtensionContext): void {
     })
   );
 
+  // Refresh file manifests
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.refreshFileManifests", () => {
+      if (fileManifestsProvider) {
+        fileManifestsProvider.refresh();
+      }
+    })
+  );
+
   // Test runner commands
   testRunner = new MaidTestRunner();
   context.subscriptions.push(testRunner);
@@ -590,6 +612,18 @@ function registerCommands(context: vscode.ExtensionContext): void {
     })
   );
 
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.validateCoherence", (arg?: unknown) => {
+      testRunner?.runCoherenceValidation(arg);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.validateManifestChain", (arg?: unknown) => {
+      testRunner?.runChainValidation(arg);
+    })
+  );
+
   // Webview panel commands
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.showKnowledgeGraphVisualizer", () => {
@@ -600,6 +634,17 @@ function registerCommands(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.showDashboard", () => {
       DashboardPanel.createOrShow(context.extensionUri);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.showManifestChain", () => {
+      const activeEditor = vscode.window.activeTextEditor;
+      const manifestPath =
+        activeEditor && isManifestPath(activeEditor.document.uri.fsPath)
+          ? activeEditor.document.uri.fsPath
+          : undefined;
+      ManifestChainPanel.createOrShow(context.extensionUri, manifestPath, manifestIndex);
     })
   );
 
@@ -756,6 +801,16 @@ async function registerNavigationProviders(
   manifestIndex = new ManifestIndex(context);
   await manifestIndex.initialize(getOutputChannel());
 
+  // Update file manifests provider with manifest index
+  if (fileManifestsProvider) {
+    fileManifestsProvider.setManifestIndex(manifestIndex);
+  }
+
+  // Update manifest provider with manifest index
+  if (manifestProvider && (manifestProvider as any).setManifestIndex) {
+    (manifestProvider as any).setManifestIndex(manifestIndex);
+  }
+
   // Register definition provider for manifest files
   context.subscriptions.push(
     vscode.languages.registerDefinitionProvider(
@@ -855,6 +910,78 @@ async function registerNavigationProviders(
     })
   );
   log("goToChildManifests command registered");
+
+  // Register command for finding manifests referencing a file
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.findManifestsForFile", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || editor.document.uri.fsPath.endsWith(".manifest.json")) {
+        vscode.window.showWarningMessage("This command is only available for non-manifest files");
+        return;
+      }
+
+      const filePath = editor.document.uri.fsPath;
+      const normalizedPath = path.normalize(filePath).replace(/\\/g, "/");
+      const references = manifestIndex?.getManifestsReferencingFile(normalizedPath) || [];
+
+      if (references.length === 0) {
+        vscode.window.showInformationMessage(
+          `No manifests reference "${path.basename(filePath)}"`
+        );
+        return;
+      }
+
+      // Group by category
+      const byCategory = new Map<string, typeof references>();
+      for (const ref of references) {
+        if (!byCategory.has(ref.category)) {
+          byCategory.set(ref.category, []);
+        }
+        byCategory.get(ref.category)!.push(ref);
+      }
+
+      // Create quick pick items
+      const items: vscode.QuickPickItem[] = [];
+      for (const [category, refs] of byCategory) {
+        const categoryLabel = category === "creatable" ? "Creatable" :
+                             category === "editable" ? "Editable" :
+                             category === "readonly" ? "Read-only" :
+                             category === "supersedes" ? "Supersedes" :
+                             category === "expectedArtifact" ? "Expected Artifact" : category;
+        
+        for (const ref of refs) {
+          const relativePath = vscode.workspace.asRelativePath(ref.manifestPath);
+          items.push({
+            label: relativePath,
+            description: categoryLabel,
+            detail: `Line ${ref.line + 1}, Column ${ref.column + 1}`,
+          });
+        }
+      }
+
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: `Select a manifest referencing "${path.basename(filePath)}"`,
+      });
+
+      if (selected) {
+        const selectedRef = references.find(
+          (r) => vscode.workspace.asRelativePath(r.manifestPath) === selected.label
+        );
+        if (selectedRef) {
+          const uri = vscode.Uri.file(selectedRef.manifestPath);
+          const document = await vscode.workspace.openTextDocument(uri);
+          const editor = await vscode.window.showTextDocument(document);
+          const position = new vscode.Position(selectedRef.line, selectedRef.column);
+          editor.selection = new vscode.Selection(position, position);
+          editor.revealRange(
+            new vscode.Range(position, position),
+            vscode.TextEditorRevealType.InCenter
+          );
+        }
+      }
+    })
+  );
+  log("findManifestsForFile command registered");
 
   // Register command for navigating to artifact definitions (used by knowledge graph)
   context.subscriptions.push(
@@ -1099,6 +1226,12 @@ export function deactivate(): Thenable<void> | undefined {
   if (historyProvider) {
     historyProvider.dispose();
     historyProvider = undefined;
+  }
+
+  // Dispose file manifests provider
+  if (fileManifestsProvider) {
+    fileManifestsProvider.dispose();
+    fileManifestsProvider = undefined;
   }
 
   // Dispose test runner

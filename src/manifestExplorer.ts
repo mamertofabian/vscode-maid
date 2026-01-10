@@ -210,13 +210,32 @@ export class ManifestTreeItem extends vscode.TreeItem {
         if (this.manifestInfo) {
           const errors = this.manifestInfo.errorCount || 0;
           const warnings = this.manifestInfo.warningCount || 0;
+          const parts: string[] = [];
+          
           if (errors > 0) {
-            return `${errors} errors`;
+            parts.push(`${errors} errors`);
+          } else if (warnings > 0) {
+            parts.push(`${warnings} warnings`);
+          } else {
+            parts.push("valid");
           }
-          if (warnings > 0) {
-            return `${warnings} warnings`;
+
+          // Add chain info if available
+          const chainInfo = (this.manifestInfo as any).chainInfo;
+          if (chainInfo) {
+            const chainParts: string[] = [];
+            if (chainInfo.parents > 0) {
+              chainParts.push(`↑${chainInfo.parents}`);
+            }
+            if (chainInfo.children > 0) {
+              chainParts.push(`↓${chainInfo.children}`);
+            }
+            if (chainParts.length > 0) {
+              parts.push(`[${chainParts.join(" ")}]`);
+            }
           }
-          return "valid";
+
+          return parts.join(" • ");
         }
         return undefined;
       case "task":
@@ -243,6 +262,7 @@ export class ManifestTreeDataProvider
   private manifests: Map<string, ManifestInfo> = new Map();
   private disposables: vscode.Disposable[] = [];
   private debouncedRefresh: () => void;
+  private manifestIndex: any = undefined; // ManifestIndex, but avoid circular dependency
 
   constructor() {
     this.debouncedRefresh = debounce(() => this.refresh(), 500);
@@ -270,6 +290,14 @@ export class ManifestTreeDataProvider
 
     // Initial load
     this.loadManifests();
+  }
+
+  /**
+   * Set the manifest index for chain lookups.
+   */
+  setManifestIndex(manifestIndex: any): void {
+    this.manifestIndex = manifestIndex;
+    this._onDidChangeTreeData.fire();
   }
 
   /**
@@ -305,6 +333,19 @@ export class ManifestTreeDataProvider
         info.warningCount = diagnostics.filter(
           (d) => d.severity === vscode.DiagnosticSeverity.Warning
         ).length;
+
+        // Add chain information if manifest index is available
+        if (this.manifestIndex) {
+          try {
+            const chain = this.manifestIndex.getSupersessionChain(file.fsPath);
+            (info as any).chainInfo = {
+              parents: chain.parents.length,
+              children: chain.children.length,
+            };
+          } catch (error) {
+            // Ignore errors getting chain info
+          }
+        }
 
         this.manifests.set(file.fsPath, info);
       }
@@ -421,6 +462,29 @@ export class ManifestTreeDataProvider
         // This is the root directory for all MAID CLI operations
         const manifestFileDir = path.dirname(element.resourceUri.fsPath);
         const maidRoot = path.dirname(manifestFileDir);
+
+        // Show chain information if available
+        if (this.manifestIndex) {
+          try {
+            const chain = this.manifestIndex.getSupersessionChain(element.resourceUri.fsPath);
+            const hasChain = chain.parents.length > 0 || chain.children.length > 0;
+            
+            if (hasChain) {
+              const chainCategory = new ManifestTreeItem(
+                `Chain (${chain.parents.length} parent${chain.parents.length !== 1 ? "s" : ""}, ${chain.children.length} child${chain.children.length !== 1 ? "ren" : ""})`,
+                "category",
+                vscode.TreeItemCollapsibleState.Collapsed
+              );
+              chainCategory.iconPath = new vscode.ThemeIcon("git-branch", new vscode.ThemeColor("charts.blue"));
+              (chainCategory as any).categoryType = "chain";
+              (chainCategory as any).chain = chain;
+              (chainCategory as any).workspaceRoot = workspaceRoot;
+              items.push(chainCategory);
+            }
+          } catch (error) {
+            // Ignore errors getting chain info
+          }
+        }
 
         // Show supersedes if present
         if (manifest.supersedes && Array.isArray(manifest.supersedes) && manifest.supersedes.length > 0) {
@@ -575,6 +639,61 @@ export class ManifestTreeDataProvider
 
     // Handle different category types
     switch (categoryType) {
+      case "chain":
+        if (anyElement.chain) {
+          const chain = anyElement.chain;
+          const workspaceRoot = anyElement.workspaceRoot;
+          
+          // Show parents
+          if (chain.parents && chain.parents.length > 0) {
+            const parentsCategory = new ManifestTreeItem(
+              `Parents (${chain.parents.length})`,
+              "category",
+              vscode.TreeItemCollapsibleState.Collapsed
+            );
+            parentsCategory.iconPath = new vscode.ThemeIcon("arrow-up", new vscode.ThemeColor("charts.green"));
+            (parentsCategory as any).categoryType = "chainManifests";
+            (parentsCategory as any).items = chain.parents;
+            (parentsCategory as any).workspaceRoot = workspaceRoot;
+            items.push(parentsCategory);
+          }
+          
+          // Show children
+          if (chain.children && chain.children.length > 0) {
+            const childrenCategory = new ManifestTreeItem(
+              `Children (${chain.children.length})`,
+              "category",
+              vscode.TreeItemCollapsibleState.Collapsed
+            );
+            childrenCategory.iconPath = new vscode.ThemeIcon("arrow-down", new vscode.ThemeColor("charts.orange"));
+            (childrenCategory as any).categoryType = "chainManifests";
+            (childrenCategory as any).items = chain.children;
+            (childrenCategory as any).workspaceRoot = workspaceRoot;
+            items.push(childrenCategory);
+          }
+        }
+        break;
+
+      case "chainManifests":
+        if (categoryItems) {
+          const workspaceRoot = anyElement.workspaceRoot;
+          for (const manifestPath of categoryItems) {
+            if (!manifestPath) continue;
+            const uri = vscode.Uri.file(manifestPath);
+            const relativePath = workspaceRoot 
+              ? vscode.workspace.asRelativePath(manifestPath)
+              : path.basename(manifestPath);
+            const manifestItem = new ManifestTreeItem(
+              relativePath,
+              "manifest",
+              vscode.TreeItemCollapsibleState.None,
+              uri
+            );
+            items.push(manifestItem);
+          }
+        }
+        break;
+
       case "supersedes":
         if (categoryItems) {
           const maidRoot = anyElement.maidRoot;

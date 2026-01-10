@@ -6,9 +6,10 @@ import React from "react";
 import KnowledgeGraph from "./components/KnowledgeGraph/KnowledgeGraph";
 import Dashboard from "./components/Dashboard/Dashboard";
 import History from "./components/History/History";
+import ManifestChain from "./components/ManifestChain/ManifestChain";
 
 interface AppProps {
-  viewType: "knowledgeGraph" | "dashboard" | "history";
+  viewType: "knowledgeGraph" | "dashboard" | "history" | "manifestChain";
 }
 
 const App: React.FC<AppProps> = ({ viewType }) => {
@@ -17,6 +18,8 @@ const App: React.FC<AppProps> = ({ viewType }) => {
       return <Dashboard />;
     case "history":
       return <History />;
+    case "manifestChain":
+      return <ManifestChain />;
     case "knowledgeGraph":
     default:
       return <KnowledgeGraph />;

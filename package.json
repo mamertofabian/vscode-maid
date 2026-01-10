@@ -64,6 +64,10 @@
         {
           "id": "maidManifestHistory",
           "name": "History"
+        },
+        {
+          "id": "maidFileManifests",
+          "name": "File Manifests"
         }
       ]
     },
@@ -170,6 +174,12 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "vscode-maid.refreshFileManifests",
+        "title": "Refresh File Manifests",
+        "category": "MAID",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "vscode-maid.showManifestHistory",
         "title": "Show Manifest History",
         "category": "MAID",
@@ -186,6 +196,30 @@
         "title": "Open Manifest at Commit",
         "category": "MAID",
         "icon": "$(git-commit)"
+      },
+      {
+        "command": "vscode-maid.showManifestChain",
+        "title": "Show Manifest Chain",
+        "category": "MAID",
+        "icon": "$(git-branch)"
+      },
+      {
+        "command": "vscode-maid.findManifestsForFile",
+        "title": "Find Manifests for File",
+        "category": "MAID",
+        "icon": "$(search)"
+      },
+      {
+        "command": "vscode-maid.validateCoherence",
+        "title": "Validate Coherence",
+        "category": "MAID",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "vscode-maid.validateManifestChain",
+        "title": "Validate Manifest Chain",
+        "category": "MAID",
+        "icon": "$(git-branch)"
       }
     ],
     "keybindings": [
@@ -241,6 +275,16 @@
           "command": "vscode-maid.showManifestHistory",
           "when": "view == maidManifestHistory",
           "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.refreshFileManifests",
+          "when": "view == maidFileManifests",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.showManifestChain",
+          "when": "view == maidManifests",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -258,6 +302,21 @@
           "command": "vscode-maid.runTestsForManifest",
           "when": "view == maidManifests && viewItem == maidManifest",
           "group": "maid@2"
+        },
+        {
+          "command": "vscode-maid.showManifestChain",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "maid@3"
+        },
+        {
+          "command": "vscode-maid.validateCoherence",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "maid@4"
+        },
+        {
+          "command": "vscode-maid.validateManifestChain",
+          "when": "view == maidManifests && viewItem == maidManifest",
+          "group": "maid@5"
         },
         {
           "command": "vscode-maid.showManifestHistory",
@@ -290,6 +349,21 @@
           "command": "vscode-maid.showManifestHistory",
           "when": "resourceFilename =~ /\\.manifest\\.json$/",
           "group": "maid@3"
+        },
+        {
+          "command": "vscode-maid.showManifestChain",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@4"
+        },
+        {
+          "command": "vscode-maid.validateCoherence",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@5"
+        },
+        {
+          "command": "vscode-maid.validateManifestChain",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@6"
         }
       ],
       "editor/context": [
@@ -307,6 +381,24 @@
           "command": "vscode-maid.showManifestHistory",
           "when": "resourceFilename =~ /\\.manifest\\.json$/",
           "group": "maid@3"
+        },
+        {
+          "command": "vscode-maid.showManifestChain",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@4"
+        },
+        {
+          "command": "vscode-maid.validateCoherence",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@5"
+        },
+        {
+          "command": "vscode-maid.validateManifestChain",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@6"
+        },
+        {
+          "command": "vscode-maid.findManifestsForFile"
         }
       ],
       "commandPalette": [
@@ -329,6 +421,13 @@
         {
           "command": "vscode-maid.showManifestHistory",
           "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.showManifestChain",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.findManifestsForFile"
         }
       ]
     },

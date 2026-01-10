@@ -9,6 +9,7 @@ import type {
   CommitHistory,
   HistoryPanelData,
 } from "../types";
+import type { ManifestChainData } from "./manifestChainPanel";
 
 /**
  * Graph filter options for the Knowledge Graph Visualizer
@@ -81,6 +82,7 @@ export type ExtensionToWebviewMessage =
   | { type: "graphData"; payload: KnowledgeGraphResult }
   | { type: "dashboardData"; payload: DashboardData }
   | { type: "historyData"; payload: HistoryPanelData }
+  | { type: "chainData"; payload: ManifestChainData }
   | { type: "commitDiff"; payload: { commitHash: string; diff: string } }
   | { type: "fileAtCommit"; payload: { commitHash: string; content: string } }
   | { type: "validationUpdate"; payload: { manifestPath: string; errorCount: number; warningCount: number } }
@@ -104,4 +106,5 @@ export type WebviewToExtensionMessage =
   | { type: "loadHistory"; payload: { manifestPath: string } }
   | { type: "loadCommit"; payload: { manifestPath: string; commitHash: string } }
   | { type: "compareCommits"; payload: { manifestPath: string; commitHash1: string; commitHash2: string } }
-  | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } };
+  | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } }
+  | { type: "setManifest"; payload: { manifestPath: string } };

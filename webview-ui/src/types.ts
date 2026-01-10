@@ -122,6 +122,31 @@ export interface HistoryPanelData {
 }
 
 // ============================================================================
+// Manifest Chain Types
+// ============================================================================
+
+export interface ManifestChainNode {
+  id: string;
+  label: string;
+  path: string;
+  goal?: string;
+  level: number; // 0 = current, negative = parents, positive = children
+}
+
+export interface ManifestChainEdge {
+  from: string;
+  to: string;
+  arrows: string;
+  label?: string;
+}
+
+export interface ManifestChainData {
+  nodes: ManifestChainNode[];
+  edges: ManifestChainEdge[];
+  currentManifest: string;
+}
+
+// ============================================================================
 // Message Types
 // ============================================================================
 
@@ -129,6 +154,7 @@ export type ExtensionToWebviewMessage =
   | { type: "graphData"; payload: KnowledgeGraphResult }
   | { type: "dashboardData"; payload: DashboardData }
   | { type: "historyData"; payload: HistoryPanelData }
+  | { type: "chainData"; payload: ManifestChainData }
   | { type: "commitDiff"; payload: { commitHash: string; diff: string } }
   | { type: "fileAtCommit"; payload: { commitHash: string; content: string } }
   | { type: "validationUpdate"; payload: { manifestPath: string; errorCount: number; warningCount: number } }
@@ -148,4 +174,5 @@ export type WebviewToExtensionMessage =
   | { type: "loadHistory"; payload: { manifestPath: string } }
   | { type: "loadCommit"; payload: { manifestPath: string; commitHash: string } }
   | { type: "compareCommits"; payload: { manifestPath: string; commitHash1: string; commitHash2: string } }
-  | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } };
+  | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } }
+  | { type: "setManifest"; payload: { manifestPath: string } };
