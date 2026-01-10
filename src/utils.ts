@@ -114,11 +114,11 @@ export async function runValidation(
   manifestPath?: string
 ): Promise<ValidationResult | null> {
   if (manifestPath) {
-    // Use manifest's parent directory as working directory
-    const manifestParentDir = getManifestParentDir(manifestPath);
-    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    // Use MAID root as working directory
+    const maidRoot = getMaidRoot(manifestPath);
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
     const args = `validate "${relativeManifestPath}" --json-output`;
-    return executeMaidCommand<ValidationResult>(args, manifestParentDir);
+    return executeMaidCommand<ValidationResult>(args, maidRoot);
   } else {
     const args = "validate --json-output";
     return executeMaidCommand<ValidationResult>(args);
@@ -203,11 +203,11 @@ export function getWorkspaceRoot(): string | undefined {
 }
 
 /**
- * Get the manifest's parent directory (where the manifests/ folder is located).
- * This is the directory where maid CLI commands should be executed.
+ * Get the MAID root directory (where the manifests/ folder is located).
+ * This is the root directory for all MAID CLI operations.
  * For example: apps/frontend/manifests/task-005.manifest.json -> apps/frontend/
  */
-export function getManifestParentDir(manifestPath: string): string {
+export function getMaidRoot(manifestPath: string): string {
   // Get the directory containing the manifest file
   const manifestDir = path.dirname(manifestPath);
   // Get the parent of that directory (where manifests/ folder is)

@@ -46,12 +46,12 @@ function extractFilePath(arg: string): string {
 }
 
 /**
- * Resolves a file path relative to the manifest's parent directory and returns
+ * Resolves a file path relative to the MAID root directory and returns
  * both the full path and the display path (relative to workspace root).
  */
 function resolveFilePath(
   filePath: string,
-  manifestParentDir: string | undefined,
+  maidRoot: string | undefined,
   workspaceRoot: string | undefined
 ): { fullPath: string; displayPath: string } {
   if (path.isAbsolute(filePath)) {
@@ -61,9 +61,9 @@ function resolveFilePath(
       ? vscode.workspace.asRelativePath(fullPath)
       : filePath;
     return { fullPath, displayPath };
-  } else if (manifestParentDir) {
-    // Resolve relative to manifest's parent directory
-    const fullPath = path.resolve(manifestParentDir, filePath);
+  } else if (maidRoot) {
+    // Resolve relative to MAID root directory
+    const fullPath = path.resolve(maidRoot, filePath);
     const displayPath = workspaceRoot 
       ? vscode.workspace.asRelativePath(fullPath)
       : filePath;
@@ -417,10 +417,10 @@ export class ManifestTreeDataProvider
         const manifest = JSON.parse(Buffer.from(content).toString());
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
         
-        // Get manifest directory (parent of manifest file) and its parent
-        // File paths should be resolved relative to the manifest's parent directory
+        // Get MAID root (where the manifests/ folder is located)
+        // This is the root directory for all MAID CLI operations
         const manifestFileDir = path.dirname(element.resourceUri.fsPath);
-        const manifestParentDir = path.dirname(manifestFileDir);
+        const maidRoot = path.dirname(manifestFileDir);
 
         // Show supersedes if present
         if (manifest.supersedes && Array.isArray(manifest.supersedes) && manifest.supersedes.length > 0) {
@@ -433,7 +433,7 @@ export class ManifestTreeDataProvider
           (supersedesCategory as any).categoryType = "supersedes";
           (supersedesCategory as any).items = manifest.supersedes;
           (supersedesCategory as any).workspaceRoot = workspaceRoot;
-          (supersedesCategory as any).manifestParentDir = manifestParentDir;
+          (supersedesCategory as any).maidRoot = maidRoot;
           items.push(supersedesCategory);
         }
 
@@ -448,7 +448,7 @@ export class ManifestTreeDataProvider
           (creatableCategory as any).categoryType = "creatableFiles";
           (creatableCategory as any).items = manifest.creatableFiles;
           (creatableCategory as any).workspaceRoot = workspaceRoot;
-          (creatableCategory as any).manifestParentDir = manifestParentDir;
+          (creatableCategory as any).maidRoot = maidRoot;
           items.push(creatableCategory);
         }
 
@@ -463,7 +463,7 @@ export class ManifestTreeDataProvider
           (editableCategory as any).categoryType = "editableFiles";
           (editableCategory as any).items = manifest.editableFiles;
           (editableCategory as any).workspaceRoot = workspaceRoot;
-          (editableCategory as any).manifestParentDir = manifestParentDir;
+          (editableCategory as any).maidRoot = maidRoot;
           items.push(editableCategory);
         }
 
@@ -478,7 +478,7 @@ export class ManifestTreeDataProvider
           (readonlyCategory as any).categoryType = "readonlyFiles";
           (readonlyCategory as any).items = manifest.readonlyFiles;
           (readonlyCategory as any).workspaceRoot = workspaceRoot;
-          (readonlyCategory as any).manifestParentDir = manifestParentDir;
+          (readonlyCategory as any).maidRoot = maidRoot;
           items.push(readonlyCategory);
         }
 
@@ -498,7 +498,7 @@ export class ManifestTreeDataProvider
             (artifactsCategory as any).categoryType = "expectedArtifacts";
             (artifactsCategory as any).items = artifacts;
             (artifactsCategory as any).workspaceRoot = workspaceRoot;
-            (artifactsCategory as any).manifestParentDir = manifestParentDir;
+            (artifactsCategory as any).maidRoot = maidRoot;
             items.push(artifactsCategory);
           }
         }
@@ -531,7 +531,7 @@ export class ManifestTreeDataProvider
             (testFilesCategory as any).categoryType = "testFiles";
             (testFilesCategory as any).items = testFiles;
             (testFilesCategory as any).workspaceRoot = workspaceRoot;
-            (testFilesCategory as any).manifestParentDir = manifestParentDir;
+            (testFilesCategory as any).maidRoot = maidRoot;
             items.push(testFilesCategory);
           }
         }
@@ -577,10 +577,10 @@ export class ManifestTreeDataProvider
     switch (categoryType) {
       case "supersedes":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const superseded of categoryItems) {
             if (!superseded) continue;
-            const { fullPath, displayPath } = resolveFilePath(superseded, manifestParentDir, workspaceRoot);
+            const { fullPath, displayPath } = resolveFilePath(superseded, maidRoot, workspaceRoot);
             const uri = vscode.Uri.file(fullPath);
             const supersedesItem = new ManifestTreeItem(
               displayPath,
@@ -595,9 +595,9 @@ export class ManifestTreeDataProvider
 
       case "creatableFiles":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const file of categoryItems) {
-            const { fullPath, displayPath } = resolveFilePath(file, manifestParentDir, workspaceRoot);
+            const { fullPath, displayPath } = resolveFilePath(file, maidRoot, workspaceRoot);
             const uri = vscode.Uri.file(fullPath);
             const fileItem = new ManifestTreeItem(
               displayPath,
@@ -612,9 +612,9 @@ export class ManifestTreeDataProvider
 
       case "editableFiles":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const file of categoryItems) {
-            const { fullPath, displayPath } = resolveFilePath(file, manifestParentDir, workspaceRoot);
+            const { fullPath, displayPath } = resolveFilePath(file, maidRoot, workspaceRoot);
             const uri = vscode.Uri.file(fullPath);
             const fileItem = new ManifestTreeItem(
               displayPath,
@@ -629,9 +629,9 @@ export class ManifestTreeDataProvider
 
       case "readonlyFiles":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const file of categoryItems) {
-            const { fullPath, displayPath } = resolveFilePath(file, manifestParentDir, workspaceRoot);
+            const { fullPath, displayPath } = resolveFilePath(file, maidRoot, workspaceRoot);
             const uri = vscode.Uri.file(fullPath);
             const fileItem = new ManifestTreeItem(
               displayPath,
@@ -646,14 +646,14 @@ export class ManifestTreeDataProvider
 
       case "expectedArtifacts":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const artifact of categoryItems) {
             const hasContains = artifact.contains && Array.isArray(artifact.contains) && artifact.contains.length > 0;
             let uri: vscode.Uri | undefined;
             let displayPath = "Unknown file";
             
             if (artifact.file) {
-              const { fullPath, displayPath: dp } = resolveFilePath(artifact.file, manifestParentDir, workspaceRoot);
+              const { fullPath, displayPath: dp } = resolveFilePath(artifact.file, maidRoot, workspaceRoot);
               uri = vscode.Uri.file(fullPath);
               displayPath = dp;
             }
@@ -693,11 +693,11 @@ export class ManifestTreeDataProvider
 
       case "testFiles":
         if (categoryItems) {
-          const manifestParentDir = anyElement.manifestParentDir;
+          const maidRoot = anyElement.maidRoot;
           for (const file of categoryItems) {
             // Extract clean file path (in case it still contains command prefixes)
             const cleanPath = extractFilePath(file);
-            const { fullPath, displayPath } = resolveFilePath(cleanPath, manifestParentDir, workspaceRoot);
+            const { fullPath, displayPath } = resolveFilePath(cleanPath, maidRoot, workspaceRoot);
             const uri = vscode.Uri.file(fullPath);
             const fileItem = new ManifestTreeItem(
               displayPath,
@@ -889,7 +889,7 @@ export class TrackedFilesTreeDataProvider
     private_impl: string[];
   } | null = null;
 
-  private manifestParentDir: string | undefined;
+  private maidRoot: string | undefined;
   private disposables: vscode.Disposable[] = [];
   private debouncedRefresh: () => void;
   private isLoading = false;
@@ -954,7 +954,7 @@ export class TrackedFilesTreeDataProvider
         log(`[TrackedFiles] Could not find manifest directory, using workspace root`, "warn");
       }
 
-      this.manifestParentDir = cwd;
+      this.maidRoot = cwd;
 
       const { stdout } = await execAsync("maid files --json", {
         cwd: cwd,
@@ -1088,11 +1088,11 @@ export class TrackedFilesTreeDataProvider
         continue;
       }
 
-      // Resolve file path relative to manifest parent directory
-      if (this.manifestParentDir && workspaceRoot) {
+      // Resolve file path relative to MAID root
+      if (this.maidRoot && workspaceRoot) {
         const fullPath = path.isAbsolute(filePath)
           ? filePath
-          : path.resolve(this.manifestParentDir, filePath);
+          : path.resolve(this.maidRoot, filePath);
         displayPath = vscode.workspace.asRelativePath(fullPath);
       } else {
         displayPath = filePath;
@@ -1100,10 +1100,10 @@ export class TrackedFilesTreeDataProvider
 
       // Resolve full path for URI
       let fullPathForUri: string;
-      if (this.manifestParentDir) {
+      if (this.maidRoot) {
         fullPathForUri = path.isAbsolute(filePath)
           ? filePath
-          : path.resolve(this.manifestParentDir, filePath);
+          : path.resolve(this.maidRoot, filePath);
       } else if (workspaceRoot) {
         fullPathForUri = path.isAbsolute(filePath)
           ? filePath

@@ -8,7 +8,7 @@ import * as path from "path";
 import * as os from "os";
 import type { KnowledgeGraphResult } from "../types";
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from "./messages";
-import { log, getManifestParentDir } from "../utils";
+import { log, getMaidRoot } from "../utils";
 
 /**
  * Manages the Knowledge Graph Visualizer webview panel.
@@ -184,8 +184,8 @@ export class KnowledgeGraphPanel {
         );
         if (manifestFiles.length > 0) {
           const manifestPath = manifestFiles[0].fsPath;
-          cwd = getManifestParentDir(manifestPath);
-          log(`[KnowledgeGraphPanel] Using manifest directory: ${cwd}`);
+          cwd = getMaidRoot(manifestPath);
+          log(`[KnowledgeGraphPanel] Using MAID root: ${cwd}`);
         }
       } catch (error) {
         log(`[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`, "warn");
@@ -208,7 +208,7 @@ export class KnowledgeGraphPanel {
       const content = await fs.readFile(tempFile, "utf-8");
       this._graphData = JSON.parse(content);
 
-      // Resolve file paths relative to manifest parent directory
+      // Resolve file paths relative to MAID root
       if (this._graphData && cwd !== workspaceRoot) {
         this._graphData = this._resolveGraphPaths(this._graphData, cwd, workspaceRoot);
       }
@@ -236,18 +236,18 @@ export class KnowledgeGraphPanel {
   }
 
   /**
-   * Resolve file paths in graph data relative to manifest parent directory.
+   * Resolve file paths in graph data relative to MAID root.
    */
   private _resolveGraphPaths(
     graphData: KnowledgeGraphResult,
-    manifestParentDir: string,
+    maidRoot: string,
     workspaceRoot: string
   ): KnowledgeGraphResult {
     const resolvedNodes = graphData.nodes.map((node) => {
       if (node.path) {
         const fullPath = path.isAbsolute(node.path)
           ? node.path
-          : path.resolve(manifestParentDir, node.path);
+          : path.resolve(maidRoot, node.path);
         // Store workspace-relative path for display
         return {
           ...node,

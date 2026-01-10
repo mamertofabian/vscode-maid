@@ -5,7 +5,7 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import { log, getWorkspaceRoot, isManifestFile, getManifestParentDir } from "./utils";
+import { log, getWorkspaceRoot, isManifestFile, getMaidRoot } from "./utils";
 import { ManifestTreeItem } from "./manifestExplorer";
 
 /**
@@ -139,16 +139,16 @@ export class MaidTestRunner {
     }
 
     const manifestPath = manifestUri.fsPath;
-    const manifestParentDir = getManifestParentDir(manifestPath);
-    // Get relative path from manifest parent directory
-    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
     
-    log(`[TestRunner] Running tests from: ${manifestParentDir}`);
+    log(`[TestRunner] Running tests from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running tests for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
-    // Change to manifest's parent directory, then run the command with relative path
-    terminal.sendText(`cd "${manifestParentDir}" && maid test --manifest "${relativeManifestPath}"`);
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(`cd "${maidRoot}" && maid test --manifest "${relativeManifestPath}"`);
     terminal.show();
   }
 
@@ -175,16 +175,16 @@ export class MaidTestRunner {
     }
 
     const manifestPath = manifestUri.fsPath;
-    const manifestParentDir = getManifestParentDir(manifestPath);
-    // Get relative path from manifest parent directory
-    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
     
-    log(`[TestRunner] Running validation from: ${manifestParentDir}`);
+    log(`[TestRunner] Running validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
-    // Change to manifest's parent directory, then run the command with relative path
-    terminal.sendText(`cd "${manifestParentDir}" && maid validate "${relativeManifestPath}" --use-manifest-chain`);
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`);
     terminal.show();
   }
 

@@ -157,7 +157,7 @@ export class KnowledgeGraphTreeDataProvider
   > = this._onDidChangeTreeData.event;
 
   private graphData: KnowledgeGraphResult | null = null;
-  private manifestParentDir: string | undefined;
+  private maidRoot: string | undefined;
   private disposables: vscode.Disposable[] = [];
   private debouncedRefresh: () => void;
   private isLoading = false;
@@ -217,14 +217,14 @@ export class KnowledgeGraphTreeDataProvider
         if (manifestFiles.length > 0) {
           const manifestPath = manifestFiles[0].fsPath;
           const manifestDir = path.dirname(manifestPath);
-          cwd = path.dirname(manifestDir); // Parent of manifests directory
-          log(`[KnowledgeGraph] Using manifest directory: ${cwd}`);
+          cwd = path.dirname(manifestDir); // MAID root (where manifests/ folder is)
+          log(`[KnowledgeGraph] Using MAID root: ${cwd}`);
         }
       } catch (error) {
-        log(`[KnowledgeGraph] Could not find manifest directory, using workspace root`, "warn");
+        log(`[KnowledgeGraph] Could not find MAID root, using workspace root`, "warn");
       }
 
-      this.manifestParentDir = cwd;
+      this.maidRoot = cwd;
 
       // Export to temp file
       const tempFile = path.join(os.tmpdir(), `maid-graph-${Date.now()}.json`);
@@ -365,11 +365,11 @@ export class KnowledgeGraphTreeDataProvider
       let filePath = node.path || undefined;
       let artifactFilePath: string | undefined;
 
-      // Resolve file paths relative to manifest parent directory
-      if (filePath && this.manifestParentDir && workspaceRoot) {
+      // Resolve file paths relative to MAID root
+      if (filePath && this.maidRoot && workspaceRoot) {
         const fullPath = path.isAbsolute(filePath)
           ? filePath
-          : path.resolve(this.manifestParentDir, filePath);
+          : path.resolve(this.maidRoot, filePath);
         filePath = fullPath; // Store full path for URI resolution
         // Update label to show workspace-relative path for file/manifest nodes
         if (node.type === "file" || node.type === "manifest") {
@@ -385,10 +385,10 @@ export class KnowledgeGraphTreeDataProvider
       }
 
       // Resolve artifact file path if found
-      if (artifactFilePath && this.manifestParentDir && workspaceRoot) {
+      if (artifactFilePath && this.maidRoot && workspaceRoot) {
         const fullArtifactPath = path.isAbsolute(artifactFilePath)
           ? artifactFilePath
-          : path.resolve(this.manifestParentDir, artifactFilePath);
+          : path.resolve(this.maidRoot, artifactFilePath);
         artifactFilePath = fullArtifactPath;
       }
 
