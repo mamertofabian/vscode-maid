@@ -262,7 +262,7 @@ This is NORMAL for newly published extensions. To fix:
 
 - **Extension ID**: `aidrivencoder.vscode-maid`
 - **Display Name**: MAID - Manifest-driven AI Development
-- **Current Version**: 0.4.1
+- **Current Version**: 0.4.2
 - **Publisher**: aidrivencoder
 - **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
@@ -294,6 +294,7 @@ code --install-extension aidrivencoder.vscode-maid
 - Total package size: ~89KB (compressed)
 
 ### Version History
+- **v0.4.2** (2026-01-10): Patch release with bug fixes and improvements
 - **v0.4.1** (2026-01-10): Fixed MAID root detection to ignore system.manifest.json in project root, improved diagnostic logging
 - **v0.4.0** (2026-01-10): Added File Manifests View, Manifest Chain Visualizer, chain indicators in Manifest Explorer, find manifests for file command, coherence validation, and chain validation commands
 - **v0.3.3** (2026-01-09): Refactored terminology (manifestParentDir → maidRoot), all MAID CLI commands now execute from MAID root, fixed knowledge graph visualizer, improved file path display consistency
