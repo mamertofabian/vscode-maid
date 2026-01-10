@@ -2,6 +2,20 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.3.4] - 2026-01-09
+
+### Added
+- **File Manifests View** - New sidebar panel showing all manifests that reference the currently active file, organized by category (Creatable, Editable, Read-only, Expected Artifacts)
+- **Manifest Chain Visualizer** - Interactive webview panel using vis.js to visualize manifest supersession relationships as a hierarchical graph with parent/child relationships
+- **Chain Indicators in Manifest Explorer** - Visual indicators showing parent/child manifest counts in descriptions, plus expandable "Chain" section showing related manifests
+- **Find Manifests for File** - New command (`vscode-maid.findManifestsForFile`) that shows a quick pick of all manifests referencing the current file
+- **Coherence Validation** - New command (`vscode-maid.validateCoherence`) to run `maid validate --coherence --json-output` for coherence checking
+- **Chain Validation** - New command (`vscode-maid.validateManifestChain`) to run `maid validate --use-manifest-chain --json-output` for validating entire manifest chains
+
+### Changed
+- Manifest Explorer now displays chain information (parent/child counts) in manifest descriptions
+- File Manifests view automatically updates when switching between files
+
 ## [0.3.3] - 2026-01-09
 
 ### Changed
