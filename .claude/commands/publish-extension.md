@@ -68,16 +68,7 @@ Ask user if they want to test the package locally first:
   - Direct user to: https://github.com/EclipseFdn/open-vsx.org/issues
   - Create issue: "Request ownership of namespace: <publisher-name>"
 
-### 7. Update README Badge
-
-- Check if README.md has marketplace badge
-- If not, add at top of README:
-  ```markdown
-  [![Version](https://img.shields.io/badge/version-<VERSION>-blue.svg)](https://marketplace.visualstudio.com/items?itemName=<PUBLISHER>.<NAME>)
-  ```
-- Commit if changed
-
-### 8. Create GitHub Release
+### 7. Create GitHub Release
 
 - Extract current version from package.json
 - Extract changelog entries for this version
@@ -90,7 +81,7 @@ Ask user if they want to test the package locally first:
   ```
 - Include installation instructions in release notes
 
-### 9. Update Documentation
+### 8. Update Documentation
 
 - Update PUBLISHING.md with published extension information:
   - Extension ID
@@ -101,13 +92,13 @@ Ask user if they want to test the package locally first:
   - Publication date
 - Commit documentation updates
 
-### 10. Push to Remote
+### 9. Push to Remote
 
 Ask user if they want to push changes to remote:
 - `git push origin main`
 - `git push --tags`
 
-### 11. Summary
+### 10. Summary
 
 Display final summary with:
 - ✅ Published version number

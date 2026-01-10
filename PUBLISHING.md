@@ -262,7 +262,7 @@ This is NORMAL for newly published extensions. To fix:
 
 - **Extension ID**: `aidrivencoder.vscode-maid`
 - **Display Name**: MAID - Manifest-driven AI Development
-- **Current Version**: 0.4.0
+- **Current Version**: 0.4.1
 - **Publisher**: aidrivencoder
 - **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
@@ -275,7 +275,7 @@ code --install-extension aidrivencoder.vscode-maid
 
 ### Open VSX Registry
 
-**Status**: Published (awaiting namespace ownership claim for verification)
+**Status**: Published and Verified ✓
 
 **Open VSX URL**: https://open-vsx.org/extension/aidrivencoder/vscode-maid
 
@@ -283,10 +283,9 @@ code --install-extension aidrivencoder.vscode-maid
 - Available in Cursor IDE Extensions marketplace
 - Search for "MAID" or "vscode-maid"
 
-**⚠️ Verification Status:**
-- Extension currently shows warning icon until namespace ownership is claimed
-- Create issue at https://github.com/EclipseFdn/open-vsx.org/issues to claim ownership
-- Once approved, extension will show verified shield icon ✓
+**✓ Verification Status:**
+- Extension is verified and shows verified shield icon ✓
+- Namespace ownership has been claimed and approved
 
 ### Publishing Notes
 - Display name was changed from "MAID for VS Code" to "MAID - Manifest-driven AI Development" to avoid similarity with existing "Marp for VS Code" extension
@@ -295,6 +294,7 @@ code --install-extension aidrivencoder.vscode-maid
 - Total package size: ~89KB (compressed)
 
 ### Version History
+- **v0.4.1** (2026-01-10): Fixed MAID root detection to ignore system.manifest.json in project root, improved diagnostic logging
 - **v0.4.0** (2026-01-10): Added File Manifests View, Manifest Chain Visualizer, chain indicators in Manifest Explorer, find manifests for file command, coherence validation, and chain validation commands
 - **v0.3.3** (2026-01-09): Refactored terminology (manifestParentDir → maidRoot), all MAID CLI commands now execute from MAID root, fixed knowledge graph visualizer, improved file path display consistency
 - **v0.3.2** (2026-01-09): Fixed test files display in manifest view to show only file paths without command prefixes

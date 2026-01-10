@@ -5,7 +5,8 @@ All notable changes to the "MAID for VS Code" extension will be documented in th
 ## [0.4.1] - 2026-01-10
 
 ### Fixed
-- Patch release with minor improvements
+- MAID root detection now ignores `system.manifest.json` in project root
+- Improved diagnostic logging to show file categories and node types
 
 ## [0.4.0] - 2026-01-10
 

@@ -1,6 +1,7 @@
 # MAID for VS Code
 
-[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/aidrivencoder.vscode-maid)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/aidrivencoder/vscode-maid)](https://open-vsx.org/extension/aidrivencoder/vscode-maid)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 VS Code extension for [MAID (Manifest-driven AI Development)](https://github.com/mamertofabian/maid-runner) with comprehensive IDE integration for manifest validation, exploration, and test execution.
