@@ -28,33 +28,24 @@ export class GraphTreeItem extends vscode.TreeItem {
     this.tooltip = this.getTooltip();
     this.description = this.getDescription();
 
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-
+    // filePath and artifactFilePath are already resolved to full paths in getCategoryChildren
     // Make file and manifest nodes openable
     if (filePath && (nodeType === "file" || nodeType === "manifest")) {
-      if (workspaceRoot) {
-        const fullPath = path.isAbsolute(filePath)
-          ? filePath
-          : path.join(workspaceRoot, filePath);
-        this.resourceUri = vscode.Uri.file(fullPath);
-        this.command = {
-          command: "vscode.open",
-          title: "Open",
-          arguments: [this.resourceUri],
-        };
-      }
+      this.resourceUri = vscode.Uri.file(filePath);
+      this.command = {
+        command: "vscode.open",
+        title: "Open",
+        arguments: [this.resourceUri],
+      };
     }
 
     // Make artifact nodes navigable to their definition
-    if (nodeType === "artifact" && graphNode && artifactFilePath && workspaceRoot) {
-      const fullPath = path.isAbsolute(artifactFilePath)
-        ? artifactFilePath
-        : path.join(workspaceRoot, artifactFilePath);
+    if (nodeType === "artifact" && graphNode && artifactFilePath) {
       this.command = {
         command: "vscode-maid.goToArtifactDefinition",
         title: "Go to Definition",
         arguments: [
-          fullPath,
+          artifactFilePath,
           graphNode.name || "",
           graphNode.artifact_type || "function",
         ],
@@ -62,11 +53,8 @@ export class GraphTreeItem extends vscode.TreeItem {
     }
 
     // Make module nodes navigable to their main file
-    if (nodeType === "module" && graphNode && artifactFilePath && workspaceRoot) {
-      const fullPath = path.isAbsolute(artifactFilePath)
-        ? artifactFilePath
-        : path.join(workspaceRoot, artifactFilePath);
-      this.resourceUri = vscode.Uri.file(fullPath);
+    if (nodeType === "module" && graphNode && artifactFilePath) {
+      this.resourceUri = vscode.Uri.file(artifactFilePath);
       this.command = {
         command: "vscode.open",
         title: "Open Module",
@@ -169,6 +157,7 @@ export class KnowledgeGraphTreeDataProvider
   > = this._onDidChangeTreeData.event;
 
   private graphData: KnowledgeGraphResult | null = null;
+  private manifestParentDir: string | undefined;
   private disposables: vscode.Disposable[] = [];
   private debouncedRefresh: () => void;
   private isLoading = false;
@@ -217,11 +206,31 @@ export class KnowledgeGraphTreeDataProvider
       const fs = await import("fs/promises");
       const execAsync = promisify(exec);
 
+      // Find the first manifest directory to use as working directory
+      let cwd = workspaceRoot;
+      try {
+        const manifestFiles = await vscode.workspace.findFiles(
+          "**/*.manifest.json",
+          "**/node_modules/**",
+          1
+        );
+        if (manifestFiles.length > 0) {
+          const manifestPath = manifestFiles[0].fsPath;
+          const manifestDir = path.dirname(manifestPath);
+          cwd = path.dirname(manifestDir); // Parent of manifests directory
+          log(`[KnowledgeGraph] Using manifest directory: ${cwd}`);
+        }
+      } catch (error) {
+        log(`[KnowledgeGraph] Could not find manifest directory, using workspace root`, "warn");
+      }
+
+      this.manifestParentDir = cwd;
+
       // Export to temp file
       const tempFile = path.join(os.tmpdir(), `maid-graph-${Date.now()}.json`);
 
       await execAsync(`maid graph export --format json --output "${tempFile}"`, {
-        cwd: workspaceRoot,
+        cwd: cwd,
         timeout: 60000,
       });
 
@@ -349,17 +358,38 @@ export class KnowledgeGraphTreeDataProvider
     }
 
     const items: GraphTreeItem[] = [];
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
     for (const node of nodes) {
-      const label = this.getNodeLabel(node);
-      const filePath = node.path || undefined;
+      let label = this.getNodeLabel(node);
+      let filePath = node.path || undefined;
+      let artifactFilePath: string | undefined;
+
+      // Resolve file paths relative to manifest parent directory
+      if (filePath && this.manifestParentDir && workspaceRoot) {
+        const fullPath = path.isAbsolute(filePath)
+          ? filePath
+          : path.resolve(this.manifestParentDir, filePath);
+        filePath = fullPath; // Store full path for URI resolution
+        // Update label to show workspace-relative path for file/manifest nodes
+        if (node.type === "file" || node.type === "manifest") {
+          label = vscode.workspace.asRelativePath(fullPath);
+        }
+      }
 
       // For artifacts and modules, look up the containing file via edges
-      let artifactFilePath: string | undefined;
       if (node.type === "artifact") {
         artifactFilePath = this.findArtifactFile(node.id);
       } else if (node.type === "module") {
         artifactFilePath = this.findModuleFile(node);
+      }
+
+      // Resolve artifact file path if found
+      if (artifactFilePath && this.manifestParentDir && workspaceRoot) {
+        const fullArtifactPath = path.isAbsolute(artifactFilePath)
+          ? artifactFilePath
+          : path.resolve(this.manifestParentDir, artifactFilePath);
+        artifactFilePath = fullArtifactPath;
       }
 
       items.push(
@@ -382,6 +412,7 @@ export class KnowledgeGraphTreeDataProvider
 
   /**
    * Find the file path for an artifact by traversing graph edges.
+   * Returns path relative to manifest directory (will be resolved in getCategoryChildren).
    */
   private findArtifactFile(artifactId: string): string | undefined {
     if (!this.graphData?.edges) {

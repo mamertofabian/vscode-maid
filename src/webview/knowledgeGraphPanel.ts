@@ -8,7 +8,7 @@ import * as path from "path";
 import * as os from "os";
 import type { KnowledgeGraphResult } from "../types";
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from "./messages";
-import { log } from "../utils";
+import { log, getManifestParentDir } from "../utils";
 
 /**
  * Manages the Knowledge Graph Visualizer webview panel.
@@ -144,6 +144,7 @@ export class KnowledgeGraphPanel {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) return;
 
+    // filePath is already workspace-relative from _resolveGraphPaths
     const fullPath = path.isAbsolute(filePath)
       ? filePath
       : path.join(workspaceRoot, filePath);
@@ -173,6 +174,23 @@ export class KnowledgeGraphPanel {
     }
 
     try {
+      // Find the first manifest directory to use as working directory
+      let cwd = workspaceRoot;
+      try {
+        const manifestFiles = await vscode.workspace.findFiles(
+          "**/*.manifest.json",
+          "**/node_modules/**",
+          1
+        );
+        if (manifestFiles.length > 0) {
+          const manifestPath = manifestFiles[0].fsPath;
+          cwd = getManifestParentDir(manifestPath);
+          log(`[KnowledgeGraphPanel] Using manifest directory: ${cwd}`);
+        }
+      } catch (error) {
+        log(`[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`, "warn");
+      }
+
       const { exec } = await import("child_process");
       const { promisify } = await import("util");
       const fs = await import("fs/promises");
@@ -182,13 +200,18 @@ export class KnowledgeGraphPanel {
       const tempFile = path.join(os.tmpdir(), `maid-graph-panel-${Date.now()}.json`);
 
       await execAsync(`maid graph export --format json --output "${tempFile}"`, {
-        cwd: workspaceRoot,
+        cwd: cwd,
         timeout: 60000,
       });
 
       // Read and parse
       const content = await fs.readFile(tempFile, "utf-8");
       this._graphData = JSON.parse(content);
+
+      // Resolve file paths relative to manifest parent directory
+      if (this._graphData && cwd !== workspaceRoot) {
+        this._graphData = this._resolveGraphPaths(this._graphData, cwd, workspaceRoot);
+      }
 
       // Clean up temp file
       await fs.unlink(tempFile).catch(() => {});
@@ -210,6 +233,34 @@ export class KnowledgeGraphPanel {
         },
       });
     }
+  }
+
+  /**
+   * Resolve file paths in graph data relative to manifest parent directory.
+   */
+  private _resolveGraphPaths(
+    graphData: KnowledgeGraphResult,
+    manifestParentDir: string,
+    workspaceRoot: string
+  ): KnowledgeGraphResult {
+    const resolvedNodes = graphData.nodes.map((node) => {
+      if (node.path) {
+        const fullPath = path.isAbsolute(node.path)
+          ? node.path
+          : path.resolve(manifestParentDir, node.path);
+        // Store workspace-relative path for display
+        return {
+          ...node,
+          path: vscode.workspace.asRelativePath(fullPath),
+        };
+      }
+      return node;
+    });
+
+    return {
+      ...graphData,
+      nodes: resolvedNodes,
+    };
   }
 
   /**

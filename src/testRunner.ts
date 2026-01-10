@@ -4,7 +4,8 @@
  */
 
 import * as vscode from "vscode";
-import { log, getWorkspaceRoot, isManifestFile } from "./utils";
+import * as path from "path";
+import { log, getWorkspaceRoot, isManifestFile, getManifestParentDir } from "./utils";
 import { ManifestTreeItem } from "./manifestExplorer";
 
 /**
@@ -138,11 +139,16 @@ export class MaidTestRunner {
     }
 
     const manifestPath = manifestUri.fsPath;
-    log(`[TestRunner] Running tests for manifest: ${manifestPath}`);
+    const manifestParentDir = getManifestParentDir(manifestPath);
+    // Get relative path from manifest parent directory
+    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    
+    log(`[TestRunner] Running tests from: ${manifestParentDir}`);
+    log(`[TestRunner] Running tests for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
-    // Use --manifest flag as per maid test --help
-    terminal.sendText(`maid test --manifest "${manifestPath}"`);
+    // Change to manifest's parent directory, then run the command with relative path
+    terminal.sendText(`cd "${manifestParentDir}" && maid test --manifest "${relativeManifestPath}"`);
     terminal.show();
   }
 
@@ -169,10 +175,16 @@ export class MaidTestRunner {
     }
 
     const manifestPath = manifestUri.fsPath;
-    log(`[TestRunner] Running validation for manifest: ${manifestPath}`);
+    const manifestParentDir = getManifestParentDir(manifestPath);
+    // Get relative path from manifest parent directory
+    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    
+    log(`[TestRunner] Running validation from: ${manifestParentDir}`);
+    log(`[TestRunner] Running validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
-    terminal.sendText(`maid validate "${manifestPath}" --use-manifest-chain`);
+    // Change to manifest's parent directory, then run the command with relative path
+    terminal.sendText(`cd "${manifestParentDir}" && maid validate "${relativeManifestPath}" --use-manifest-chain`);
     terminal.show();
   }
 

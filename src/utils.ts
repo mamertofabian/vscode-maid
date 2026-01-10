@@ -4,6 +4,7 @@
  */
 
 import * as vscode from "vscode";
+import * as path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 import {
@@ -112,10 +113,16 @@ export async function executeMaidCommand<T>(
 export async function runValidation(
   manifestPath?: string
 ): Promise<ValidationResult | null> {
-  const args = manifestPath
-    ? `validate "${manifestPath}" --json-output`
-    : "validate --json-output";
-  return executeMaidCommand<ValidationResult>(args);
+  if (manifestPath) {
+    // Use manifest's parent directory as working directory
+    const manifestParentDir = getManifestParentDir(manifestPath);
+    const relativeManifestPath = path.relative(manifestParentDir, manifestPath);
+    const args = `validate "${relativeManifestPath}" --json-output`;
+    return executeMaidCommand<ValidationResult>(args, manifestParentDir);
+  } else {
+    const args = "validate --json-output";
+    return executeMaidCommand<ValidationResult>(args);
+  }
 }
 
 /**
@@ -193,6 +200,18 @@ export function getWorkspaceRoot(): string | undefined {
     return folders[0].uri.fsPath;
   }
   return undefined;
+}
+
+/**
+ * Get the manifest's parent directory (where the manifests/ folder is located).
+ * This is the directory where maid CLI commands should be executed.
+ * For example: apps/frontend/manifests/task-005.manifest.json -> apps/frontend/
+ */
+export function getManifestParentDir(manifestPath: string): string {
+  // Get the directory containing the manifest file
+  const manifestDir = path.dirname(manifestPath);
+  // Get the parent of that directory (where manifests/ folder is)
+  return path.dirname(manifestDir);
 }
 
 /**
