@@ -2,6 +2,11 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.4.1] - 2026-01-10
+
+### Fixed
+- Patch release with minor improvements
+
 ## [0.4.0] - 2026-01-10
 
 ### Added
