@@ -2,7 +2,7 @@
   "name": "vscode-maid",
   "displayName": "MAID - Manifest-driven AI Development",
   "description": "VS Code extension for MAID (Manifest-driven AI Development) with LSP integration, manifest exploration, test execution, and validation features",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "aidrivencoder",
   "engines": {
     "vscode": "^1.75.0"
