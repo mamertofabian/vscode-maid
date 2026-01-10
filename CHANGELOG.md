@@ -5,7 +5,13 @@ All notable changes to the "MAID for VS Code" extension will be documented in th
 ## [0.4.2] - 2026-01-10
 
 ### Fixed
-- Patch release with bug fixes and improvements
+- File path resolution now uses MAID root instead of workspace root for consistency
+  - Updated `manifestIndex.resolveFilePath()` to use `getMaidRoot()`
+  - Updated `referenceProvider.resolveFilePath()` to use `getMaidRoot()`
+  - Updated `definitionProvider.resolveFilePath()` to use `getMaidRoot()`
+  - Updated `knowledgeGraph` to use `getMaidRoot()` for consistency
+  - This fixes issues where manifests in subdirectories couldn't find referenced files
+- Removed unused activation event for `maidManifests` from package.json
 
 ## [0.4.1] - 2026-01-10
 
