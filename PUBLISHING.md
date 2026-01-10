@@ -258,11 +258,11 @@ This is NORMAL for newly published extensions. To fix:
 
 ### Microsoft VS Code Marketplace
 
-**Extension successfully published on January 9, 2026**
+**Extension successfully published on January 10, 2026**
 
 - **Extension ID**: `aidrivencoder.vscode-maid`
 - **Display Name**: MAID - Manifest-driven AI Development
-- **Current Version**: 0.3.3
+- **Current Version**: 0.4.0
 - **Publisher**: aidrivencoder
 - **Marketplace URL**: https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid
 - **Management Hub**: https://marketplace.visualstudio.com/manage/publishers/aidrivencoder/extensions/vscode-maid/hub
@@ -295,6 +295,7 @@ code --install-extension aidrivencoder.vscode-maid
 - Total package size: ~89KB (compressed)
 
 ### Version History
+- **v0.4.0** (2026-01-10): Added File Manifests View, Manifest Chain Visualizer, chain indicators in Manifest Explorer, find manifests for file command, coherence validation, and chain validation commands
 - **v0.3.3** (2026-01-09): Refactored terminology (manifestParentDir → maidRoot), all MAID CLI commands now execute from MAID root, fixed knowledge graph visualizer, improved file path display consistency
 - **v0.3.2** (2026-01-09): Fixed test files display in manifest view to show only file paths without command prefixes
 - **v0.3.1** (2026-01-09): Fixed extension failing to load due to `jsonc-parser` not being bundled
