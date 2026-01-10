@@ -23,8 +23,7 @@
     "ide"
   ],
   "activationEvents": [
-    "onLanguage:json",
-    "onView:maidManifests"
+    "onLanguage:json"
   ],
   "main": "./out/extension.js",
   "repository": {
