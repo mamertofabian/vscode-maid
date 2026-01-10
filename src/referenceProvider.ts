@@ -11,6 +11,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as jsonc from "jsonc-parser";
 import { ManifestIndex } from "./manifestIndex";
+import { getMaidRoot } from "./utils";
 
 /**
  * Provides references for manifest files - finds all manifests referencing a file/artifact.
@@ -161,19 +162,9 @@ export class ManifestReferenceProvider implements vscode.ReferenceProvider {
       return path.normalize(filePath).replace(/\\/g, "/");
     }
 
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(
-      vscode.Uri.file(manifestPath)
-    );
-
-    if (workspaceFolder) {
-      return path.normalize(
-        path.join(workspaceFolder.uri.fsPath, filePath)
-      ).replace(/\\/g, "/");
-    }
-
-    return path.normalize(
-      path.join(path.dirname(manifestPath), filePath)
-    ).replace(/\\/g, "/");
+    // Use getMaidRoot to find the MAID root directory (parent of manifests/)
+    const maidRoot = getMaidRoot(manifestPath);
+    return path.normalize(path.join(maidRoot, filePath)).replace(/\\/g, "/");
   }
 }
 

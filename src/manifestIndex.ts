@@ -17,6 +17,7 @@ import {
   ManifestIndexEntry,
   FileReferenceCategory,
 } from "./types";
+import { getMaidRoot } from "./utils";
 
 /**
  * ManifestIndex maintains a cross-manifest index for fast lookups.
@@ -412,20 +413,9 @@ export class ManifestIndex {
       return this.normalizePath(filePath);
     }
 
-    const manifestDir = path.dirname(manifestPath);
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(
-      vscode.Uri.file(manifestPath)
-    );
-
-    if (workspaceFolder) {
-      // Resolve relative to workspace root
-      return this.normalizePath(
-        path.join(workspaceFolder.uri.fsPath, filePath)
-      );
-    }
-
-    // Fallback: resolve relative to manifest directory
-    return this.normalizePath(path.join(manifestDir, filePath));
+    // Use getMaidRoot to find the MAID root directory (parent of manifests/)
+    const maidRoot = getMaidRoot(manifestPath);
+    return this.normalizePath(path.join(maidRoot, filePath));
   }
 
   /**

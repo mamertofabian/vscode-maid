@@ -11,6 +11,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as jsonc from "jsonc-parser";
 import { ManifestIndex } from "./manifestIndex";
+import { getMaidRoot } from "./utils";
 
 /**
  * Provides go-to-definition for manifest files.
@@ -303,14 +304,8 @@ export class ManifestDefinitionProvider implements vscode.DefinitionProvider {
       return filePath;
     }
 
-    const workspaceFolder = vscode.workspace.getWorkspaceFolder(
-      vscode.Uri.file(manifestPath)
-    );
-
-    if (workspaceFolder) {
-      return path.join(workspaceFolder.uri.fsPath, filePath);
-    }
-
-    return path.join(path.dirname(manifestPath), filePath);
+    // Use getMaidRoot to find the MAID root directory (parent of manifests/)
+    const maidRoot = getMaidRoot(manifestPath);
+    return path.join(maidRoot, filePath);
   }
 }

@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
 import { GraphNode, GraphNodeType, KnowledgeGraphResult } from "./types";
-import { log, debounce } from "./utils";
+import { log, debounce, getMaidRoot } from "./utils";
 
 /**
  * Tree item for knowledge graph view.
@@ -217,8 +217,7 @@ export class KnowledgeGraphTreeDataProvider
         );
         if (manifestFiles.length > 0) {
           const manifestPath = manifestFiles[0].fsPath;
-          const manifestDir = path.dirname(manifestPath);
-          cwd = path.dirname(manifestDir); // MAID root (parent of manifests/)
+          cwd = getMaidRoot(manifestPath);
           log(`[KnowledgeGraph] Using MAID root: ${cwd}`);
         }
       } catch (error) {
