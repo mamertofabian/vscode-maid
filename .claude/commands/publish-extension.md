@@ -16,7 +16,9 @@ Complete workflow for publishing a VS Code extension to both the Visual Studio M
 4. Check if `ovsx` CLI is installed: `ovsx --version`
    - If not installed: `npm install -g ovsx`
    - Verify Open VSX account exists at https://open-vsx.org/
-   - Verify Open VSX token is available (user will need to provide it)
+   - Verify `.env` file exists and contains `OPENVSX_TOKEN` variable
+     - If missing: create `.env` file with `OPENVSX_TOKEN=<your-token>`
+     - Token can be obtained from: https://open-vsx.org/user-settings/tokens
 
 ## Steps to Execute
 
@@ -55,14 +57,19 @@ Ask user if they want to test the package locally first:
 
 ### 6. Publish to Open VSX Registry
 
-- Ask user for Open VSX Personal Access Token (if not already configured)
-  - Direct them to: https://open-vsx.org/user-settings/tokens
-  - Token is different from Microsoft Marketplace token
+- Load Open VSX token from `.env` file:
+  - Check if `.env` file exists: `if [ ! -f .env ]; then echo "Error: .env file not found"; exit 1; fi`
+  - Extract `OPENVSX_TOKEN` from `.env` file (handles quotes and spaces):
+    ```bash
+    OPENVSX_TOKEN=$(grep '^OPENVSX_TOKEN' .env 2>/dev/null | sed 's/^OPENVSX_TOKEN[[:space:]]*=[[:space:]]*//' | sed 's/^["'\'']//' | sed 's/["'\'']$//')
+    ```
+  - Verify token is not empty: `if [ -z "$OPENVSX_TOKEN" ]; then echo "Error: OPENVSX_TOKEN not found in .env"; exit 1; fi`
+  - If missing: prompt user to add `OPENVSX_TOKEN=<your-token>` to `.env` file
 - Check if namespace exists (first time only):
-  - If namespace doesn't exist: `ovsx create-namespace <publisher-name> -p <open-vsx-token>`
+  - If namespace doesn't exist: `ovsx create-namespace <publisher-name> -p "$OPENVSX_TOKEN"`
 - Publish to Open VSX using the .vsix file:
-  - `ovsx publish <filename>.vsix -p <open-vsx-token>`
-  - Or: `ovsx publish -p <open-vsx-token>` (uses package.json)
+  - `ovsx publish <filename>.vsix -p "$OPENVSX_TOKEN"`
+  - Or: `ovsx publish -p "$OPENVSX_TOKEN"` (uses package.json)
 - Capture and display the Open VSX URL from output
 - **Note**: Extension will show warning icon until namespace ownership is claimed (one-time process)
   - Direct user to: https://github.com/EclipseFdn/open-vsx.org/issues
@@ -127,11 +134,17 @@ Display final summary with:
 
 ### Open VSX Registry Errors
 
+- If `.env` file is missing or `OPENVSX_TOKEN` is not set:
+  - Create `.env` file in project root: `echo "OPENVSX_TOKEN=<your-token>" > .env`
+  - Get token from: https://open-vsx.org/user-settings/tokens
+  - Ensure `.env` is in `.gitignore` (should not be committed)
 - If "Namespace does not exist":
-  - Create namespace first: `ovsx create-namespace <publisher-name> -p <open-vsx-token>`
+  - Create namespace first: `ovsx create-namespace <publisher-name> -p "$OPENVSX_TOKEN"`
 - If "Invalid access token":
+  - Verify token in `.env` file is correct
   - Verify token at https://open-vsx.org/user-settings/tokens
   - Make sure using Open VSX token, not Microsoft token
+  - Re-source `.env` file if token was updated
 - If "Namespace already exists":
   - This is normal if namespace was created previously
   - Continue with publishing
@@ -152,4 +165,5 @@ Display final summary with:
 - Both marketplaces use the same .vsix file (package once, publish twice)
 - Open VSX namespace ownership claim is a one-time process per namespace
 - Open VSX token is different from Microsoft Marketplace token
+- Open VSX token is read from `.env` file (ensure `.env` is in `.gitignore`)
 - Extension will be available in Cursor IDE, VSCodium, and other VS Code-compatible editors after Open VSX publishing
