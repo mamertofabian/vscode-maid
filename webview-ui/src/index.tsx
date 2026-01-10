@@ -13,7 +13,7 @@ if (!container) {
 }
 
 // Get the view type from the data attribute set by the extension
-const viewType = container.dataset.view as "knowledgeGraph" | "dashboard" | undefined;
+const viewType = container.dataset.view as "knowledgeGraph" | "dashboard" | "history" | undefined;
 
 const root = createRoot(container);
 root.render(

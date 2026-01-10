@@ -94,12 +94,43 @@ export interface ThemeInfo {
 }
 
 // ============================================================================
+// History Types
+// ============================================================================
+
+export interface CommitHistory {
+  hash: string;
+  shortHash: string;
+  author: string;
+  email: string;
+  date: Date | string; // Can be Date or ISO string (will be converted to Date in component)
+  message: string;
+  changes: {
+    added: number;
+    removed: number;
+    modified: number;
+  };
+}
+
+export interface HistoryPanelData {
+  manifestPath: string;
+  commits: CommitHistory[];
+  selectedCommit?: string;
+  comparingCommits?: {
+    commit1: string;
+    commit2: string;
+  };
+}
+
+// ============================================================================
 // Message Types
 // ============================================================================
 
 export type ExtensionToWebviewMessage =
   | { type: "graphData"; payload: KnowledgeGraphResult }
   | { type: "dashboardData"; payload: DashboardData }
+  | { type: "historyData"; payload: HistoryPanelData }
+  | { type: "commitDiff"; payload: { commitHash: string; diff: string } }
+  | { type: "fileAtCommit"; payload: { commitHash: string; content: string } }
   | { type: "validationUpdate"; payload: { manifestPath: string; errorCount: number; warningCount: number } }
   | { type: "themeChanged"; payload: ThemeInfo }
   | { type: "loading"; payload: { isLoading: boolean } }
@@ -113,4 +144,8 @@ export type WebviewToExtensionMessage =
   | { type: "openManifest"; payload: { manifestPath: string } }
   | { type: "runValidation"; payload: { manifestPath?: string } }
   | { type: "filterChange"; payload: { filters: GraphFilters } }
-  | { type: "runTests"; payload: { manifestPath?: string } };
+  | { type: "runTests"; payload: { manifestPath?: string } }
+  | { type: "loadHistory"; payload: { manifestPath: string } }
+  | { type: "loadCommit"; payload: { manifestPath: string; commitHash: string } }
+  | { type: "compareCommits"; payload: { manifestPath: string; commitHash1: string; commitHash2: string } }
+  | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } };

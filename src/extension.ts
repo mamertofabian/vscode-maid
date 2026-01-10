@@ -27,12 +27,14 @@ import {
   TrackedFilesTreeDataProvider,
 } from "./manifestExplorer";
 import { KnowledgeGraphTreeDataProvider } from "./knowledgeGraph";
+import { ManifestHistoryTreeDataProvider } from "./manifestHistory";
 import { MaidTestRunner } from "./testRunner";
 import { ManifestIndex } from "./manifestIndex";
 import { ManifestDefinitionProvider } from "./definitionProvider";
 import { ManifestReferenceProvider, FileReferenceProvider } from "./referenceProvider";
 import { KnowledgeGraphPanel } from "./webview/knowledgeGraphPanel";
 import { DashboardPanel } from "./webview/dashboardPanel";
+import { HistoryPanel } from "./webview/historyPanel";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -40,6 +42,7 @@ let statusBar: MaidStatusBar | undefined;
 let manifestProvider: ManifestTreeDataProvider | undefined;
 let trackedFilesProvider: TrackedFilesTreeDataProvider | undefined;
 let knowledgeGraphProvider: KnowledgeGraphTreeDataProvider | undefined;
+let historyProvider: ManifestHistoryTreeDataProvider | undefined;
 let testRunner: MaidTestRunner | undefined;
 let manifestIndex: ManifestIndex | undefined;
 
@@ -482,6 +485,13 @@ function registerTreeViews(context: vscode.ExtensionContext): void {
   );
   context.subscriptions.push(knowledgeGraphProvider);
 
+  // Manifest history
+  historyProvider = new ManifestHistoryTreeDataProvider();
+  context.subscriptions.push(
+    vscode.window.registerTreeDataProvider("maidManifestHistory", historyProvider)
+  );
+  context.subscriptions.push(historyProvider);
+
   log("TreeView providers registered");
 }
 
@@ -543,6 +553,15 @@ function registerCommands(context: vscode.ExtensionContext): void {
     })
   );
 
+  // Refresh manifest history
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.refreshManifestHistory", () => {
+      if (historyProvider) {
+        historyProvider.refresh();
+      }
+    })
+  );
+
   // Test runner commands
   testRunner = new MaidTestRunner();
   context.subscriptions.push(testRunner);
@@ -582,6 +601,77 @@ function registerCommands(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("vscode-maid.showDashboard", () => {
       DashboardPanel.createOrShow(context.extensionUri);
     })
+  );
+
+  // History panel commands
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-maid.showManifestHistory",
+      (manifestPath?: string, commitHash?: string) => {
+        const activeEditor = vscode.window.activeTextEditor;
+        const pathToUse =
+          manifestPath ||
+          (activeEditor && isManifestPath(activeEditor.document.uri.fsPath)
+            ? activeEditor.document.uri.fsPath
+            : undefined);
+
+        if (pathToUse) {
+          HistoryPanel.createOrShow(context.extensionUri, pathToUse, commitHash);
+        } else {
+          vscode.window.showWarningMessage(
+            "Please open a manifest file to view its history"
+          );
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-maid.compareManifestVersions",
+      async (commitHash1?: string, commitHash2?: string) => {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor || !isManifestPath(activeEditor.document.uri.fsPath)) {
+          vscode.window.showWarningMessage(
+            "Please open a manifest file to compare versions"
+          );
+          return;
+        }
+
+        const manifestPath = activeEditor.document.uri.fsPath;
+        if (commitHash1 && commitHash2) {
+          HistoryPanel.createOrShow(context.extensionUri, manifestPath);
+          // The panel will handle the comparison via message
+        } else {
+          vscode.window.showInformationMessage(
+            "Use the History panel to select commits for comparison"
+          );
+        }
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-maid.openManifestAtCommit",
+      async (commitHash?: string) => {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor || !isManifestPath(activeEditor.document.uri.fsPath)) {
+          vscode.window.showWarningMessage(
+            "Please open a manifest file to view at a specific commit"
+          );
+          return;
+        }
+
+        if (!commitHash) {
+          vscode.window.showWarningMessage("No commit hash provided");
+          return;
+        }
+
+        const manifestPath = activeEditor.document.uri.fsPath;
+        HistoryPanel.createOrShow(context.extensionUri, manifestPath, commitHash);
+      }
+    )
   );
 
   log("Commands registered");
@@ -1003,6 +1093,12 @@ export function deactivate(): Thenable<void> | undefined {
   if (knowledgeGraphProvider) {
     knowledgeGraphProvider.dispose();
     knowledgeGraphProvider = undefined;
+  }
+
+  // Dispose history provider
+  if (historyProvider) {
+    historyProvider.dispose();
+    historyProvider = undefined;
   }
 
   // Dispose test runner

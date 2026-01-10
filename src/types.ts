@@ -265,3 +265,50 @@ export interface ManifestIndexEntry {
   supersedes: string[];
   supersededBy: string[];
 }
+
+/**
+ * Git commit history entry for a manifest file
+ */
+export interface CommitHistory {
+  hash: string;
+  shortHash: string;
+  author: string;
+  email: string;
+  date: Date;
+  message: string;
+  changes: {
+    added: number;
+    removed: number;
+    modified: number;
+  };
+}
+
+/**
+ * Serialized commit history (for JSON message passing)
+ */
+export interface SerializedCommitHistory {
+  hash: string;
+  shortHash: string;
+  author: string;
+  email: string;
+  date: string; // ISO string
+  message: string;
+  changes: {
+    added: number;
+    removed: number;
+    modified: number;
+  };
+}
+
+/**
+ * History panel data
+ */
+export interface HistoryPanelData {
+  manifestPath: string;
+  commits: CommitHistory[] | SerializedCommitHistory[];
+  selectedCommit?: string;
+  comparingCommits?: {
+    commit1: string;
+    commit2: string;
+  };
+}

@@ -60,6 +60,10 @@
         {
           "id": "maidKnowledgeGraph",
           "name": "Knowledge Graph"
+        },
+        {
+          "id": "maidManifestHistory",
+          "name": "History"
         }
       ]
     },
@@ -158,6 +162,30 @@
         "title": "Show Project Dashboard",
         "category": "MAID",
         "icon": "$(dashboard)"
+      },
+      {
+        "command": "vscode-maid.refreshManifestHistory",
+        "title": "Refresh History",
+        "category": "MAID",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "vscode-maid.showManifestHistory",
+        "title": "Show Manifest History",
+        "category": "MAID",
+        "icon": "$(history)"
+      },
+      {
+        "command": "vscode-maid.compareManifestVersions",
+        "title": "Compare Manifest Versions",
+        "category": "MAID",
+        "icon": "$(diff)"
+      },
+      {
+        "command": "vscode-maid.openManifestAtCommit",
+        "title": "Open Manifest at Commit",
+        "category": "MAID",
+        "icon": "$(git-commit)"
       }
     ],
     "keybindings": [
@@ -203,6 +231,16 @@
           "command": "vscode-maid.showDashboard",
           "when": "view == maidManifests",
           "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.refreshManifestHistory",
+          "when": "view == maidManifestHistory",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-maid.showManifestHistory",
+          "when": "view == maidManifestHistory",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -220,6 +258,21 @@
           "command": "vscode-maid.runTestsForManifest",
           "when": "view == maidManifests && viewItem == maidManifest",
           "group": "maid@2"
+        },
+        {
+          "command": "vscode-maid.showManifestHistory",
+          "when": "view == maidManifestHistory && viewItem == maidHistoryCommit",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-maid.openManifestAtCommit",
+          "when": "view == maidManifestHistory && viewItem == maidHistoryCommit",
+          "group": "maid@1"
+        },
+        {
+          "command": "vscode-maid.compareManifestVersions",
+          "when": "view == maidManifestHistory && viewItem == maidHistoryCommit",
+          "group": "maid@2"
         }
       ],
       "explorer/context": [
@@ -232,6 +285,11 @@
           "command": "vscode-maid.validateManifest",
           "when": "resourceFilename =~ /\\.manifest\\.json$/",
           "group": "maid@2"
+        },
+        {
+          "command": "vscode-maid.showManifestHistory",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@3"
         }
       ],
       "editor/context": [
@@ -244,6 +302,11 @@
           "command": "vscode-maid.validateManifest",
           "when": "resourceFilename =~ /\\.manifest\\.json$/",
           "group": "maid@2"
+        },
+        {
+          "command": "vscode-maid.showManifestHistory",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/",
+          "group": "maid@3"
         }
       ],
       "commandPalette": [
@@ -262,6 +325,10 @@
         {
           "command": "vscode-maid.goToChildManifests",
           "when": "resourceFilename =~ /\\.manifest\\.json$/"
+        },
+        {
+          "command": "vscode-maid.showManifestHistory",
+          "when": "resourceFilename =~ /\\.manifest\\.json$/"
         }
       ]
     },
@@ -279,6 +346,16 @@
             "--stdio"
           ],
           "description": "Arguments to pass to maid-lsp"
+        },
+        "maid.history.maxCommits": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of commits to load initially in the history view"
+        },
+        "maid.history.enableAutoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh history when manifest changes"
         }
       }
     }
