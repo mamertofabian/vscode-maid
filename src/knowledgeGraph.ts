@@ -206,18 +206,19 @@ export class KnowledgeGraphTreeDataProvider
       const fs = await import("fs/promises");
       const execAsync = promisify(exec);
 
-      // Find the first manifest directory to use as working directory
+      // Find the MAID root directory (where manifests/ folder is located)
       let cwd = workspaceRoot;
       try {
+        // Only search for manifests inside manifests/ directories (ignore system.manifest.json in root)
         const manifestFiles = await vscode.workspace.findFiles(
-          "**/*.manifest.json",
+          "**/manifests/*.manifest.json",
           "**/node_modules/**",
           1
         );
         if (manifestFiles.length > 0) {
           const manifestPath = manifestFiles[0].fsPath;
           const manifestDir = path.dirname(manifestPath);
-          cwd = path.dirname(manifestDir); // MAID root (where manifests/ folder is)
+          cwd = path.dirname(manifestDir); // MAID root (parent of manifests/)
           log(`[KnowledgeGraph] Using MAID root: ${cwd}`);
         }
       } catch (error) {
@@ -241,7 +242,11 @@ export class KnowledgeGraphTreeDataProvider
       // Clean up temp file
       await fs.unlink(tempFile).catch(() => {});
 
-      log(`[KnowledgeGraph] Loaded: ${this.graphData?.nodes.length || 0} nodes, ${this.graphData?.edges?.length || 0} edges`);
+      const nodeTypes = this.graphData?.nodes?.reduce((acc: Record<string, number>, n) => {
+        acc[n.type] = (acc[n.type] || 0) + 1;
+        return acc;
+      }, {}) || {};
+      log(`[KnowledgeGraph] Loaded from ${cwd}: ${this.graphData?.nodes?.length || 0} nodes (${JSON.stringify(nodeTypes)}), ${this.graphData?.edges?.length || 0} edges`);
     } catch (error: any) {
       log(`[KnowledgeGraph] Error loading graph: ${error.message}`, "error");
       this.graphData = null;

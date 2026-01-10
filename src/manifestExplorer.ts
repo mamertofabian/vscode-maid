@@ -1055,22 +1055,23 @@ export class TrackedFilesTreeDataProvider
       const { promisify } = await import("util");
       const execAsync = promisify(exec);
 
-      // Find the first manifest directory to use as working directory
+      // Find the MAID root directory (where manifests/ folder is located)
       let cwd = workspaceRoot;
       try {
+        // Only search for manifests inside manifests/ directories (ignore system.manifest.json in root)
         const manifestFiles = await vscode.workspace.findFiles(
-          "**/*.manifest.json",
+          "**/manifests/*.manifest.json",
           "**/node_modules/**",
           1
         );
         if (manifestFiles.length > 0) {
           const manifestPath = manifestFiles[0].fsPath;
           const manifestDir = path.dirname(manifestPath);
-          cwd = path.dirname(manifestDir); // Parent of manifests directory
-          log(`[TrackedFiles] Using manifest directory: ${cwd}`);
+          cwd = path.dirname(manifestDir); // MAID root (parent of manifests/)
+          log(`[TrackedFiles] Using MAID root: ${cwd}`);
         }
       } catch (error) {
-        log(`[TrackedFiles] Could not find manifest directory, using workspace root`, "warn");
+        log(`[TrackedFiles] Could not find MAID root, using workspace root`, "warn");
       }
 
       this.maidRoot = cwd;
@@ -1081,7 +1082,7 @@ export class TrackedFilesTreeDataProvider
       });
 
       this.filesData = JSON.parse(stdout);
-      log(`[TrackedFiles] Loaded: ${this.filesData?.tracked.length || 0} tracked, ${this.filesData?.undeclared.length || 0} undeclared`);
+      log(`[TrackedFiles] Loaded from ${cwd}: undeclared=${this.filesData?.undeclared?.length || 0}, registered=${this.filesData?.registered?.length || 0}, tracked=${this.filesData?.tracked?.length || 0}, private_impl=${this.filesData?.private_impl?.length || 0}`);
     } catch (error: any) {
       log(`[TrackedFiles] Error loading files: ${error.message}`, "error");
       this.filesData = null;

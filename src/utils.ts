@@ -208,9 +208,9 @@ export function getWorkspaceRoot(): string | undefined {
  * For example: apps/frontend/manifests/task-005.manifest.json -> apps/frontend/
  */
 export function getMaidRoot(manifestPath: string): string {
-  // Get the directory containing the manifest file
+  // Get the directory containing the manifest file (manifests/)
   const manifestDir = path.dirname(manifestPath);
-  // Get the parent of that directory (where manifests/ folder is)
+  // Get the parent of that directory (MAID root)
   return path.dirname(manifestDir);
 }
 
