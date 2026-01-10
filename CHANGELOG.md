@@ -2,6 +2,18 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.3.3] - 2026-01-09
+
+### Changed
+- Refactored terminology: renamed `manifestParentDir` to `maidRoot` for clarity
+- All MAID CLI commands now execute from the MAID root directory (where manifests/ folder is located)
+- File paths in tracked files and knowledge graph views now display complete paths relative to workspace root
+
+### Fixed
+- Knowledge graph visualizer now loads data correctly from MAID root directory
+- Test and validate commands now run from the correct directory (MAID root instead of workspace root)
+- File paths in all views now consistently show full paths matching manifest view behavior
+
 ## [0.3.2] - 2026-01-09
 
 ### Fixed
