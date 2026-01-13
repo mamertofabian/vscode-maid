@@ -1,0 +1,221 @@
+{
+  "goal": "Snapshot of existing code in src/referenceProvider.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/referenceProvider.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/referenceProvider.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "FileReferenceProvider"
+      },
+      {
+        "type": "class",
+        "name": "ManifestReferenceProvider"
+      },
+      {
+        "type": "function",
+        "name": "provideReferences",
+        "class": "FileReferenceProvider",
+        "args": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "_position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "_context",
+            "type": "vscode.ReferenceContext"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "_position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "_context",
+            "type": "vscode.ReferenceContext"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "findArtifactReferences",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "artifactName",
+            "type": "string"
+          },
+          {
+            "name": "includeDeclaration",
+            "type": "boolean"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "artifactName",
+            "type": "string"
+          },
+          {
+            "name": "includeDeclaration",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "findFileReferences",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "includeDeclaration",
+            "type": "boolean"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "includeDeclaration",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isArtifactName",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isFilePath",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "provideReferences",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "context",
+            "type": "vscode.ReferenceContext"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "context",
+            "type": "vscode.ReferenceContext"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "resolveFilePath",
+        "class": "ManifestReferenceProvider",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_012_referenceProvider"]
+}

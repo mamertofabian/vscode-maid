@@ -1,0 +1,118 @@
+{
+  "goal": "Snapshot of existing code in src/types.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/types.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/types.ts",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ArtifactContains"
+      },
+      {
+        "type": "interface",
+        "name": "ArtifactReference"
+      },
+      {
+        "type": "interface",
+        "name": "CommandResult"
+      },
+      {
+        "type": "interface",
+        "name": "CommitHistory"
+      },
+      {
+        "type": "interface",
+        "name": "ExpectedArtifact"
+      },
+      {
+        "type": "interface",
+        "name": "FileReference"
+      },
+      {
+        "type": "interface",
+        "name": "GraphEdge"
+      },
+      {
+        "type": "interface",
+        "name": "GraphNode"
+      },
+      {
+        "type": "interface",
+        "name": "HistoryPanelData"
+      },
+      {
+        "type": "interface",
+        "name": "KnowledgeGraphResult"
+      },
+      {
+        "type": "interface",
+        "name": "MaidFilesResult"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestIndexEntry"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestInfo"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestTask"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestsResult"
+      },
+      {
+        "type": "interface",
+        "name": "SerializedCommitHistory"
+      },
+      {
+        "type": "interface",
+        "name": "UndeclaredFile"
+      },
+      {
+        "type": "interface",
+        "name": "ValidationError"
+      },
+      {
+        "type": "interface",
+        "name": "ValidationResult"
+      },
+      {
+        "type": "type",
+        "name": "FileReferenceCategory"
+      },
+      {
+        "type": "type",
+        "name": "FileTrackingStatus"
+      },
+      {
+        "type": "type",
+        "name": "GraphNodeType"
+      },
+      {
+        "type": "type",
+        "name": "LogLevel"
+      },
+      {
+        "type": "type",
+        "name": "ManifestTreeItemContext"
+      },
+      {
+        "type": "type",
+        "name": "ManifestTreeItemType"
+      },
+      {
+        "type": "type",
+        "name": "StatusBarState"
+      }
+    ]
+  },
+  "validationCommand": []
+}

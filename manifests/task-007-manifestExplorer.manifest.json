@@ -1,0 +1,422 @@
+{
+  "goal": "Snapshot of existing code in src/manifestExplorer.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/manifestExplorer.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/manifestExplorer.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "class",
+        "name": "ManifestTreeItem"
+      },
+      {
+        "type": "class",
+        "name": "TrackedFileTreeItem"
+      },
+      {
+        "type": "class",
+        "name": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "extractFilePath",
+        "args": [
+          {
+            "name": "arg",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "resolveFilePath",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "maidRoot",
+            "type": "string | undefined"
+          },
+          {
+            "name": "workspaceRoot",
+            "type": "string | undefined"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "maidRoot",
+            "type": "string | undefined"
+          },
+          {
+            "name": "workspaceRoot",
+            "type": "string | undefined"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_onDidChangeTreeData",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "debouncedRefresh",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "formatArtifactContains",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "contained",
+            "type": "ArtifactContains"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "contained",
+            "type": "ArtifactContains"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "formatArtifactTooltip",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "contained",
+            "type": "ArtifactContains"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "contained",
+            "type": "ArtifactContains"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getArtifactTypeIcon",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "type",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getCategoryChildren",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getChildren",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifestChildren",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifestItems",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getTreeItem",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "ManifestTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "loadManifests",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "manifestIndex",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "manifests",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "onDidChangeTreeData",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "refresh",
+        "class": "ManifestTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "setManifestIndex",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "manifestIndex",
+            "type": "any"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestIndex",
+            "type": "any"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "updateDiagnostics",
+        "class": "ManifestTreeDataProvider",
+        "args": [
+          {
+            "name": "uris",
+            "type": "readonly vscode.Uri[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uris",
+            "type": "readonly vscode.Uri[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getContextValue",
+        "class": "ManifestTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getDescription",
+        "class": "ManifestTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getIcon",
+        "class": "ManifestTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getTooltip",
+        "class": "ManifestTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getDescription",
+        "class": "TrackedFileTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getIcon",
+        "class": "TrackedFileTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getTooltip",
+        "class": "TrackedFileTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "_onDidChangeTreeData",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "debouncedRefresh",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "filesData",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getCategoryChildren",
+        "class": "TrackedFilesTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getChildren",
+        "class": "TrackedFilesTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getRootCategories",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getTreeItem",
+        "class": "TrackedFilesTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "TrackedFileTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isLoading",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "loadFiles",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "maidRoot",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "onDidChangeTreeData",
+        "class": "TrackedFilesTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "refresh",
+        "class": "TrackedFilesTreeDataProvider"
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_007_manifestExplorer"]
+}

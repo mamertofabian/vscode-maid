@@ -1,0 +1,408 @@
+{
+  "goal": "Snapshot of existing code in src/manifestIndex.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/manifestIndex.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/manifestIndex.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "artifactToManifests",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "buildIndex",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "buildSupersededByRelationships",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "debounceTimer",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "fileToManifests",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "fileWatcher",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "getAllManifests",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "getManifestEntry",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifestsReferencingArtifact",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "artifactName",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "artifactName",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifestsReferencingFile",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getSupersessionChain",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "index",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "indexExpectedArtifacts",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "rootNode",
+            "type": "jsonc.Node"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "entry",
+            "type": "ManifestIndexEntry"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "rootNode",
+            "type": "jsonc.Node"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "entry",
+            "type": "ManifestIndexEntry"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "indexFileArray",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "rootNode",
+            "type": "jsonc.Node"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "propertyName",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": "FileReferenceCategory"
+          },
+          {
+            "name": "entry",
+            "type": "ManifestIndexEntry"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "rootNode",
+            "type": "jsonc.Node"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "propertyName",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "type": "FileReferenceCategory"
+          },
+          {
+            "name": "entry",
+            "type": "ManifestIndexEntry"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "indexManifest",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "initialize",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "outputChannel",
+            "type": "vscode.OutputChannel"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outputChannel",
+            "type": "vscode.OutputChannel"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "log",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "message",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "normalizePath",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "offsetToPosition",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "onManifestChanged",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "onManifestDeleted",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "outputChannel",
+        "class": "ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "removeManifestFromIndex",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "resolveFilePath",
+        "class": "ManifestIndex",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "setupFileWatcher",
+        "class": "ManifestIndex"
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_006_manifestIndex"]
+}

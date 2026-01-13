@@ -1,0 +1,133 @@
+{
+  "goal": "Snapshot of existing code in src/testRunner.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/testRunner.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/testRunner.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "extractUri",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getTerminal",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runAllTests",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runChainValidation",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runCoherenceValidation",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runTestsForManifest",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runTestsWatch",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runValidation",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "terminal",
+        "class": "MaidTestRunner"
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_004_testRunner"]
+}

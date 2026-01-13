@@ -1,0 +1,252 @@
+{
+  "goal": "Snapshot of existing code in src/utils.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/utils.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/utils.ts",
+    "contains": [
+      {
+        "type": "function",
+        "name": "checkMaidCliInstalled"
+      },
+      {
+        "type": "function",
+        "name": "checkMaidLspInstalled"
+      },
+      {
+        "type": "function",
+        "name": "debounce",
+        "args": [
+          {
+            "name": "fn",
+            "type": "T"
+          },
+          {
+            "name": "delay",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fn",
+            "type": "T"
+          },
+          {
+            "name": "delay",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "executeCommand",
+        "args": [
+          {
+            "name": "command",
+            "type": "string"
+          },
+          {
+            "name": "cwd",
+            "type": "string"
+          },
+          {
+            "name": "timeout"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "command",
+            "type": "string"
+          },
+          {
+            "name": "cwd",
+            "type": "string"
+          },
+          {
+            "name": "timeout"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "executeMaidCommand",
+        "args": [
+          {
+            "name": "args",
+            "type": "string"
+          },
+          {
+            "name": "cwd",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "args",
+            "type": "string"
+          },
+          {
+            "name": "cwd",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "findManifestFiles"
+      },
+      {
+        "type": "function",
+        "name": "getInstalledVersion"
+      },
+      {
+        "type": "function",
+        "name": "getMaidRoot",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifests"
+      },
+      {
+        "type": "function",
+        "name": "getOutputChannel"
+      },
+      {
+        "type": "function",
+        "name": "getTrackedFiles"
+      },
+      {
+        "type": "function",
+        "name": "getWorkspaceRoot"
+      },
+      {
+        "type": "function",
+        "name": "isManifestFile",
+        "args": [
+          {
+            "name": "uri",
+            "type": "vscode.Uri"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "uri",
+            "type": "vscode.Uri"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isManifestPath",
+        "args": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "log",
+        "args": [
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "level",
+            "type": "LogLevel"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "level",
+            "type": "LogLevel"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runValidation",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "setOutputChannel",
+        "args": [
+          {
+            "name": "channel",
+            "type": "vscode.OutputChannel"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "channel",
+            "type": "vscode.OutputChannel"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "throttle",
+        "args": [
+          {
+            "name": "fn",
+            "type": "T"
+          },
+          {
+            "name": "limit",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fn",
+            "type": "T"
+          },
+          {
+            "name": "limit",
+            "type": "number"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_002_utils"]
+}

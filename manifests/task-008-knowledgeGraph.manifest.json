@@ -1,0 +1,194 @@
+{
+  "goal": "Snapshot of existing code in src/knowledgeGraph.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/knowledgeGraph.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/knowledgeGraph.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "GraphTreeItem"
+      },
+      {
+        "type": "class",
+        "name": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getDescription",
+        "class": "GraphTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getIcon",
+        "class": "GraphTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getTooltip",
+        "class": "GraphTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "_onDidChangeTreeData",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "debouncedRefresh",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "findArtifactFile",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "artifactId",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "artifactId",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "findModuleFile",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "node",
+            "type": "GraphNode"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "type": "GraphNode"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getCategoryChildren",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getChildren",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getNodeLabel",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "node",
+            "type": "GraphNode"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "type": "GraphNode"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getRootCategories",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getTreeItem",
+        "class": "KnowledgeGraphTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "GraphTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "graphData",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "isLoading",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "loadGraph",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "maidRoot",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "onDidChangeTreeData",
+        "class": "KnowledgeGraphTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "refresh",
+        "class": "KnowledgeGraphTreeDataProvider"
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_008_knowledgeGraph"]
+}

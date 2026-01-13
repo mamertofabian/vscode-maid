@@ -1,0 +1,144 @@
+{
+  "goal": "Snapshot of existing code in src/statusBar.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/statusBar.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/statusBar.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "currentState",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "getState",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "hide",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "setErrors",
+        "class": "MaidStatusBar",
+        "args": [
+          {
+            "name": "count",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "count",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "setNotInstalled",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "setValid",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "setValidating",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "setWarnings",
+        "class": "MaidStatusBar",
+        "args": [
+          {
+            "name": "count",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "count",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "show",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "statusBarItem",
+        "class": "MaidStatusBar"
+      },
+      {
+        "type": "function",
+        "name": "updateStatus",
+        "class": "MaidStatusBar",
+        "args": [
+          {
+            "name": "errorCount",
+            "type": "number"
+          },
+          {
+            "name": "warningCount",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "errorCount",
+            "type": "number"
+          },
+          {
+            "name": "warningCount",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "updateVisibility",
+        "class": "MaidStatusBar",
+        "args": [
+          {
+            "name": "editor",
+            "type": "vscode.TextEditor | undefined"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "editor",
+            "type": "vscode.TextEditor | undefined"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_003_statusBar"]
+}

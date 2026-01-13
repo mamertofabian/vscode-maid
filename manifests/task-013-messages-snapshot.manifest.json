@@ -1,0 +1,46 @@
+{
+  "goal": "Snapshot of existing code in src/webview/messages.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/webview/messages.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/webview/messages.ts",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ActivityItem"
+      },
+      {
+        "type": "interface",
+        "name": "DashboardData"
+      },
+      {
+        "type": "interface",
+        "name": "GraphFilters"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestSummary"
+      },
+      {
+        "type": "interface",
+        "name": "TestCoverageSummary"
+      },
+      {
+        "type": "interface",
+        "name": "ThemeInfo"
+      },
+      {
+        "type": "type",
+        "name": "ExtensionToWebviewMessage"
+      },
+      {
+        "type": "type",
+        "name": "WebviewToExtensionMessage"
+      }
+    ]
+  },
+  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_013_messages"]
+}
