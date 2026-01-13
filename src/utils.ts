@@ -42,8 +42,7 @@ export function log(message: string, level: LogLevel = "info"): void {
     return;
   }
   const timestamp = new Date().toISOString();
-  const prefix =
-    level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
+  const prefix = level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
   outputChannel.appendLine(`[${timestamp}] [${prefix}] ${message}`);
 }
 
@@ -83,10 +82,7 @@ export async function executeCommand(
 /**
  * Execute a MAID CLI command with JSON output.
  */
-export async function executeMaidCommand<T>(
-  args: string,
-  cwd?: string
-): Promise<T | null> {
+export async function executeMaidCommand<T>(args: string, cwd?: string): Promise<T | null> {
   const workspaceFolder = cwd || getWorkspaceRoot();
   if (!workspaceFolder) {
     log("No workspace folder available for MAID command", "warn");
@@ -110,9 +106,7 @@ export async function executeMaidCommand<T>(
 /**
  * Run maid validate with JSON output.
  */
-export async function runValidation(
-  manifestPath?: string
-): Promise<ValidationResult | null> {
+export async function runValidation(manifestPath?: string): Promise<ValidationResult | null> {
   if (manifestPath) {
     // Use MAID root as working directory
     const maidRoot = getMaidRoot(manifestPath);

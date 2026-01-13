@@ -13,6 +13,7 @@ This guide explains how to publish the MAID for VS Code extension to both the Mi
    - Update `package.json` with your publisher name
 
 2. **Install vsce**
+
    ```bash
    npm install -g @vscode/vsce
    ```
@@ -30,6 +31,7 @@ This guide explains how to publish the MAID for VS Code extension to both the Mi
    - Log in with GitHub account
 
 2. **Install ovsx CLI**
+
    ```bash
    npm install -g ovsx
    ```
@@ -61,6 +63,7 @@ This guide explains how to publish the MAID for VS Code extension to both the Mi
 ### 1. Update Version
 
 Update version in `package.json`:
+
 ```json
 {
   "version": "0.1.3"
@@ -101,15 +104,18 @@ This creates a `.vsix` file you can test locally.
 #### Publish to Microsoft VS Code Marketplace
 
 **First time publishing:**
+
 ```bash
 vsce publish
 ```
 
 You'll be prompted for:
+
 - Personal Access Token
 - Publisher name (if not set in package.json)
 
 **Subsequent updates:**
+
 ```bash
 vsce publish
 ```
@@ -119,6 +125,7 @@ The version must be incremented from the previous release.
 #### Publish to Open VSX Registry
 
 **First time publishing (create namespace):**
+
 ```bash
 # Create your publisher namespace (one-time setup)
 ovsx create-namespace <your-publisher-name> -p <your-open-vsx-token>
@@ -128,16 +135,19 @@ ovsx publish -p <your-open-vsx-token>
 ```
 
 **Subsequent updates:**
+
 ```bash
 ovsx publish -p <your-open-vsx-token>
 ```
 
 **Publish from .vsix file:**
+
 ```bash
 ovsx publish vscode-maid-0.1.3.vsix -p <your-open-vsx-token>
 ```
 
 **Complete workflow (publish to both marketplaces):**
+
 ```bash
 # 1. Build and package
 npm run compile
@@ -153,6 +163,7 @@ ovsx publish -p <your-open-vsx-token>
 ## Alternative: Manual Upload
 
 ### Microsoft Marketplace
+
 1. Package the extension: `vsce package`
 2. Go to https://marketplace.visualstudio.com/manage
 3. Click "New extension" → "Visual Studio Code"
@@ -161,6 +172,7 @@ ovsx publish -p <your-open-vsx-token>
 6. Submit for review
 
 ### Open VSX Registry
+
 1. Package the extension: `vsce package`
 2. Go to https://open-vsx.org/user-settings/extensions
 3. Click "Upload Extension"
@@ -170,6 +182,7 @@ ovsx publish -p <your-open-vsx-token>
 ## Versioning
 
 Follow [Semantic Versioning](https://semver.org/):
+
 - **MAJOR**: Breaking changes
 - **MINOR**: New features, backward compatible
 - **PATCH**: Bug fixes
@@ -177,6 +190,7 @@ Follow [Semantic Versioning](https://semver.org/):
 ## Marketplace Metadata
 
 Ensure `package.json` includes:
+
 - ✅ `displayName` - User-friendly name
 - ✅ `description` - Detailed description
 - ✅ `categories` - Extension categories
@@ -189,6 +203,7 @@ Ensure `package.json` includes:
 ## Post-Publishing
 
 1. **Update README** with marketplace badge:
+
    ```markdown
    [![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)](https://marketplace.visualstudio.com/items?itemName=aidrivencoder.vscode-maid)
    ```
@@ -208,17 +223,21 @@ Ensure `package.json` includes:
 ### Microsoft Marketplace Issues
 
 **"Extension name already exists"**
+
 - Choose a different name or use your publisher prefix
 
 **"Invalid publisher"**
+
 - Create publisher at marketplace.visualstudio.com/manage
 - Update `package.json` with correct publisher
 
 **"Version already exists"**
+
 - Increment version in `package.json`
 - Update `CHANGELOG.md`
 
 **Publishing fails**
+
 - Check Personal Access Token permissions
 - Verify publisher name matches
 - Ensure all required fields in `package.json`
@@ -239,17 +258,21 @@ This is NORMAL for newly published extensions. To fix:
 **This is a ONE-TIME process per namespace and must be done for verified status.**
 
 **"Namespace does not exist"**
+
 - Create namespace first: `ovsx create-namespace <publisher-name> -p <token>`
 
 **"Namespace already exists"**
+
 - You can only create a namespace that matches your account name
 - Or request access to an existing namespace
 
 **"Invalid access token"**
+
 - Verify token at https://open-vsx.org/user-settings/tokens
 - Make sure you're using Open VSX token, not Microsoft token
 
 **Extension not showing in Cursor IDE**
+
 - Restart Cursor IDE after publishing
 - Search for exact extension name in Extensions marketplace
 - Check Open VSX registry: https://open-vsx.org/extension/<publisher>/<extension-name>
@@ -269,6 +292,7 @@ This is NORMAL for newly published extensions. To fix:
 - **Publisher Profile**: https://marketplace.visualstudio.com/publishers/aidrivencoder
 
 **Installation Command:**
+
 ```bash
 code --install-extension aidrivencoder.vscode-maid
 ```
@@ -280,20 +304,24 @@ code --install-extension aidrivencoder.vscode-maid
 **Open VSX URL**: https://open-vsx.org/extension/aidrivencoder/vscode-maid
 
 **Installation:**
+
 - Available in Cursor IDE Extensions marketplace
 - Search for "MAID" or "vscode-maid"
 
 **✓ Verification Status:**
+
 - Extension is verified and shows verified shield icon ✓
 - Namespace ownership has been claimed and approved
 
 ### Publishing Notes
+
 - Display name was changed from "MAID for VS Code" to "MAID - Manifest-driven AI Development" to avoid similarity with existing "Marp for VS Code" extension
 - Extension uses esbuild for bundling to ensure all dependencies are included in the package
 - Bundled extension size: ~349KB (single file)
 - Total package size: ~89KB (compressed)
 
 ### Version History
+
 - **v0.4.2** (2026-01-10): Patch release with bug fixes and improvements
 - **v0.4.1** (2026-01-10): Fixed MAID root detection to ignore system.manifest.json in project root, improved diagnostic logging
 - **v0.4.0** (2026-01-10): Added File Manifests View, Manifest Chain Visualizer, chain indicators in Manifest Explorer, find manifests for file command, coherence validation, and chain validation commands
@@ -334,5 +362,6 @@ jobs:
 ```
 
 Store tokens as secrets in GitHub repository settings:
+
 - `VSCE_PAT` - Microsoft Marketplace Personal Access Token
 - `OVSX_PAT` - Open VSX Personal Access Token

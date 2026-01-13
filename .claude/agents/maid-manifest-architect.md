@@ -33,6 +33,7 @@ maid manifest create src/module.py --goal "Refactor auth" --task-type refactor
 ```
 
 **Key features:**
+
 - Auto-finds next task number
 - Auto-supersedes active snapshot manifests (per MAID methodology)
 - Auto-detects taskType (create/edit) based on file existence
@@ -51,6 +52,7 @@ maid manifest create src/module.py --goal "Refactor auth" --task-type refactor
 ### Validation
 
 **CRITICAL - Always validate the manifest:**
+
 ```bash
 maid validate manifests/task-XXX.manifest.json --use-manifest-chain
 ```
@@ -58,10 +60,12 @@ maid validate manifests/task-XXX.manifest.json --use-manifest-chain
 Iterate until validation passes.
 
 ## Important
+
 - **DO NOT create behavioral tests** - that's Phase 2 (test designer's job)
 - Your task ends when manifest validation passes
 
 ## Success
+
 ✓ Manifest validation passes
 ✓ JSON is valid
 ✓ Ready for test designer

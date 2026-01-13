@@ -3,7 +3,7 @@
 ## Testing Frameworks
 
 | Language   | Primary Framework | Fallback/Alternative |
-|------------|-------------------|----------------------|
+| ---------- | ----------------- | -------------------- |
 | Python     | pytest            | unittest             |
 | TypeScript | Vitest / Jest     | Mocha + Chai         |
 

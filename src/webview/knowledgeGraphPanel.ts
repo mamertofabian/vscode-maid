@@ -82,9 +82,9 @@ export class KnowledgeGraphPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -145,9 +145,7 @@ export class KnowledgeGraphPanel {
     if (!workspaceRoot) return;
 
     // filePath is already workspace-relative from _resolveGraphPaths
-    const fullPath = path.isAbsolute(filePath)
-      ? filePath
-      : path.join(workspaceRoot, filePath);
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
 
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
@@ -188,7 +186,10 @@ export class KnowledgeGraphPanel {
           log(`[KnowledgeGraphPanel] Using MAID root: ${cwd}`);
         }
       } catch (error) {
-        log(`[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`, "warn");
+        log(
+          `[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`,
+          "warn"
+        );
       }
 
       const { exec } = await import("child_process");
@@ -245,9 +246,7 @@ export class KnowledgeGraphPanel {
   ): KnowledgeGraphResult {
     const resolvedNodes = graphData.nodes.map((node) => {
       if (node.path) {
-        const fullPath = path.isAbsolute(node.path)
-          ? node.path
-          : path.resolve(maidRoot, node.path);
+        const fullPath = path.isAbsolute(node.path) ? node.path : path.resolve(maidRoot, node.path);
         // Store workspace-relative path for display
         return {
           ...node,

@@ -8,6 +8,7 @@ Enhance manifest: $1
 Instructions: $2
 
 Tasks:
+
 1. Read current manifest
 2. Apply enhancements (add artifacts, refine goal, etc.)
 3. Validate: `maid validate $1 --use-manifest-chain`

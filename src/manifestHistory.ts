@@ -99,15 +99,11 @@ export class HistoryTreeItem extends vscode.TreeItem {
 /**
  * TreeDataProvider for manifest history.
  */
-export class ManifestHistoryTreeDataProvider
-  implements vscode.TreeDataProvider<HistoryTreeItem>
-{
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    HistoryTreeItem | undefined | null | void
-  > = new vscode.EventEmitter<HistoryTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    HistoryTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<HistoryTreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<HistoryTreeItem | undefined | null | void> =
+    new vscode.EventEmitter<HistoryTreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<HistoryTreeItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private selectedManifest: string | undefined;
   private commitHistory: CommitHistory[] = [];
@@ -190,10 +186,7 @@ export class ManifestHistoryTreeDataProvider
     try {
       const config = vscode.workspace.getConfiguration("maid");
       const maxCommits = config.get<number>("history.maxCommits", 50);
-      this.commitHistory = await getManifestHistory(
-        this.selectedManifest,
-        maxCommits
-      );
+      this.commitHistory = await getManifestHistory(this.selectedManifest, maxCommits);
       log(`[ManifestHistory] Loaded ${this.commitHistory.length} commits`);
     } catch (error) {
       log(`[ManifestHistory] Error loading history: ${error}`, "error");
@@ -262,31 +255,17 @@ export class ManifestHistoryTreeDataProvider
     if (element.itemType === "manifest") {
       if (this.isLoading) {
         return [
-          new HistoryTreeItem(
-            "Loading history...",
-            "empty",
-            vscode.TreeItemCollapsibleState.None
-          ),
+          new HistoryTreeItem("Loading history...", "empty", vscode.TreeItemCollapsibleState.None),
         ];
       }
 
       if (this.commitHistory.length === 0) {
         return [
-          new HistoryTreeItem(
-            "No history found",
-            "empty",
-            vscode.TreeItemCollapsibleState.None
-          ),
+          new HistoryTreeItem("No history found", "empty", vscode.TreeItemCollapsibleState.None),
         ];
       }
 
-      return [
-        new HistoryTreeItem(
-          "History",
-          "category",
-          vscode.TreeItemCollapsibleState.Expanded
-        ),
-      ];
+      return [new HistoryTreeItem("History", "category", vscode.TreeItemCollapsibleState.Expanded)];
     }
 
     // Category level: show commits

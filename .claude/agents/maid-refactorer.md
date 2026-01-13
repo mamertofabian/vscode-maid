@@ -22,11 +22,13 @@ Improve code quality while keeping tests green. See CLAUDE.md for complete guide
    - Keep public API unchanged
 
 3. **CRITICAL - Validate ALL manifests after each change (no arguments)**:
+
    ```bash
    pytest tests/test_task_XXX_*.py -v
    maid validate
    maid test
    ```
+
    **Note**: `maid validate` and `maid test` WITHOUT arguments validates entire codebase
 
 4. **Run all quality checks**:
@@ -36,6 +38,7 @@ Improve code quality while keeping tests green. See CLAUDE.md for complete guide
    ```
 
 ## Success
+
 ✓ Tests still pass
 ✓ All manifest compliance maintained
 ✓ Code quality improved

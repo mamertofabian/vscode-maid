@@ -99,9 +99,9 @@ export class HistoryPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -166,9 +166,7 @@ export class HistoryPanel {
         break;
 
       case "openAtCommit":
-        log(
-          `[HistoryPanel] Opening file at commit: ${message.payload.commitHash}`
-        );
+        log(`[HistoryPanel] Opening file at commit: ${message.payload.commitHash}`);
         await this._openAtCommit(message.payload.manifestPath, message.payload.commitHash);
         break;
     }
@@ -287,11 +285,12 @@ export class HistoryPanel {
       const content = await getFileAtCommit(manifestPath, commitHash);
       if (content) {
         // Create a temporary document with the content
-        const uri = vscode.Uri.parse(
-          `maid-history:${manifestPath}?commit=${commitHash}`
-        );
+        const uri = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash}`);
         const document = await vscode.workspace.openTextDocument(
-          uri.with({ scheme: "untitled", path: `${path.basename(manifestPath)} (${commitHash.substring(0, 7)})` })
+          uri.with({
+            scheme: "untitled",
+            path: `${path.basename(manifestPath)} (${commitHash.substring(0, 7)})`,
+          })
         );
         const edit = new vscode.WorkspaceEdit();
         edit.insert(document.uri, new vscode.Position(0, 0), content);
@@ -328,12 +327,8 @@ export class HistoryPanel {
       }
 
       // Create temporary URIs for the diff
-      const uri1 = vscode.Uri.parse(
-        `maid-history:${manifestPath}?commit=${commitHash1}`
-      );
-      const uri2 = vscode.Uri.parse(
-        `maid-history:${manifestPath}?commit=${commitHash2}`
-      );
+      const uri1 = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash1}`);
+      const uri2 = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash2}`);
 
       // Use untitled scheme for temporary documents
       const doc1 = await vscode.workspace.openTextDocument(

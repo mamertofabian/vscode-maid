@@ -12,10 +12,12 @@ Audit MAID compliance at any phase. See CLAUDE.md for MAID methodology details.
 ## Your Task
 
 1. **CRITICAL - Run validations on ALL manifests (no arguments)**:
+
    ```bash
    maid validate
    maid test
    ```
+
    **Note**: `maid validate` and `maid test` WITHOUT arguments validates entire codebase
 
 2. **Check for violations**:
@@ -34,6 +36,7 @@ Audit MAID compliance at any phase. See CLAUDE.md for MAID methodology details.
 4. **Report findings** with specific file:line references
 
 ## Success
+
 ✓ All critical violations identified
 ✓ Clear remediation provided
 ✓ Compliance status determined

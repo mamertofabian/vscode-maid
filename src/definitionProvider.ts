@@ -205,11 +205,7 @@ export class ManifestDefinitionProvider implements vscode.DefinitionProvider {
   /**
    * Get regex patterns for finding artifact definitions.
    */
-  private getSearchPatterns(
-    name: string,
-    type: string,
-    ext: string
-  ): RegExp[] {
+  private getSearchPatterns(name: string, type: string, ext: string): RegExp[] {
     const escapedName = this.escapeRegex(name);
     const patterns: RegExp[] = [];
 
@@ -239,15 +235,26 @@ export class ManifestDefinitionProvider implements vscode.DefinitionProvider {
           patterns.push(new RegExp(`^\\s*(?:export\\s+)?class\\s+${escapedName}\\s*[{<]`, "m"));
           break;
         case "function":
-          patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:async\\s+)?function\\s+${escapedName}\\s*[<(]`, "m"));
-          patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*(?:async\\s+)?(?:\\([^)]*\\)|[^=])\\s*=>`, "m"));
-          patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*function`, "m"));
+          patterns.push(
+            new RegExp(`^\\s*(?:export\\s+)?(?:async\\s+)?function\\s+${escapedName}\\s*[<(]`, "m")
+          );
+          patterns.push(
+            new RegExp(
+              `^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*(?:async\\s+)?(?:\\([^)]*\\)|[^=])\\s*=>`,
+              "m"
+            )
+          );
+          patterns.push(
+            new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*function`, "m")
+          );
           break;
         case "method":
           patterns.push(new RegExp(`^\\s+(?:async\\s+)?${escapedName}\\s*\\(`, "m"));
           break;
         case "attribute":
-          patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:const|let|var)\\s+${escapedName}\\s*[:=]`, "m"));
+          patterns.push(
+            new RegExp(`^\\s*(?:export\\s+)?(?:const|let|var)\\s+${escapedName}\\s*[:=]`, "m")
+          );
           patterns.push(new RegExp(`^\\s+${escapedName}\\s*[:=]`, "m"));
           break;
       }
@@ -275,7 +282,9 @@ export class ManifestDefinitionProvider implements vscode.DefinitionProvider {
     if (ext === ".rs") {
       switch (type) {
         case "function":
-          patterns.push(new RegExp(`^\\s*(?:pub\\s+)?(?:async\\s+)?fn\\s+${escapedName}\\s*[<(]`, "m"));
+          patterns.push(
+            new RegExp(`^\\s*(?:pub\\s+)?(?:async\\s+)?fn\\s+${escapedName}\\s*[<(]`, "m")
+          );
           break;
         case "class": // struct in Rust
           patterns.push(new RegExp(`^\\s*(?:pub\\s+)?struct\\s+${escapedName}\\s*[{<]`, "m"));

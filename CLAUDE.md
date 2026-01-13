@@ -9,16 +9,19 @@ This is a VS Code extension that provides Language Server Protocol (LSP) integra
 ## Build and Development Commands
 
 ### Compilation
+
 ```bash
 npm run compile       # Compile TypeScript to JavaScript (output to ./out/)
 npm run watch        # Watch mode - auto-compile on file changes
 ```
 
 ### Testing and Debugging
+
 - Press `F5` in VS Code to launch Extension Development Host for testing
 - No automated test suite currently exists (test configuration in launch.json is placeholder)
 
 ### Packaging
+
 ```bash
 npm install -g @vscode/vsce
 vsce package         # Creates .vsix file for local testing or distribution
@@ -28,12 +31,14 @@ vsce publish         # Publish to VS Code Marketplace (requires PAT)
 ## Architecture
 
 ### Extension Lifecycle
+
 1. **Activation**: Extension activates when any JSON file is opened (`onLanguage:json` event)
 2. **Installation Check**: On first activation, checks if `maid-lsp` is installed using `maid-lsp --version`
 3. **Auto-install Prompt**: If not found, shows installation options (pip/pipx/uv)
 4. **LSP Client Start**: If installed, spawns `maid-lsp` process with `--stdio` and connects via Language Server Protocol
 
 ### File Structure
+
 - `src/extension.ts` - Single-file extension implementation containing:
   - `activate()` - Entry point, checks installation and starts LSP client
   - `deactivate()` - Cleanup, stops LSP client
@@ -43,16 +48,19 @@ vsce publish         # Publish to VS Code Marketplace (requires PAT)
   - `checkInstallationStatus()` - Command implementation for manual installation check
 
 ### LSP Integration
+
 - Uses `vscode-languageclient` package to communicate with `maid-lsp` server
 - Document selector: Only activates for files matching `**/*.manifest.json` pattern
 - File system watcher: Monitors workspace for `.manifest.json` changes
 - Server options configurable via `maid-lsp.path` and `maid-lsp.args` settings
 
 ### Configuration Options
+
 - `maid-lsp.path` (string, default: "maid-lsp"): Path to maid-lsp executable
 - `maid-lsp.args` (array, default: ["--stdio"]): Arguments passed to maid-lsp
 
 ### Commands
+
 - `vscode-maid.checkInstallation` - Check MAID LSP Installation (accessible via Command Palette)
 
 ## Key Dependencies
@@ -80,19 +88,25 @@ See PUBLISHING.md for detailed instructions.
 ## Design Patterns
 
 ### Graceful Degradation
+
 The extension handles missing `maid-lsp` gracefully:
+
 - Detects installation status before starting LSP client
 - Provides helpful installation UI rather than failing silently
 - Registers command even when server unavailable for later retry
 
 ### Configuration-Driven
+
 Server path and arguments are configurable to support:
+
 - Custom installation locations
 - Different Python environments (virtualenv, conda, etc.)
 - Platform-specific paths (Windows vs Unix)
 
 ### File Pattern Matching
+
 Uses glob patterns (`**/*.manifest.json`) rather than file extension matching to ensure:
+
 - Only manifest files trigger validation (not all JSON files)
 - Works regardless of directory depth
 - Consistent with MAID tooling conventions
@@ -102,15 +116,16 @@ Uses glob patterns (`**/*.manifest.json`) rather than file extension matching to
 - [maid-lsp](https://github.com/mamertofabian/maid-lsp) - Python LSP server (separate repo)
 - [maid-runner](https://github.com/mamertofabian/maid-runner) - CLI validation tool used by maid-lsp
 
-
 ========================================
 
 <!-- MAID-SECTION-START -->
+
 # MAID Methodology
 
 **This project uses Manifest-driven AI Development (MAID) v1.3**
 
 MAID is a methodology for developing software with AI assistance by explicitly declaring:
+
 - What files can be modified for each task
 - What code artifacts (functions, classes, interfaces, types) should be created or modified
 - How to validate that the changes meet requirements
@@ -122,21 +137,25 @@ This project is compatible with MAID-aware AI agents including Claude Code and o
 MAID Runner is a Python CLI tool that validates manifests and runs tests. Even for TypeScript/JavaScript projects, you need Python to run the `maid` CLI.
 
 **Option 1: Using pipx (recommended - no Python project setup needed)**
+
 ```bash
 pipx install maid-runner
 ```
 
 **Option 2: Using pip**
+
 ```bash
 pip install maid-runner
 ```
 
 **Option 3: Using uv**
+
 ```bash
 uv tool install maid-runner
 ```
 
 After installation, verify with:
+
 ```bash
 maid --help
 ```
@@ -146,22 +165,27 @@ maid --help
 ## MAID Workflow
 
 ### Phase 1: Goal Definition
+
 Confirm the high-level goal before proceeding.
 
 ### Phase 2: Planning Loop
+
 **Before ANY implementation - iterative refinement:**
+
 1. Draft manifest (`manifests/task-XXX.manifest.json`)
 2. Draft behavioral tests (`tests/test_task_XXX_*.test.ts`)
 3. Run validation: `maid validate manifests/task-XXX.manifest.json --validation-mode behavioral`
 4. Refine both tests & manifest until validation passes
 
 ### Phase 3: Implementation
+
 1. Load ONLY files from manifest (`editableFiles` + `readonlyFiles`)
 2. Implement code to pass tests
 3. Run behavioral validation (from `validationCommand`)
 4. Iterate until all tests pass
 
 ### Phase 4: Integration
+
 Verify complete chain: `npm test` (or `pnpm test` / `yarn test`)
 
 ## Manifest Template
@@ -181,7 +205,7 @@ Verify complete chain: `npm test` (or `pnpm test` / `yarn test`)
         "type": "function|class|interface",
         "name": "artifactName",
         "class": "ParentClass",
-        "args": [{"name": "arg1", "type": "string"}],
+        "args": [{ "name": "arg1", "type": "string" }],
         "returns": "ReturnType"
       }
     ]
@@ -189,8 +213,6 @@ Verify complete chain: `npm test` (or `pnpm test` / `yarn test`)
   "validationCommand": ["npm", "test", "--", "file.test.ts"]
 }
 ```
-
-
 
 ## MAID CLI Commands
 
@@ -294,6 +316,7 @@ MAID provides flexibility for refactoring private implementation details without
 - **Code quality improvements** (splitting functions, extracting helpers, renaming privates) are permitted
 
 **Requirements:**
+
 - All tests must continue to pass
 - All validations must pass (`maid validate`, `maid test`)
 - Public API must remain unchanged

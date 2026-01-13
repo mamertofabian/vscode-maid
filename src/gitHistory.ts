@@ -17,11 +17,7 @@ const execAsync = promisify(exec);
  */
 export async function isGitRepository(workspacePath: string): Promise<boolean> {
   try {
-    const result = await executeCommand(
-      "git rev-parse --show-toplevel",
-      workspacePath,
-      5000
-    );
+    const result = await executeCommand("git rev-parse --show-toplevel", workspacePath, 5000);
     return result.success;
   } catch (error) {
     log(`Error checking Git repository: ${error}`, "error");
@@ -34,11 +30,7 @@ export async function isGitRepository(workspacePath: string): Promise<boolean> {
  */
 export async function getGitRoot(workspacePath: string): Promise<string | null> {
   try {
-    const result = await executeCommand(
-      "git rev-parse --show-toplevel",
-      workspacePath,
-      5000
-    );
+    const result = await executeCommand("git rev-parse --show-toplevel", workspacePath, 5000);
     if (result.success && result.stdout.trim()) {
       return result.stdout.trim();
     }
@@ -52,14 +44,16 @@ export async function getGitRoot(workspacePath: string): Promise<string | null> 
 /**
  * Get the relative path of a file from the Git root.
  */
-async function getGitRelativePath(
-  filePath: string,
-  gitRoot: string
-): Promise<string> {
+async function getGitRelativePath(filePath: string, gitRoot: string): Promise<string> {
   // Ensure both arguments are strings
   if (typeof filePath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments: filePath=${typeof filePath} (${String(filePath)}), gitRoot=${typeof gitRoot} (${String(gitRoot)})`, "error");
-    throw new Error(`Invalid path arguments: expected strings, got ${typeof filePath} and ${typeof gitRoot}`);
+    log(
+      `Invalid path arguments: filePath=${typeof filePath} (${String(filePath)}), gitRoot=${typeof gitRoot} (${String(gitRoot)})`,
+      "error"
+    );
+    throw new Error(
+      `Invalid path arguments: expected strings, got ${typeof filePath} and ${typeof gitRoot}`
+    );
   }
 
   // Ensure paths are not empty
@@ -72,17 +66,20 @@ async function getGitRelativePath(
     // Convert to strings explicitly and normalize
     const normalizedGitRoot = String(path.normalize(String(gitRoot)));
     const normalizedFilePath = String(path.normalize(String(filePath)));
-    
+
     log(`Computing relative path: from="${normalizedGitRoot}", to="${normalizedFilePath}"`);
-    
+
     // Ensure both are still strings before calling path.relative
     if (typeof normalizedGitRoot !== "string" || typeof normalizedFilePath !== "string") {
-      log(`Path normalization failed: gitRoot type=${typeof normalizedGitRoot}, filePath type=${typeof normalizedFilePath}`, "error");
+      log(
+        `Path normalization failed: gitRoot type=${typeof normalizedGitRoot}, filePath type=${typeof normalizedFilePath}`,
+        "error"
+      );
       throw new Error(`Path normalization failed`);
     }
-    
+
     const relativePath = path.relative(normalizedGitRoot, normalizedFilePath);
-    
+
     // Normalize path separators for Git (use forward slashes)
     const gitPath = String(relativePath).replace(/\\/g, "/");
     log(`Computed relative path: "${gitPath}"`);
@@ -193,11 +190,7 @@ async function getCommitStats(
 ): Promise<{ added: number; removed: number; modified: number }> {
   try {
     // Get the parent commit hash
-    const parentResult = await executeCommand(
-      `git rev-parse ${commitHash}^`,
-      gitRoot,
-      5000
-    );
+    const parentResult = await executeCommand(`git rev-parse ${commitHash}^`, gitRoot, 5000);
 
     if (!parentResult.success) {
       // This might be the first commit, no parent
@@ -260,7 +253,10 @@ export async function getCommitDiff(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getCommitDiff: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getCommitDiff: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 
@@ -268,11 +264,7 @@ export async function getCommitDiff(
     const relativePath = await getGitRelativePath(manifestPath, gitRoot);
 
     // Get parent commit
-    const parentResult = await executeCommand(
-      `git rev-parse ${commitHash}^`,
-      gitRoot,
-      5000
-    );
+    const parentResult = await executeCommand(`git rev-parse ${commitHash}^`, gitRoot, 5000);
 
     if (!parentResult.success) {
       // First commit, show full file
@@ -317,18 +309,17 @@ export async function getFileAtCommit(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getFileAtCommit: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getFileAtCommit: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 
   try {
     const relativePath = await getGitRelativePath(manifestPath, gitRoot);
 
-    const result = await executeCommand(
-      `git show ${commitHash}:${relativePath}`,
-      gitRoot,
-      10000
-    );
+    const result = await executeCommand(`git show ${commitHash}:${relativePath}`, gitRoot, 10000);
 
     return result.success ? result.stdout : null;
   } catch (error) {
@@ -357,7 +348,10 @@ export async function getDiffBetweenCommits(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getDiffBetweenCommits: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getDiffBetweenCommits: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 

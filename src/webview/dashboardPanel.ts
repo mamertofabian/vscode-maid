@@ -102,9 +102,9 @@ export class DashboardPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -123,11 +123,7 @@ export class DashboardPanel {
   /**
    * Add an activity item to the history.
    */
-  private _addActivity(
-    type: ActivityItem["type"],
-    message: string,
-    manifestPath?: string
-  ): void {
+  private _addActivity(type: ActivityItem["type"], message: string, manifestPath?: string): void {
     this._activityHistory.unshift({
       type,
       message,
@@ -179,9 +175,7 @@ export class DashboardPanel {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) return;
 
-    const fullPath = path.isAbsolute(filePath)
-      ? filePath
-      : path.join(workspaceRoot, filePath);
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
 
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
@@ -224,7 +218,11 @@ export class DashboardPanel {
     try {
       if (manifestPath) {
         await vscode.commands.executeCommand("vscode-maid.runTestsForManifest", manifestPath);
-        this._addActivity("validated", `Ran tests for ${path.basename(manifestPath)}`, manifestPath);
+        this._addActivity(
+          "validated",
+          `Ran tests for ${path.basename(manifestPath)}`,
+          manifestPath
+        );
       } else {
         await vscode.commands.executeCommand("vscode-maid.runTests");
         this._addActivity("validated", "Ran all tests");

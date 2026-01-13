@@ -142,7 +142,7 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running tests from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running tests for manifest: ${relativeManifestPath}`);
 
@@ -178,13 +178,15 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running coherence validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running coherence validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`
+    );
     terminal.show();
   }
 
@@ -214,13 +216,15 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running chain validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running chain validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`
+    );
     terminal.show();
   }
 
@@ -250,13 +254,15 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`
+    );
     terminal.show();
   }
 

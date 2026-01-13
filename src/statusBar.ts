@@ -16,10 +16,7 @@ export class MaidStatusBar {
   private disposables: vscode.Disposable[] = [];
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left,
-      100
-    );
+    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = "workbench.action.problems.focus";
     this.hide();
 
@@ -70,9 +67,7 @@ export class MaidStatusBar {
     this.statusBarItem.text = "$(check) MAID: Valid";
     this.statusBarItem.tooltip = "Manifest validation passed";
     this.statusBarItem.backgroundColor = undefined;
-    this.statusBarItem.color = new vscode.ThemeColor(
-      "statusBarItem.foreground"
-    );
+    this.statusBarItem.color = new vscode.ThemeColor("statusBarItem.foreground");
     log("[StatusBar] Set to valid");
   }
 
@@ -84,12 +79,8 @@ export class MaidStatusBar {
     const plural = count === 1 ? "error" : "errors";
     this.statusBarItem.text = `$(error) MAID: ${count} ${plural}`;
     this.statusBarItem.tooltip = `Manifest has ${count} validation ${plural}. Click to view problems.`;
-    this.statusBarItem.backgroundColor = new vscode.ThemeColor(
-      "statusBarItem.errorBackground"
-    );
-    this.statusBarItem.color = new vscode.ThemeColor(
-      "statusBarItem.errorForeground"
-    );
+    this.statusBarItem.backgroundColor = new vscode.ThemeColor("statusBarItem.errorBackground");
+    this.statusBarItem.color = new vscode.ThemeColor("statusBarItem.errorForeground");
     log(`[StatusBar] Set to errors: ${count}`);
   }
 
@@ -101,12 +92,8 @@ export class MaidStatusBar {
     const plural = count === 1 ? "warning" : "warnings";
     this.statusBarItem.text = `$(warning) MAID: ${count} ${plural}`;
     this.statusBarItem.tooltip = `Manifest has ${count} ${plural}. Click to view problems.`;
-    this.statusBarItem.backgroundColor = new vscode.ThemeColor(
-      "statusBarItem.warningBackground"
-    );
-    this.statusBarItem.color = new vscode.ThemeColor(
-      "statusBarItem.warningForeground"
-    );
+    this.statusBarItem.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
+    this.statusBarItem.color = new vscode.ThemeColor("statusBarItem.warningForeground");
     log(`[StatusBar] Set to warnings: ${count}`);
   }
 
@@ -118,9 +105,7 @@ export class MaidStatusBar {
     this.statusBarItem.text = "$(sync~spin) MAID: Validating...";
     this.statusBarItem.tooltip = "Validating manifest...";
     this.statusBarItem.backgroundColor = undefined;
-    this.statusBarItem.color = new vscode.ThemeColor(
-      "statusBarItem.foreground"
-    );
+    this.statusBarItem.color = new vscode.ThemeColor("statusBarItem.foreground");
     log("[StatusBar] Set to validating");
   }
 
@@ -130,13 +115,10 @@ export class MaidStatusBar {
   setNotInstalled(): void {
     this.currentState = "not-installed";
     this.statusBarItem.text = "$(question) MAID: Not Installed";
-    this.statusBarItem.tooltip =
-      "maid-lsp is not installed. Click to install.";
+    this.statusBarItem.tooltip = "maid-lsp is not installed. Click to install.";
     this.statusBarItem.command = "vscode-maid.checkInstallation";
     this.statusBarItem.backgroundColor = undefined;
-    this.statusBarItem.color = new vscode.ThemeColor(
-      "statusBarItem.foreground"
-    );
+    this.statusBarItem.color = new vscode.ThemeColor("statusBarItem.foreground");
     log("[StatusBar] Set to not-installed");
   }
 

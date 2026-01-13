@@ -19,6 +19,7 @@ Implement code to make tests pass. Follow Red-Green-Refactor. See CLAUDE.md for 
    - Only edit files in manifest
 
 3. **CRITICAL - Validate ALL manifests (no arguments)**:
+
    ```bash
    maid validate
    maid test
@@ -26,11 +27,13 @@ Implement code to make tests pass. Follow Red-Green-Refactor. See CLAUDE.md for 
    make type-check
    make test
    ```
+
    **Note**: `maid validate` and `maid test` WITHOUT arguments validates entire codebase
 
 4. **Refactor** if needed while keeping tests green
 
 ## Success
+
 ✓ All validations pass
 ✓ All tests pass
 ✓ Code quality checks pass

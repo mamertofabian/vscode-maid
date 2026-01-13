@@ -35,9 +35,7 @@ export class ManifestIndex {
   /**
    * Initialize the index by scanning all manifests in the workspace.
    */
-  async initialize(
-    outputChannel?: vscode.OutputChannel
-  ): Promise<void> {
+  async initialize(outputChannel?: vscode.OutputChannel): Promise<void> {
     this.outputChannel = outputChannel;
     await this.buildIndex();
     this.setupFileWatcher();
@@ -264,9 +262,7 @@ export class ManifestIndex {
    * Set up file watcher for manifest changes.
    */
   private setupFileWatcher(): void {
-    this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      "**/*.manifest.json"
-    );
+    this.fileWatcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
 
     this.fileWatcher.onDidChange((uri) => this.onManifestChanged(uri.fsPath));
     this.fileWatcher.onDidCreate((uri) => this.onManifestChanged(uri.fsPath));

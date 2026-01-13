@@ -85,11 +85,7 @@ export class ManifestChainPanel {
       }
     );
 
-    ManifestChainPanel.currentPanel = new ManifestChainPanel(
-      panel,
-      extensionUri,
-      manifestIndex
-    );
+    ManifestChainPanel.currentPanel = new ManifestChainPanel(panel, extensionUri, manifestIndex);
     if (manifestPath) {
       ManifestChainPanel.currentPanel.setManifest(manifestPath);
     }
@@ -128,9 +124,9 @@ export class ManifestChainPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -141,10 +137,7 @@ export class ManifestChainPanel {
     // Try to get manifest from active editor if not provided
     if (!this._currentManifestPath) {
       const activeEditor = vscode.window.activeTextEditor;
-      if (
-        activeEditor &&
-        activeEditor.document.uri.fsPath.endsWith(".manifest.json")
-      ) {
+      if (activeEditor && activeEditor.document.uri.fsPath.endsWith(".manifest.json")) {
         this.setManifest(activeEditor.document.uri.fsPath);
       }
     }
@@ -323,9 +316,7 @@ export class ManifestChainPanel {
         currentManifest: currentManifestPath,
       };
 
-      log(
-        `[ManifestChainPanel] Loaded chain: ${nodes.length} nodes, ${edges.length} edges`
-      );
+      log(`[ManifestChainPanel] Loaded chain: ${nodes.length} nodes, ${edges.length} edges`);
 
       this._postMessage({
         type: "chainData",

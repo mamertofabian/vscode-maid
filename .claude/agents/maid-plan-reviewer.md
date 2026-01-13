@@ -23,6 +23,7 @@ Review manifest and tests for quality before implementation begins.
    - Test scenarios are realistic
 
 3. **CRITICAL - Run validations with behavioral mode**:
+
    ```bash
    maid validate manifests/task-XXX.manifest.json --validation-mode behavioral --use-manifest-chain
    pytest tests/test_task_XXX_*.py -v
@@ -31,6 +32,7 @@ Review manifest and tests for quality before implementation begins.
 4. **Provide feedback** if issues found, otherwise approve
 
 ## Success
+
 ✓ Behavioral validation passes
 ✓ Tests fail appropriately
 ✓ Plan approved for implementation

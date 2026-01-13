@@ -36,11 +36,7 @@ export interface ValidationResult {
 /**
  * File tracking status from `maid files --json`
  */
-export type FileTrackingStatus =
-  | "UNDECLARED"
-  | "REGISTERED"
-  | "TRACKED"
-  | "PRIVATE_IMPL";
+export type FileTrackingStatus = "UNDECLARED" | "REGISTERED" | "TRACKED" | "PRIVATE_IMPL";
 
 /**
  * Undeclared/Registered file entry with issues

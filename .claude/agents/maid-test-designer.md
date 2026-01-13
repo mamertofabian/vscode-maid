@@ -20,6 +20,7 @@ Create behavioral tests from the manifest. See CLAUDE.md for MAID methodology de
    - Cover all parameters from manifest
 
 3. **CRITICAL - Validate tests USE artifacts (behavioral mode)**:
+
    ```bash
    maid validate manifests/task-XXX.manifest.json --validation-mode behavioral --use-manifest-chain
    ```
@@ -31,6 +32,7 @@ Create behavioral tests from the manifest. See CLAUDE.md for MAID methodology de
    Expected: ImportError/ModuleNotFoundError (implementation doesn't exist yet)
 
 ## Success
+
 ✓ Behavioral validation passes
 ✓ Every test has assertions (no smoke tests)
 ✓ Tests fail appropriately (Red phase)

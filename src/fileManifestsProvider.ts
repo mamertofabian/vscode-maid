@@ -120,15 +120,12 @@ export class FileManifestTreeItem extends vscode.TreeItem {
 /**
  * TreeDataProvider for file manifests view.
  */
-export class FileManifestsTreeDataProvider
-  implements vscode.TreeDataProvider<FileManifestTreeItem>
-{
+export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<FileManifestTreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<
     FileManifestTreeItem | undefined | null | void
   > = new vscode.EventEmitter<FileManifestTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    FileManifestTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+  readonly onDidChangeTreeData: vscode.Event<FileManifestTreeItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private currentFile: string | undefined;
   private fileReferences: FileReference[] = [];
@@ -193,7 +190,9 @@ export class FileManifestsTreeDataProvider
 
     const normalizedPath = path.normalize(this.currentFile).replace(/\\/g, "/");
     this.fileReferences = this.manifestIndex.getManifestsReferencingFile(normalizedPath);
-    log(`[FileManifests] Found ${this.fileReferences.length} manifest references for ${path.basename(this.currentFile)}`);
+    log(
+      `[FileManifests] Found ${this.fileReferences.length} manifest references for ${path.basename(this.currentFile)}`
+    );
     this._onDidChangeTreeData.fire();
   }
 
@@ -281,7 +280,7 @@ export class FileManifestsTreeDataProvider
     if (element.itemType === "category") {
       const anyElement = element as any;
       const references: FileReference[] = anyElement.references || [];
-      
+
       const manifestItems: FileManifestTreeItem[] = [];
       for (const ref of references) {
         const manifestName = path.basename(ref.manifestPath, ".manifest.json");

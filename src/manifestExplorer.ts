@@ -33,7 +33,7 @@ function extractFilePath(arg: string): string {
   ];
 
   let cleaned = arg.trim();
-  
+
   // Try to strip command prefixes
   for (const prefix of commandPrefixes) {
     if (prefix.test(cleaned)) {
@@ -57,22 +57,16 @@ function resolveFilePath(
   if (path.isAbsolute(filePath)) {
     // Already absolute, use as-is
     const fullPath = filePath;
-    const displayPath = workspaceRoot 
-      ? vscode.workspace.asRelativePath(fullPath)
-      : filePath;
+    const displayPath = workspaceRoot ? vscode.workspace.asRelativePath(fullPath) : filePath;
     return { fullPath, displayPath };
   } else if (maidRoot) {
     // Resolve relative to MAID root directory
     const fullPath = path.resolve(maidRoot, filePath);
-    const displayPath = workspaceRoot 
-      ? vscode.workspace.asRelativePath(fullPath)
-      : filePath;
+    const displayPath = workspaceRoot ? vscode.workspace.asRelativePath(fullPath) : filePath;
     return { fullPath, displayPath };
   } else {
     // Fallback: resolve relative to workspace root
-    const fullPath = workspaceRoot 
-      ? path.join(workspaceRoot, filePath)
-      : filePath;
+    const fullPath = workspaceRoot ? path.join(workspaceRoot, filePath) : filePath;
     return { fullPath, displayPath: filePath };
   }
 }
@@ -138,15 +132,9 @@ export class ManifestTreeItem extends vscode.TreeItem {
     switch (this.itemType) {
       case "manifest":
         if (this.manifestInfo?.errorCount && this.manifestInfo.errorCount > 0) {
-          return new vscode.ThemeIcon(
-            "file-code",
-            new vscode.ThemeColor("errorForeground")
-          );
+          return new vscode.ThemeIcon("file-code", new vscode.ThemeColor("errorForeground"));
         }
-        if (
-          this.manifestInfo?.warningCount &&
-          this.manifestInfo.warningCount > 0
-        ) {
+        if (this.manifestInfo?.warningCount && this.manifestInfo.warningCount > 0) {
           return new vscode.ThemeIcon(
             "file-code",
             new vscode.ThemeColor("editorWarning.foreground")
@@ -211,7 +199,7 @@ export class ManifestTreeItem extends vscode.TreeItem {
           const errors = this.manifestInfo.errorCount || 0;
           const warnings = this.manifestInfo.warningCount || 0;
           const parts: string[] = [];
-          
+
           if (errors > 0) {
             parts.push(`${errors} errors`);
           } else if (warnings > 0) {
@@ -249,15 +237,11 @@ export class ManifestTreeItem extends vscode.TreeItem {
 /**
  * TreeDataProvider for the manifest explorer.
  */
-export class ManifestTreeDataProvider
-  implements vscode.TreeDataProvider<ManifestTreeItem>
-{
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    ManifestTreeItem | undefined | null | void
-  > = new vscode.EventEmitter<ManifestTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    ManifestTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+export class ManifestTreeDataProvider implements vscode.TreeDataProvider<ManifestTreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<ManifestTreeItem | undefined | null | void> =
+    new vscode.EventEmitter<ManifestTreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<ManifestTreeItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private manifests: Map<string, ManifestInfo> = new Map();
   private disposables: vscode.Disposable[] = [];
@@ -268,9 +252,7 @@ export class ManifestTreeDataProvider
     this.debouncedRefresh = debounce(() => this.refresh(), 500);
 
     // Watch for file system changes
-    const watcher = vscode.workspace.createFileSystemWatcher(
-      "**/*.manifest.json"
-    );
+    const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
     watcher.onDidCreate(() => this.debouncedRefresh());
     watcher.onDidChange(() => this.debouncedRefresh());
     watcher.onDidDelete(() => this.debouncedRefresh());
@@ -279,9 +261,7 @@ export class ManifestTreeDataProvider
     // Watch for diagnostics changes to update validation status
     this.disposables.push(
       vscode.languages.onDidChangeDiagnostics((event) => {
-        const hasManifestChanges = event.uris.some((uri) =>
-          isManifestPath(uri.fsPath)
-        );
+        const hasManifestChanges = event.uris.some((uri) => isManifestPath(uri.fsPath));
         if (hasManifestChanges) {
           this.updateDiagnostics(event.uris);
         }
@@ -374,10 +354,7 @@ export class ManifestTreeDataProvider
           (d) => d.severity === vscode.DiagnosticSeverity.Warning
         ).length;
 
-        if (
-          info.errorCount !== newErrorCount ||
-          info.warningCount !== newWarningCount
-        ) {
+        if (info.errorCount !== newErrorCount || info.warningCount !== newWarningCount) {
           info.errorCount = newErrorCount;
           info.warningCount = newWarningCount;
           changed = true;
@@ -446,9 +423,7 @@ export class ManifestTreeDataProvider
     return items;
   }
 
-  private async getManifestChildren(
-    element: ManifestTreeItem
-  ): Promise<ManifestTreeItem[]> {
+  private async getManifestChildren(element: ManifestTreeItem): Promise<ManifestTreeItem[]> {
     const items: ManifestTreeItem[] = [];
 
     // Read and parse the manifest file
@@ -457,7 +432,7 @@ export class ManifestTreeDataProvider
         const content = await vscode.workspace.fs.readFile(element.resourceUri);
         const manifest = JSON.parse(Buffer.from(content).toString());
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-        
+
         // Get MAID root (where the manifests/ folder is located)
         // This is the root directory for all MAID CLI operations
         const manifestFileDir = path.dirname(element.resourceUri.fsPath);
@@ -468,14 +443,17 @@ export class ManifestTreeDataProvider
           try {
             const chain = this.manifestIndex.getSupersessionChain(element.resourceUri.fsPath);
             const hasChain = chain.parents.length > 0 || chain.children.length > 0;
-            
+
             if (hasChain) {
               const chainCategory = new ManifestTreeItem(
                 `Chain (${chain.parents.length} parent${chain.parents.length !== 1 ? "s" : ""}, ${chain.children.length} child${chain.children.length !== 1 ? "ren" : ""})`,
                 "category",
                 vscode.TreeItemCollapsibleState.Collapsed
               );
-              chainCategory.iconPath = new vscode.ThemeIcon("git-branch", new vscode.ThemeColor("charts.blue"));
+              chainCategory.iconPath = new vscode.ThemeIcon(
+                "git-branch",
+                new vscode.ThemeColor("charts.blue")
+              );
               (chainCategory as any).categoryType = "chain";
               (chainCategory as any).chain = chain;
               (chainCategory as any).workspaceRoot = workspaceRoot;
@@ -487,13 +465,20 @@ export class ManifestTreeDataProvider
         }
 
         // Show supersedes if present
-        if (manifest.supersedes && Array.isArray(manifest.supersedes) && manifest.supersedes.length > 0) {
+        if (
+          manifest.supersedes &&
+          Array.isArray(manifest.supersedes) &&
+          manifest.supersedes.length > 0
+        ) {
           const supersedesCategory = new ManifestTreeItem(
             `Supersedes (${manifest.supersedes.length})`,
             "category",
             vscode.TreeItemCollapsibleState.Collapsed
           );
-          supersedesCategory.iconPath = new vscode.ThemeIcon("references", new vscode.ThemeColor("charts.red"));
+          supersedesCategory.iconPath = new vscode.ThemeIcon(
+            "references",
+            new vscode.ThemeColor("charts.red")
+          );
           (supersedesCategory as any).categoryType = "supersedes";
           (supersedesCategory as any).items = manifest.supersedes;
           (supersedesCategory as any).workspaceRoot = workspaceRoot;
@@ -502,13 +487,20 @@ export class ManifestTreeDataProvider
         }
 
         // Show creatable files
-        if (manifest.creatableFiles && Array.isArray(manifest.creatableFiles) && manifest.creatableFiles.length > 0) {
+        if (
+          manifest.creatableFiles &&
+          Array.isArray(manifest.creatableFiles) &&
+          manifest.creatableFiles.length > 0
+        ) {
           const creatableCategory = new ManifestTreeItem(
             `Creatable Files (${manifest.creatableFiles.length})`,
             "category",
             vscode.TreeItemCollapsibleState.Collapsed
           );
-          creatableCategory.iconPath = new vscode.ThemeIcon("new-file", new vscode.ThemeColor("charts.green"));
+          creatableCategory.iconPath = new vscode.ThemeIcon(
+            "new-file",
+            new vscode.ThemeColor("charts.green")
+          );
           (creatableCategory as any).categoryType = "creatableFiles";
           (creatableCategory as any).items = manifest.creatableFiles;
           (creatableCategory as any).workspaceRoot = workspaceRoot;
@@ -517,13 +509,20 @@ export class ManifestTreeDataProvider
         }
 
         // Show editable files
-        if (manifest.editableFiles && Array.isArray(manifest.editableFiles) && manifest.editableFiles.length > 0) {
+        if (
+          manifest.editableFiles &&
+          Array.isArray(manifest.editableFiles) &&
+          manifest.editableFiles.length > 0
+        ) {
           const editableCategory = new ManifestTreeItem(
             `Editable Files (${manifest.editableFiles.length})`,
             "category",
             vscode.TreeItemCollapsibleState.Collapsed
           );
-          editableCategory.iconPath = new vscode.ThemeIcon("edit", new vscode.ThemeColor("charts.blue"));
+          editableCategory.iconPath = new vscode.ThemeIcon(
+            "edit",
+            new vscode.ThemeColor("charts.blue")
+          );
           (editableCategory as any).categoryType = "editableFiles";
           (editableCategory as any).items = manifest.editableFiles;
           (editableCategory as any).workspaceRoot = workspaceRoot;
@@ -532,13 +531,20 @@ export class ManifestTreeDataProvider
         }
 
         // Show readonly files
-        if (manifest.readonlyFiles && Array.isArray(manifest.readonlyFiles) && manifest.readonlyFiles.length > 0) {
+        if (
+          manifest.readonlyFiles &&
+          Array.isArray(manifest.readonlyFiles) &&
+          manifest.readonlyFiles.length > 0
+        ) {
           const readonlyCategory = new ManifestTreeItem(
             `Read-only Files (${manifest.readonlyFiles.length})`,
             "category",
             vscode.TreeItemCollapsibleState.Collapsed
           );
-          readonlyCategory.iconPath = new vscode.ThemeIcon("lock", new vscode.ThemeColor("charts.yellow"));
+          readonlyCategory.iconPath = new vscode.ThemeIcon(
+            "lock",
+            new vscode.ThemeColor("charts.yellow")
+          );
           (readonlyCategory as any).categoryType = "readonlyFiles";
           (readonlyCategory as any).items = manifest.readonlyFiles;
           (readonlyCategory as any).workspaceRoot = workspaceRoot;
@@ -558,7 +564,10 @@ export class ManifestTreeDataProvider
               "category",
               vscode.TreeItemCollapsibleState.Collapsed
             );
-            artifactsCategory.iconPath = new vscode.ThemeIcon("symbol-file", new vscode.ThemeColor("charts.purple"));
+            artifactsCategory.iconPath = new vscode.ThemeIcon(
+              "symbol-file",
+              new vscode.ThemeColor("charts.purple")
+            );
             (artifactsCategory as any).categoryType = "expectedArtifacts";
             (artifactsCategory as any).items = artifacts;
             (artifactsCategory as any).workspaceRoot = workspaceRoot;
@@ -568,7 +577,11 @@ export class ManifestTreeDataProvider
         }
 
         // Show test files from validation command
-        if (manifest.validationCommand && Array.isArray(manifest.validationCommand) && manifest.validationCommand.length > 0) {
+        if (
+          manifest.validationCommand &&
+          Array.isArray(manifest.validationCommand) &&
+          manifest.validationCommand.length > 0
+        ) {
           // Extract test files from validation command (files that look like paths)
           const testFiles = manifest.validationCommand
             .map((arg: string) => extractFilePath(arg))
@@ -576,12 +589,20 @@ export class ManifestTreeDataProvider
               // Look for arguments that look like file paths (contain / or \ or end with test extensions)
               return (
                 (filePath.includes("/") || filePath.includes("\\")) &&
-                (filePath.endsWith(".ts") || filePath.endsWith(".tsx") || filePath.endsWith(".js") ||
-                 filePath.endsWith(".jsx") || filePath.endsWith(".py") || filePath.endsWith(".rs") ||
-                 filePath.endsWith(".spec.ts") || filePath.endsWith(".spec.tsx") ||
-                 filePath.endsWith(".test.ts") || filePath.endsWith(".test.tsx") ||
-                 filePath.endsWith(".spec.js") || filePath.endsWith(".spec.jsx") ||
-                 filePath.endsWith(".test.js") || filePath.endsWith(".test.jsx"))
+                (filePath.endsWith(".ts") ||
+                  filePath.endsWith(".tsx") ||
+                  filePath.endsWith(".js") ||
+                  filePath.endsWith(".jsx") ||
+                  filePath.endsWith(".py") ||
+                  filePath.endsWith(".rs") ||
+                  filePath.endsWith(".spec.ts") ||
+                  filePath.endsWith(".spec.tsx") ||
+                  filePath.endsWith(".test.ts") ||
+                  filePath.endsWith(".test.tsx") ||
+                  filePath.endsWith(".spec.js") ||
+                  filePath.endsWith(".spec.jsx") ||
+                  filePath.endsWith(".test.js") ||
+                  filePath.endsWith(".test.jsx"))
               );
             });
 
@@ -591,7 +612,10 @@ export class ManifestTreeDataProvider
               "category",
               vscode.TreeItemCollapsibleState.Collapsed
             );
-            testFilesCategory.iconPath = new vscode.ThemeIcon("beaker", new vscode.ThemeColor("terminal.ansiCyan"));
+            testFilesCategory.iconPath = new vscode.ThemeIcon(
+              "beaker",
+              new vscode.ThemeColor("terminal.ansiCyan")
+            );
             (testFilesCategory as any).categoryType = "testFiles";
             (testFilesCategory as any).items = testFiles;
             (testFilesCategory as any).workspaceRoot = workspaceRoot;
@@ -612,7 +636,6 @@ export class ManifestTreeDataProvider
           (tasksCategory as any).parentUri = element.resourceUri;
           items.push(tasksCategory);
         }
-
       } catch (error) {
         log(`[ManifestExplorer] Error parsing manifest: ${error}`, "error");
         const errorItem = new ManifestTreeItem(
@@ -628,9 +651,7 @@ export class ManifestTreeDataProvider
     return items;
   }
 
-  private getCategoryChildren(
-    element: ManifestTreeItem
-  ): ManifestTreeItem[] {
+  private getCategoryChildren(element: ManifestTreeItem): ManifestTreeItem[] {
     const items: ManifestTreeItem[] = [];
     const anyElement = element as any;
     const categoryType = anyElement.categoryType;
@@ -643,7 +664,7 @@ export class ManifestTreeDataProvider
         if (anyElement.chain) {
           const chain = anyElement.chain;
           const workspaceRoot = anyElement.workspaceRoot;
-          
+
           // Show parents
           if (chain.parents && chain.parents.length > 0) {
             const parentsCategory = new ManifestTreeItem(
@@ -651,13 +672,16 @@ export class ManifestTreeDataProvider
               "category",
               vscode.TreeItemCollapsibleState.Collapsed
             );
-            parentsCategory.iconPath = new vscode.ThemeIcon("arrow-up", new vscode.ThemeColor("charts.green"));
+            parentsCategory.iconPath = new vscode.ThemeIcon(
+              "arrow-up",
+              new vscode.ThemeColor("charts.green")
+            );
             (parentsCategory as any).categoryType = "chainManifests";
             (parentsCategory as any).items = chain.parents;
             (parentsCategory as any).workspaceRoot = workspaceRoot;
             items.push(parentsCategory);
           }
-          
+
           // Show children
           if (chain.children && chain.children.length > 0) {
             const childrenCategory = new ManifestTreeItem(
@@ -665,7 +689,10 @@ export class ManifestTreeDataProvider
               "category",
               vscode.TreeItemCollapsibleState.Collapsed
             );
-            childrenCategory.iconPath = new vscode.ThemeIcon("arrow-down", new vscode.ThemeColor("charts.orange"));
+            childrenCategory.iconPath = new vscode.ThemeIcon(
+              "arrow-down",
+              new vscode.ThemeColor("charts.orange")
+            );
             (childrenCategory as any).categoryType = "chainManifests";
             (childrenCategory as any).items = chain.children;
             (childrenCategory as any).workspaceRoot = workspaceRoot;
@@ -680,7 +707,7 @@ export class ManifestTreeDataProvider
           for (const manifestPath of categoryItems) {
             if (!manifestPath) continue;
             const uri = vscode.Uri.file(manifestPath);
-            const relativePath = workspaceRoot 
+            const relativePath = workspaceRoot
               ? vscode.workspace.asRelativePath(manifestPath)
               : path.basename(manifestPath);
             const manifestItem = new ManifestTreeItem(
@@ -767,20 +794,27 @@ export class ManifestTreeDataProvider
         if (categoryItems) {
           const maidRoot = anyElement.maidRoot;
           for (const artifact of categoryItems) {
-            const hasContains = artifact.contains && Array.isArray(artifact.contains) && artifact.contains.length > 0;
+            const hasContains =
+              artifact.contains && Array.isArray(artifact.contains) && artifact.contains.length > 0;
             let uri: vscode.Uri | undefined;
             let displayPath = "Unknown file";
-            
+
             if (artifact.file) {
-              const { fullPath, displayPath: dp } = resolveFilePath(artifact.file, maidRoot, workspaceRoot);
+              const { fullPath, displayPath: dp } = resolveFilePath(
+                artifact.file,
+                maidRoot,
+                workspaceRoot
+              );
               uri = vscode.Uri.file(fullPath);
               displayPath = dp;
             }
-            
+
             const artifactItem = new ManifestTreeItem(
               displayPath,
               "expectedArtifact",
-              hasContains ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+              hasContains
+                ? vscode.TreeItemCollapsibleState.Collapsed
+                : vscode.TreeItemCollapsibleState.None,
               uri
             );
             // Store contains for child expansion
@@ -856,13 +890,25 @@ export class ManifestTreeDataProvider
   private getArtifactTypeIcon(type: string): vscode.ThemeIcon {
     switch (type) {
       case "class":
-        return new vscode.ThemeIcon("symbol-class", new vscode.ThemeColor("symbolIcon.classForeground"));
+        return new vscode.ThemeIcon(
+          "symbol-class",
+          new vscode.ThemeColor("symbolIcon.classForeground")
+        );
       case "function":
-        return new vscode.ThemeIcon("symbol-function", new vscode.ThemeColor("symbolIcon.functionForeground"));
+        return new vscode.ThemeIcon(
+          "symbol-function",
+          new vscode.ThemeColor("symbolIcon.functionForeground")
+        );
       case "method":
-        return new vscode.ThemeIcon("symbol-method", new vscode.ThemeColor("symbolIcon.methodForeground"));
+        return new vscode.ThemeIcon(
+          "symbol-method",
+          new vscode.ThemeColor("symbolIcon.methodForeground")
+        );
       case "attribute":
-        return new vscode.ThemeIcon("symbol-field", new vscode.ThemeColor("symbolIcon.fieldForeground"));
+        return new vscode.ThemeIcon(
+          "symbol-field",
+          new vscode.ThemeColor("symbolIcon.fieldForeground")
+        );
       default:
         return new vscode.ThemeIcon("symbol-misc");
     }
@@ -875,7 +921,7 @@ export class ManifestTreeDataProvider
     let label = contained.name;
     if (contained.type === "function" || contained.type === "method") {
       if (contained.args && contained.args.length > 0) {
-        const args = contained.args.map(a => `${a.name}: ${a.type}`).join(", ");
+        const args = contained.args.map((a) => `${a.name}: ${a.type}`).join(", ");
         label += `(${args})`;
       } else {
         label += "()";
@@ -926,7 +972,12 @@ export class ManifestTreeDataProvider
 export class TrackedFileTreeItem extends vscode.TreeItem {
   constructor(
     public readonly label: string,
-    public readonly fileStatus: "undeclared" | "registered" | "tracked" | "private_impl" | "category",
+    public readonly fileStatus:
+      | "undeclared"
+      | "registered"
+      | "tracked"
+      | "private_impl"
+      | "category",
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly filePath?: string,
     public readonly issues?: string[]
@@ -955,7 +1006,10 @@ export class TrackedFileTreeItem extends vscode.TreeItem {
       case "undeclared":
         return new vscode.ThemeIcon("warning", new vscode.ThemeColor("editorWarning.foreground"));
       case "registered":
-        return new vscode.ThemeIcon("circle-outline", new vscode.ThemeColor("editorInfo.foreground"));
+        return new vscode.ThemeIcon(
+          "circle-outline",
+          new vscode.ThemeColor("editorInfo.foreground")
+        );
       case "tracked":
         return new vscode.ThemeIcon("check", new vscode.ThemeColor("testing.iconPassed"));
       case "private_impl":
@@ -969,7 +1023,7 @@ export class TrackedFileTreeItem extends vscode.TreeItem {
 
   private getTooltip(): string {
     if (this.issues && this.issues.length > 0) {
-      return `${this.filePath}\n\nIssues:\n${this.issues.map(i => `- ${i}`).join("\n")}`;
+      return `${this.filePath}\n\nIssues:\n${this.issues.map((i) => `- ${i}`).join("\n")}`;
     }
     return this.filePath || this.label;
   }
@@ -991,15 +1045,11 @@ export class TrackedFileTreeItem extends vscode.TreeItem {
 /**
  * TreeDataProvider for tracked files using `maid files --json`.
  */
-export class TrackedFilesTreeDataProvider
-  implements vscode.TreeDataProvider<TrackedFileTreeItem>
-{
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    TrackedFileTreeItem | undefined | null | void
-  > = new vscode.EventEmitter<TrackedFileTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    TrackedFileTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<TrackedFileTreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<TrackedFileTreeItem | undefined | null | void> =
+    new vscode.EventEmitter<TrackedFileTreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<TrackedFileTreeItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private filesData: {
     undeclared: { file: string; issues: string[] }[];
@@ -1082,7 +1132,9 @@ export class TrackedFilesTreeDataProvider
       });
 
       this.filesData = JSON.parse(stdout);
-      log(`[TrackedFiles] Loaded from ${cwd}: undeclared=${this.filesData?.undeclared?.length || 0}, registered=${this.filesData?.registered?.length || 0}, tracked=${this.filesData?.tracked?.length || 0}, private_impl=${this.filesData?.private_impl?.length || 0}`);
+      log(
+        `[TrackedFiles] Loaded from ${cwd}: undeclared=${this.filesData?.undeclared?.length || 0}, registered=${this.filesData?.registered?.length || 0}, tracked=${this.filesData?.tracked?.length || 0}, private_impl=${this.filesData?.private_impl?.length || 0}`
+      );
     } catch (error: any) {
       log(`[TrackedFiles] Error loading files: ${error.message}`, "error");
       this.filesData = null;
@@ -1126,7 +1178,10 @@ export class TrackedFilesTreeDataProvider
         "category",
         vscode.TreeItemCollapsibleState.Expanded
       );
-      undeclaredCategory.iconPath = new vscode.ThemeIcon("warning", new vscode.ThemeColor("editorWarning.foreground"));
+      undeclaredCategory.iconPath = new vscode.ThemeIcon(
+        "warning",
+        new vscode.ThemeColor("editorWarning.foreground")
+      );
       (undeclaredCategory as any).categoryType = "undeclared";
       (undeclaredCategory as any).files = this.filesData.undeclared;
       items.push(undeclaredCategory);
@@ -1139,7 +1194,10 @@ export class TrackedFilesTreeDataProvider
         "category",
         vscode.TreeItemCollapsibleState.Collapsed
       );
-      registeredCategory.iconPath = new vscode.ThemeIcon("circle-outline", new vscode.ThemeColor("editorInfo.foreground"));
+      registeredCategory.iconPath = new vscode.ThemeIcon(
+        "circle-outline",
+        new vscode.ThemeColor("editorInfo.foreground")
+      );
       (registeredCategory as any).categoryType = "registered";
       (registeredCategory as any).files = this.filesData.registered;
       items.push(registeredCategory);
@@ -1152,7 +1210,10 @@ export class TrackedFilesTreeDataProvider
         "category",
         vscode.TreeItemCollapsibleState.Collapsed
       );
-      trackedCategory.iconPath = new vscode.ThemeIcon("check", new vscode.ThemeColor("testing.iconPassed"));
+      trackedCategory.iconPath = new vscode.ThemeIcon(
+        "check",
+        new vscode.ThemeColor("testing.iconPassed")
+      );
       (trackedCategory as any).categoryType = "tracked";
       (trackedCategory as any).files = this.filesData.tracked;
       items.push(trackedCategory);
@@ -1225,9 +1286,7 @@ export class TrackedFilesTreeDataProvider
           ? filePath
           : path.resolve(this.maidRoot, filePath);
       } else if (workspaceRoot) {
-        fullPathForUri = path.isAbsolute(filePath)
-          ? filePath
-          : path.join(workspaceRoot, filePath);
+        fullPathForUri = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
       } else {
         fullPathForUri = filePath;
       }

@@ -85,7 +85,10 @@ export type ExtensionToWebviewMessage =
   | { type: "chainData"; payload: ManifestChainData }
   | { type: "commitDiff"; payload: { commitHash: string; diff: string } }
   | { type: "fileAtCommit"; payload: { commitHash: string; content: string } }
-  | { type: "validationUpdate"; payload: { manifestPath: string; errorCount: number; warningCount: number } }
+  | {
+      type: "validationUpdate";
+      payload: { manifestPath: string; errorCount: number; warningCount: number };
+    }
   | { type: "themeChanged"; payload: ThemeInfo }
   | { type: "loading"; payload: { isLoading: boolean } }
   | { type: "error"; payload: { message: string } };
@@ -105,6 +108,9 @@ export type WebviewToExtensionMessage =
   | { type: "runTests"; payload: { manifestPath?: string } }
   | { type: "loadHistory"; payload: { manifestPath: string } }
   | { type: "loadCommit"; payload: { manifestPath: string; commitHash: string } }
-  | { type: "compareCommits"; payload: { manifestPath: string; commitHash1: string; commitHash2: string } }
+  | {
+      type: "compareCommits";
+      payload: { manifestPath: string; commitHash1: string; commitHash2: string };
+    }
   | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } }
   | { type: "setManifest"; payload: { manifestPath: string } };

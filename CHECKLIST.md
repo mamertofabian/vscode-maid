@@ -75,12 +75,14 @@
 ## 🚀 Ready to Publish
 
 Once you've:
+
 1. Updated publisher name
 2. Verified repository URLs
 3. Tested extension thoroughly
 4. Created Personal Access Token
 
 You can publish with:
+
 ```bash
 npm install -g @vscode/vsce
 vsce package  # Test locally first
