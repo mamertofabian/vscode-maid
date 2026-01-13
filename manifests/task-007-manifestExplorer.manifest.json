@@ -17,8 +17,24 @@
         "name": "ManifestTreeItem"
       },
       {
+        "type": "interface",
+        "name": "ExtendedManifestTreeItem"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestInfoWithChain"
+      },
+      {
         "type": "class",
         "name": "TrackedFileTreeItem"
+      },
+      {
+        "type": "interface",
+        "name": "ExtendedTrackedFileTreeItem"
+      },
+      {
+        "type": "interface",
+        "name": "FilesData"
       },
       {
         "type": "class",
@@ -39,6 +55,43 @@
             "type": "string"
           }
         ]
+      },
+      {
+        "type": "function",
+        "name": "isParsedManifestJson",
+        "args": [
+          {
+            "name": "value",
+            "type": "unknown"
+          }
+        ],
+        "returns": "value is ParsedManifestJson"
+      },
+      {
+        "type": "function",
+        "name": "parseManifestJson",
+        "args": [
+          {
+            "name": "content",
+            "type": "Uint8Array"
+          }
+        ],
+        "returns": "ParsedManifestJson"
+      },
+      {
+        "type": "function",
+        "name": "getManifestProperty",
+        "args": [
+          {
+            "name": "manifest",
+            "type": "ParsedManifestJson"
+          },
+          {
+            "name": "property",
+            "type": "keyof ParsedManifestJson"
+          }
+        ],
+        "returns": "T | undefined"
       },
       {
         "type": "function",

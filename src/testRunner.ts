@@ -83,7 +83,7 @@ export class MaidTestRunner {
   /**
    * Run all tests in the workspace.
    */
-  async runAllTests(): Promise<void> {
+  runAllTests(): void {
     const workspaceRoot = getWorkspaceRoot();
     if (!workspaceRoot) {
       vscode.window.showErrorMessage(
@@ -101,7 +101,7 @@ export class MaidTestRunner {
   /**
    * Run tests in watch mode for all manifests.
    */
-  async runTestsWatch(): Promise<void> {
+  runTestsWatch(): void {
     const workspaceRoot = getWorkspaceRoot();
     if (!workspaceRoot) {
       vscode.window.showErrorMessage(
@@ -119,7 +119,7 @@ export class MaidTestRunner {
   /**
    * Run tests for a specific manifest file.
    */
-  async runTestsForManifest(arg?: unknown): Promise<void> {
+  runTestsForManifest(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -155,7 +155,7 @@ export class MaidTestRunner {
   /**
    * Run coherence validation for a specific manifest.
    */
-  async runCoherenceValidation(arg?: unknown): Promise<void> {
+  runCoherenceValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -193,7 +193,7 @@ export class MaidTestRunner {
   /**
    * Run manifest chain validation for a specific manifest.
    */
-  async runChainValidation(arg?: unknown): Promise<void> {
+  runChainValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -231,7 +231,7 @@ export class MaidTestRunner {
   /**
    * Run validation for a specific manifest.
    */
-  async runValidation(arg?: unknown): Promise<void> {
+  runValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -273,7 +273,9 @@ export class MaidTestRunner {
     if (this.terminal) {
       this.terminal.dispose();
     }
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
     log("[TestRunner] Disposed");
   }
 }

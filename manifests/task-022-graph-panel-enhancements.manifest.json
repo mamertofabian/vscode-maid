@@ -99,7 +99,7 @@
             "type": "string"
           },
           {
-            "name": "workspaceRoot",
+            "name": "_workspaceRoot",
             "type": "string"
           }
         ]
@@ -173,7 +173,7 @@
             "type": "string"
           },
           {
-            "name": "filename",
+            "name": "_filename",
             "type": "string | null"
           }
         ],

@@ -27,27 +27,21 @@ vi.mock("../src/utils", async () => {
   };
 });
 
-const mockContext = {
-  subscriptions: [],
-  globalState: {
-    get: vi.fn(),
-    update: vi.fn(),
-  },
-  workspaceState: {
-    get: vi.fn(),
-    update: vi.fn(),
-  },
-  extensionUri: vscode.Uri.file("/test"),
-} as unknown as vscode.ExtensionContext;
-
 describe("extension", () => {
   beforeEach(() => {
-    (vscode.window.createOutputChannel as any) = vi.fn(() => ({
+    vi.mocked(vscode.window.createOutputChannel).mockReturnValue({
       appendLine: vi.fn(),
       show: vi.fn(),
       hide: vi.fn(),
       dispose: vi.fn(),
-    }));
+      logLevel: 0,
+      onDidChangeLogLevel: { dispose: vi.fn() },
+      trace: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    } as unknown as vscode.OutputChannel & vscode.LogOutputChannel);
   });
 
   it("should have activate and deactivate functions", async () => {

@@ -7,16 +7,8 @@
  * TODO: Implement the actual test logic.
  */
 
-import {
-  type ActivityItem,
-  type DashboardData,
-  type GraphFilters,
-  type ManifestSummary,
-  type TestCoverageSummary,
-  type ThemeInfo,
-  type ExtensionToWebviewMessage,
-  type WebviewToExtensionMessage,
-} from "../src/webview/messages";
+// Types are imported for type checking only - they are compile-time constructs
+// Type checking is performed by the TypeScript compiler
 
 describe("ActivityItem", () => {
   // NOTE: Interfaces and type aliases are compile-time constructs

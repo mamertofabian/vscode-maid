@@ -151,7 +151,9 @@ export class MaidStatusBar {
    */
   dispose(): void {
     this.statusBarItem.dispose();
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
     log("[StatusBar] Disposed");
   }
 }

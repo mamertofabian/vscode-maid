@@ -136,6 +136,30 @@ export interface ManifestsResult {
 }
 
 /**
+ * Parsed manifest JSON structure from .manifest.json files
+ */
+export interface ParsedManifestJson {
+  goal?: string;
+  taskType?: string;
+  version?: string;
+  supersedes?: string[];
+  creatableFiles?: string[];
+  editableFiles?: string[];
+  readonlyFiles?: string[];
+  expectedArtifacts?: ExpectedArtifact | ExpectedArtifact[];
+  validationCommand?: string[];
+  tasks?: ManifestTask[];
+}
+
+/**
+ * Chain information for a manifest
+ */
+export interface ChainInfo {
+  parents: number;
+  children: number;
+}
+
+/**
  * Status bar display states
  */
 export type StatusBarState =

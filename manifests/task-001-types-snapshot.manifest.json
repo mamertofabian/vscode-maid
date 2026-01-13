@@ -114,5 +114,5 @@
       }
     ]
   },
-  "validationCommand": []
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/task-001-snapshot-types.spec.ts"]
 }

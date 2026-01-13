@@ -108,8 +108,9 @@ export class ManifestIndex {
       this.indexExpectedArtifacts(content, rootNode, manifestPath, entry);
 
       this.index.set(manifestPath, entry);
-    } catch (error) {
-      this.log(`Error indexing manifest ${manifestPath}: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.log(`Error indexing manifest ${manifestPath}: ${message}`);
     }
   }
 
@@ -133,7 +134,8 @@ export class ManifestIndex {
       if (itemNode.type !== "string") continue;
 
       const filePath = itemNode.value as string;
-      const position = this.offsetToPosition(content, itemNode.offset);
+      const offset = typeof itemNode.offset === "number" ? itemNode.offset : 0;
+      const position = this.offsetToPosition(content, offset);
       const resolvedPath = this.resolveFilePath(filePath, manifestPath);
 
       const ref: FileReference = {
@@ -187,7 +189,8 @@ export class ManifestIndex {
       const resolvedFilePath = this.resolveFilePath(filePath, manifestPath);
 
       // Index the file reference
-      const filePosition = this.offsetToPosition(content, fileNode.offset);
+      const fileOffset = typeof fileNode.offset === "number" ? fileNode.offset : 0;
+      const filePosition = this.offsetToPosition(content, fileOffset);
       const fileRef: FileReference = {
         manifestPath,
         category: "expectedArtifact",
@@ -221,7 +224,8 @@ export class ManifestIndex {
 
         const artifactName = nameNode.value as string;
         const artifactType = (typeNode?.value as string) || "function";
-        const position = this.offsetToPosition(content, nameNode.offset);
+        const nameOffset = typeof nameNode.offset === "number" ? nameNode.offset : 0;
+        const position = this.offsetToPosition(content, nameOffset);
 
         const artifactRef: ArtifactReference = {
           manifestPath,
@@ -282,14 +286,16 @@ export class ManifestIndex {
       clearTimeout(this.debounceTimer);
     }
 
-    this.debounceTimer = setTimeout(async () => {
-      this.log(`Re-indexing manifest: ${manifestPath}`);
-      // Remove old index entry
-      this.removeManifestFromIndex(manifestPath);
-      // Re-index the manifest
-      await this.indexManifest(manifestPath);
-      // Rebuild supersededBy relationships
-      this.buildSupersededByRelationships();
+    this.debounceTimer = setTimeout(() => {
+      void (async () => {
+        this.log(`Re-indexing manifest: ${manifestPath}`);
+        // Remove old index entry
+        this.removeManifestFromIndex(manifestPath);
+        // Re-index the manifest
+        await this.indexManifest(manifestPath);
+        // Rebuild supersededBy relationships
+        this.buildSupersededByRelationships();
+      })();
     }, 500);
   }
 
@@ -309,7 +315,7 @@ export class ManifestIndex {
     if (!entry) return;
 
     // Remove file references
-    for (const [filePath, refs] of entry.referencedFiles) {
+    for (const [filePath] of entry.referencedFiles) {
       const globalRefs = this.fileToManifests.get(filePath);
       if (globalRefs) {
         const filtered = globalRefs.filter((r) => r.manifestPath !== manifestPath);
@@ -322,7 +328,7 @@ export class ManifestIndex {
     }
 
     // Remove artifact references
-    for (const [artifactName, refs] of entry.artifacts) {
+    for (const [artifactName] of entry.artifacts) {
       const globalRefs = this.artifactToManifests.get(artifactName);
       if (globalRefs) {
         const filtered = globalRefs.filter((r) => r.manifestPath !== manifestPath);

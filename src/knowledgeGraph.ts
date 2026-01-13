@@ -10,6 +10,14 @@ import { GraphNode, GraphNodeType, KnowledgeGraphResult } from "./types";
 import { log, debounce, getMaidRoot } from "./utils";
 
 /**
+ * Extended properties for GraphTreeItem when used as a category
+ */
+interface ExtendedGraphTreeItem extends GraphTreeItem {
+  categoryType?: "manifest" | "file" | "module" | "artifact";
+  nodes?: GraphNode[];
+}
+
+/**
  * Tree item for knowledge graph view.
  */
 export class GraphTreeItem extends vscode.TreeItem {
@@ -67,7 +75,7 @@ export class GraphTreeItem extends vscode.TreeItem {
         return new vscode.ThemeIcon("file");
       case "module":
         return new vscode.ThemeIcon("package", new vscode.ThemeColor("charts.purple"));
-      case "artifact":
+      case "artifact": {
         const artifactType = this.graphNode?.artifact_type;
         if (artifactType === "class") {
           return new vscode.ThemeIcon("symbol-class", new vscode.ThemeColor("charts.orange"));
@@ -77,6 +85,7 @@ export class GraphTreeItem extends vscode.TreeItem {
           return new vscode.ThemeIcon("symbol-field", new vscode.ThemeColor("charts.yellow"));
         }
         return new vscode.ThemeIcon("symbol-misc");
+      }
       case "category":
         return new vscode.ThemeIcon("folder");
       case "edge":
@@ -159,13 +168,19 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
 
     // Watch for manifest changes
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
-    watcher.onDidCreate(() => this.debouncedRefresh());
-    watcher.onDidChange(() => this.debouncedRefresh());
-    watcher.onDidDelete(() => this.debouncedRefresh());
+    watcher.onDidCreate(() => {
+      void this.debouncedRefresh();
+    });
+    watcher.onDidChange(() => {
+      void this.debouncedRefresh();
+    });
+    watcher.onDidDelete(() => {
+      void this.debouncedRefresh();
+    });
     this.disposables.push(watcher);
 
     // Initial load
-    this.loadGraph();
+    void this.loadGraph();
   }
 
   /**
@@ -173,7 +188,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
    */
   refresh(): void {
     log("[KnowledgeGraph] Manual refresh triggered");
-    this.loadGraph();
+    void this.loadGraph();
   }
 
   /**
@@ -212,7 +227,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
           cwd = getMaidRoot(manifestPath);
           log(`[KnowledgeGraph] Using MAID root: ${cwd}`);
         }
-      } catch (error) {
+      } catch {
         log(`[KnowledgeGraph] Could not find MAID root, using workspace root`, "warn");
       }
 
@@ -228,7 +243,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
 
       // Read and parse
       const content = await fs.readFile(tempFile, "utf-8");
-      this.graphData = JSON.parse(content);
+      this.graphData = JSON.parse(content) as KnowledgeGraphResult;
 
       // Clean up temp file
       await fs.unlink(tempFile).catch(() => {});
@@ -241,8 +256,9 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
       log(
         `[KnowledgeGraph] Loaded from ${cwd}: ${this.graphData?.nodes?.length || 0} nodes (${JSON.stringify(nodeTypes)}), ${this.graphData?.edges?.length || 0} edges`
       );
-    } catch (error: any) {
-      log(`[KnowledgeGraph] Error loading graph: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log(`[KnowledgeGraph] Error loading graph: ${errorMessage}`, "error");
       this.graphData = null;
     }
 
@@ -254,7 +270,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
     return element;
   }
 
-  async getChildren(element?: GraphTreeItem): Promise<GraphTreeItem[]> {
+  getChildren(element?: GraphTreeItem): GraphTreeItem[] {
     if (!element) {
       // Root level - show categories by node type
       return this.getRootCategories();
@@ -294,9 +310,10 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "file-code",
         new vscode.ThemeColor("charts.blue")
       );
-      (manifestCategory as any).categoryType = "manifest";
-      (manifestCategory as any).nodes = manifests;
-      items.push(manifestCategory);
+      const manifestCategoryExtended = manifestCategory as ExtendedGraphTreeItem;
+      manifestCategoryExtended.categoryType = "manifest";
+      manifestCategoryExtended.nodes = manifests;
+      items.push(manifestCategoryExtended);
     }
 
     // Files
@@ -307,9 +324,10 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         vscode.TreeItemCollapsibleState.Collapsed
       );
       fileCategory.iconPath = new vscode.ThemeIcon("files");
-      (fileCategory as any).categoryType = "file";
-      (fileCategory as any).nodes = files;
-      items.push(fileCategory);
+      const fileCategoryExtended = fileCategory as ExtendedGraphTreeItem;
+      fileCategoryExtended.categoryType = "file";
+      fileCategoryExtended.nodes = files;
+      items.push(fileCategoryExtended);
     }
 
     // Modules
@@ -323,9 +341,10 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "package",
         new vscode.ThemeColor("charts.purple")
       );
-      (moduleCategory as any).categoryType = "module";
-      (moduleCategory as any).nodes = modules;
-      items.push(moduleCategory);
+      const moduleCategoryExtended = moduleCategory as ExtendedGraphTreeItem;
+      moduleCategoryExtended.categoryType = "module";
+      moduleCategoryExtended.nodes = modules;
+      items.push(moduleCategoryExtended);
     }
 
     // Artifacts
@@ -339,9 +358,10 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "symbol-misc",
         new vscode.ThemeColor("charts.green")
       );
-      (artifactCategory as any).categoryType = "artifact";
-      (artifactCategory as any).nodes = artifacts;
-      items.push(artifactCategory);
+      const artifactCategoryExtended = artifactCategory as ExtendedGraphTreeItem;
+      artifactCategoryExtended.categoryType = "artifact";
+      artifactCategoryExtended.nodes = artifacts;
+      items.push(artifactCategoryExtended);
     }
 
     if (items.length === 0) {
@@ -358,10 +378,10 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
   }
 
   private getCategoryChildren(element: GraphTreeItem): GraphTreeItem[] {
-    const anyElement = element as any;
-    const nodes: GraphNode[] = anyElement.nodes;
+    const extendedElement = element as ExtendedGraphTreeItem;
+    const nodes: GraphNode[] | undefined = extendedElement.nodes;
 
-    if (!nodes || !Array.isArray(nodes)) {
+    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
       return [];
     }
 
@@ -544,7 +564,9 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
    * Dispose of all resources.
    */
   dispose(): void {
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d) => {
+      d.dispose();
+    });
     log("[KnowledgeGraph] Disposed");
   }
 }

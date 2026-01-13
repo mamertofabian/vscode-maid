@@ -3,6 +3,61 @@
  */
 
 import { vi } from "vitest";
+import type * as vscode from "vscode";
+
+function createMockUri(fsPath: string): vscode.Uri {
+  return {
+    fsPath,
+    toString: vi.fn(() => `file://${fsPath}`),
+    scheme: "file",
+    authority: "",
+    path: fsPath,
+    query: "",
+    fragment: "",
+    with: vi.fn(),
+    toJSON: vi.fn(),
+  } as vscode.Uri;
+}
+
+function createMockPosition(line: number, character: number): vscode.Position {
+  return {
+    line,
+    character,
+    isBefore: vi.fn(),
+    isBeforeOrEqual: vi.fn(),
+    isAfter: vi.fn(),
+    isAfterOrEqual: vi.fn(),
+    isEqual: vi.fn(),
+    compareTo: vi.fn(),
+    translate: vi.fn(),
+    with: vi.fn(),
+  } as vscode.Position;
+}
+
+function createMockRange(start: vscode.Position, end: vscode.Position): vscode.Range {
+  return {
+    start,
+    end,
+    isEmpty: false,
+    isSingleLine: start.line === end.line,
+    contains: vi.fn(),
+    isEqual: vi.fn(),
+    intersection: vi.fn(),
+    union: vi.fn(),
+    with: vi.fn(),
+  } as vscode.Range;
+}
+
+function createMockSelection(start: vscode.Position, end: vscode.Position): vscode.Selection {
+  const range = createMockRange(start, end);
+  return {
+    ...range,
+    anchor: start,
+    active: end,
+    isEmpty: false,
+    isReversed: false,
+  } as vscode.Selection;
+}
 
 export const mockVscode = {
   window: {
@@ -40,12 +95,15 @@ export const mockVscode = {
         html: "",
         onDidReceiveMessage: vi.fn(() => ({ dispose: vi.fn() })),
         postMessage: vi.fn(),
-        asWebviewUri: vi.fn((uri: any) => uri),
+        asWebviewUri: vi.fn((uri: vscode.Uri): vscode.Uri => createMockUri(uri.fsPath)),
       },
       reveal: vi.fn(),
       dispose: vi.fn(),
       onDidDispose: vi.fn(() => ({ dispose: vi.fn() })),
     })),
+    registerTreeDataProvider: vi.fn(() => ({ dispose: vi.fn() })),
+    showQuickPick: vi.fn(),
+    showInputBox: vi.fn(),
   },
   workspace: {
     workspaceFolders: [],
@@ -63,9 +121,9 @@ export const mockVscode = {
       })
     ),
     asRelativePath: vi.fn((path: string) => path),
-    onDidOpenTextDocument: { dispose: vi.fn() },
-    onDidChangeTextDocument: { dispose: vi.fn() },
-    onDidSaveTextDocument: { dispose: vi.fn() },
+    onDidOpenTextDocument: vi.fn(() => ({ dispose: vi.fn() })),
+    onDidChangeTextDocument: vi.fn(() => ({ dispose: vi.fn() })),
+    onDidSaveTextDocument: vi.fn(() => ({ dispose: vi.fn() })),
     createFileSystemWatcher: vi.fn(() => ({
       onDidCreate: vi.fn(() => ({ dispose: vi.fn() })),
       onDidChange: vi.fn(() => ({ dispose: vi.fn() })),
@@ -92,27 +150,22 @@ export const mockVscode = {
     Right: 2,
   },
   Uri: {
-    file: vi.fn((path: string) => ({
-      fsPath: path,
-      toString: vi.fn(() => `file://${path}`),
-    })),
-    joinPath: vi.fn((base: any, ...paths: string[]) => ({
-      fsPath: [base.fsPath || base, ...paths].join("/"),
-      toString: vi.fn(() => `file://${[base.fsPath || base, ...paths].join("/")}`),
-    })),
+    file: vi.fn((path: string): vscode.Uri => createMockUri(path)),
+    joinPath: vi.fn((base: vscode.Uri | { fsPath: string }, ...paths: string[]): vscode.Uri => {
+      const basePath = "fsPath" in base ? (base as { fsPath: string }).fsPath : String(base);
+      return createMockUri([basePath, ...paths].join("/"));
+    }),
   },
-  Position: vi.fn((line: number, character: number) => ({
-    line,
-    character,
-  })),
-  Range: vi.fn((start: any, end: any) => ({
-    start,
-    end,
-  })),
-  Selection: vi.fn((start: any, end: any) => ({
-    start,
-    end,
-  })),
+  Position: vi.fn(
+    (line: number, character: number): vscode.Position => createMockPosition(line, character)
+  ),
+  Range: vi.fn(
+    (start: vscode.Position, end: vscode.Position): vscode.Range => createMockRange(start, end)
+  ),
+  Selection: vi.fn(
+    (start: vscode.Position, end: vscode.Position): vscode.Selection =>
+      createMockSelection(start, end)
+  ),
   TextEditorRevealType: {
     InCenter: 0,
   },
@@ -130,14 +183,14 @@ export const mockVscode = {
   },
   TreeItem: class TreeItem {
     label?: string;
-    collapsibleState?: any;
-    iconPath?: any;
-    command?: any;
+    collapsibleState?: number;
+    iconPath?: unknown;
+    command?: unknown;
     contextValue?: string;
     tooltip?: string;
-    description?: string;
-    resourceUri?: any;
-    constructor(label: string, collapsibleState?: any) {
+    description?: string | boolean;
+    resourceUri?: unknown;
+    constructor(label: string, collapsibleState?: number) {
       this.label = label;
       this.collapsibleState = collapsibleState;
     }
@@ -147,10 +200,18 @@ export const mockVscode = {
     Collapsed: 1,
     Expanded: 2,
   },
-  EventEmitter: class EventEmitter<T> {
-    event: any;
-    fire(data: T): void {}
-    dispose(): void {}
+  EventEmitter: class EventEmitter<T> implements vscode.EventEmitter<T> {
+    event = ((_listener: (e: T) => unknown) => {
+      return { dispose: vi.fn() };
+    }) as vscode.Event<T>;
+    fire(_data: T): void {
+      // Mock implementation
+    }
+    dispose(): void {
+      // Mock implementation
+    }
+  } as {
+    new <T>(): vscode.EventEmitter<T>;
   },
   version: "1.75.0",
 };

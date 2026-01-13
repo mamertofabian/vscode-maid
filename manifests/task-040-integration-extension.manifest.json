@@ -28,6 +28,18 @@
           }
         ],
         "returns": "void"
+      },
+      {
+        "type": "interface",
+        "name": "PackageJson"
+      },
+      {
+        "type": "interface",
+        "name": "PyPIResponse"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestProviderWithIndex"
       }
     ]
   },

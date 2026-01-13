@@ -18,14 +18,15 @@ import type { GraphLayout } from "../src/types";
  * Helper to access private methods on the panel instance
  */
 function getPrivateMethod<T>(instance: KnowledgeGraphPanel, methodName: string): T {
-  return (instance as any)[methodName] as T;
+  return (instance as unknown as Record<string, T>)[methodName];
 }
 
 /**
  * Helper to get the mock webview postMessage function
  */
 function getMockPostMessage(panel: KnowledgeGraphPanel): ReturnType<typeof vi.fn> {
-  return (panel as any)._panel.webview.postMessage;
+  return (panel as unknown as { _panel: { webview: { postMessage: ReturnType<typeof vi.fn> } } })
+    ._panel.webview.postMessage;
 }
 
 describe("KnowledgeGraphPanel Enhancements", () => {
@@ -47,7 +48,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
   describe("_loadHierarchicalData", () => {
     it("should exist as a method on KnowledgeGraphPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_loadHierarchicalData");
+      const method = getPrivateMethod<() => Promise<void>>(panel, "_loadHierarchicalData");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -67,26 +68,28 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     it("should eventually post a message to the webview", async () => {
       const method = getPrivateMethod<() => Promise<void>>(panel, "_loadHierarchicalData");
       const postMessage = getMockPostMessage(panel);
+      const postMessageMock = vi.mocked(postMessage);
 
       await method.call(panel);
 
       // Should have posted at least one message (loading, hierarchicalData, or error)
-      expect(postMessage).toHaveBeenCalled();
+      expect(postMessageMock).toHaveBeenCalled();
     });
 
     it("should post loading state before loading data", async () => {
       const method = getPrivateMethod<() => Promise<void>>(panel, "_loadHierarchicalData");
       const postMessage = getMockPostMessage(panel);
+      const postMessageMock = vi.mocked(postMessage);
 
       await method.call(panel);
 
       // Check that a loading message was posted
-      const calls = postMessage.mock.calls;
+      const calls = postMessageMock.mock.calls;
       const hasLoadingMessage = calls.some(
-        (call: any[]) =>
-          call[0]?.type === "loading" ||
-          call[0]?.type === "hierarchicalData" ||
-          call[0]?.type === "error"
+        (call: unknown[]) =>
+          (call[0] as { type?: string })?.type === "loading" ||
+          (call[0] as { type?: string })?.type === "hierarchicalData" ||
+          (call[0] as { type?: string })?.type === "error"
       );
       expect(hasLoadingMessage).toBe(true);
     });
@@ -94,12 +97,15 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     it("should post hierarchicalData or error message after completion", async () => {
       const method = getPrivateMethod<() => Promise<void>>(panel, "_loadHierarchicalData");
       const postMessage = getMockPostMessage(panel);
+      const postMessageMock = vi.mocked(postMessage);
 
       await method.call(panel);
 
-      const calls = postMessage.mock.calls;
+      const calls = postMessageMock.mock.calls;
       const hasDataOrErrorMessage = calls.some(
-        (call: any[]) => call[0]?.type === "hierarchicalData" || call[0]?.type === "error"
+        (call: unknown[]) =>
+          (call[0] as { type?: string })?.type === "hierarchicalData" ||
+          (call[0] as { type?: string })?.type === "error"
       );
       expect(hasDataOrErrorMessage).toBe(true);
     });
@@ -107,7 +113,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
   describe("_computeMetrics", () => {
     it("should exist as a method on KnowledgeGraphPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_computeMetrics");
+      const method = getPrivateMethod<() => void>(panel, "_computeMetrics");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -137,7 +143,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
     it("should compute metrics from available graph data", () => {
       // Set up some mock graph data
-      (panel as any)._graphData = {
+      (panel as unknown as { _graphData: unknown })._graphData = {
         nodes: [
           { id: "1", type: "manifest", attributes: {} },
           { id: "2", type: "file", attributes: {} },
@@ -153,7 +159,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     });
 
     it("should handle empty graph data gracefully", () => {
-      (panel as any)._graphData = null;
+      (panel as unknown as { _graphData: unknown })._graphData = null;
       const method = getPrivateMethod<() => void>(panel, "_computeMetrics");
 
       // Should not throw even with null graph data
@@ -163,7 +169,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
   describe("_handleLayoutChange", () => {
     it("should exist as a method on KnowledgeGraphPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_handleLayoutChange");
+      const method = getPrivateMethod<(layout: GraphLayout) => void>(panel, "_handleLayoutChange");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -202,7 +208,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
       const calls = postMessage.mock.calls;
       const hasLayoutChangedMessage = calls.some(
-        (call: any[]) => call[0]?.type === "layoutChanged"
+        (call: unknown[]) => (call[0] as { type?: string })?.type === "layoutChanged"
       );
       expect(hasLayoutChangedMessage).toBe(true);
     });
@@ -257,17 +263,22 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
       method.call(panel, layout);
 
-      const layoutChangedCall = postMessage.mock.calls.find(
-        (call: any[]) => call[0]?.type === "layoutChanged"
+      const postMessageMock = vi.mocked(postMessage);
+      const layoutChangedCall = postMessageMock.mock.calls.find(
+        (call: unknown[]) => (call[0] as { type?: string })?.type === "layoutChanged"
       );
       expect(layoutChangedCall).toBeDefined();
-      expect(layoutChangedCall![0].payload.layout).toEqual(layout);
+      const callData = layoutChangedCall![0] as { payload?: { layout?: unknown } };
+      expect(callData.payload?.layout).toEqual(layout);
     });
   });
 
   describe("_handleExportGraph", () => {
     it("should exist as a method on KnowledgeGraphPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_handleExportGraph");
+      const method = getPrivateMethod<(format: string, filename: string | null) => Promise<void>>(
+        panel,
+        "_handleExportGraph"
+      );
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -348,14 +359,16 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
       const calls = postMessage.mock.calls;
       const hasExportMessage = calls.some(
-        (call: any[]) => call[0]?.type === "exportReady" || call[0]?.type === "error"
+        (call: unknown[]) =>
+          (call[0] as { type?: string })?.type === "exportReady" ||
+          (call[0] as { type?: string })?.type === "error"
       );
       expect(hasExportMessage).toBe(true);
     });
 
     it("should include format in exportReady message payload", async () => {
       // Set up some mock graph data for export
-      (panel as any)._graphData = {
+      (panel as unknown as { _graphData: unknown })._graphData = {
         nodes: [{ id: "1", type: "manifest", attributes: {} }],
         edges: [],
       };
@@ -365,21 +378,23 @@ describe("KnowledgeGraphPanel Enhancements", () => {
         "_handleExportGraph"
       );
       const postMessage = getMockPostMessage(panel);
+      const postMessageMock = vi.mocked(postMessage);
 
       await method.call(panel, "json", null);
 
-      const exportReadyCall = postMessage.mock.calls.find(
-        (call: any[]) => call[0]?.type === "exportReady"
+      const exportReadyCall = postMessageMock.mock.calls.find(
+        (call: unknown[]) => (call[0] as { type?: string })?.type === "exportReady"
       );
 
       if (exportReadyCall) {
-        expect(exportReadyCall[0].payload.format).toBe("json");
+        const callData = exportReadyCall[0] as { payload?: { format?: string } };
+        expect(callData.payload?.format).toBe("json");
       }
       // If no exportReady, an error message is acceptable
     });
 
     it("should handle export when graph data is empty", async () => {
-      (panel as any)._graphData = null;
+      (panel as unknown as { _graphData: unknown })._graphData = null;
       const method = getPrivateMethod<(format: string, filename: string | null) => Promise<void>>(
         panel,
         "_handleExportGraph"
@@ -390,7 +405,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     });
 
     it("should handle export when graph data has nodes and edges", async () => {
-      (panel as any)._graphData = {
+      (panel as unknown as { _graphData: unknown })._graphData = {
         nodes: [
           { id: "1", type: "manifest", attributes: {}, path: "test.manifest.json" },
           { id: "2", type: "file", attributes: {}, path: "src/test.ts" },
@@ -409,16 +424,17 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
   describe("Integration with message handling", () => {
     it("should have _handleMessage method that can route to new methods", () => {
-      const handleMessage = getPrivateMethod<Function>(panel, "_handleMessage");
+      const handleMessage = getPrivateMethod<
+        (message: { type: string; payload?: unknown }) => Promise<void>
+      >(panel, "_handleMessage");
       expect(handleMessage).toBeDefined();
       expect(typeof handleMessage).toBe("function");
     });
 
     it("should handle changeLayout message type", async () => {
-      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(
-        panel,
-        "_handleMessage"
-      );
+      const handleMessage = getPrivateMethod<
+        (message: { type: string; payload?: unknown }) => Promise<void>
+      >(panel, "_handleMessage");
       const message = {
         type: "changeLayout",
         payload: {
@@ -432,10 +448,9 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     });
 
     it("should handle exportGraph message type", async () => {
-      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(
-        panel,
-        "_handleMessage"
-      );
+      const handleMessage = getPrivateMethod<
+        (message: { type: string; payload?: unknown }) => Promise<void>
+      >(panel, "_handleMessage");
       const message = {
         type: "exportGraph",
         payload: {
@@ -471,32 +486,38 @@ describe("KnowledgeGraphPanel Enhancements", () => {
 
   describe("Existing methods still work", () => {
     it("should have _loadAndSendGraphData method", () => {
-      const method = getPrivateMethod<Function>(panel, "_loadAndSendGraphData");
+      const method = getPrivateMethod<() => Promise<void>>(panel, "_loadAndSendGraphData");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _postMessage method", () => {
-      const method = getPrivateMethod<Function>(panel, "_postMessage");
+      const method = getPrivateMethod<(message: unknown) => void>(panel, "_postMessage");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _resolveGraphPaths method", () => {
-      const method = getPrivateMethod<Function>(panel, "_resolveGraphPaths");
+      const method = getPrivateMethod<
+        (data: unknown, maidRoot: string, workspaceRoot: string) => unknown
+      >(panel, "_resolveGraphPaths");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _getHtmlForWebview method", () => {
-      const method = getPrivateMethod<Function>(panel, "_getHtmlForWebview");
+      const method = getPrivateMethod<(webview: vscode.Webview) => string>(
+        panel,
+        "_getHtmlForWebview"
+      );
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have dispose method", () => {
-      expect(panel.dispose).toBeDefined();
-      expect(typeof panel.dispose).toBe("function");
+      const disposeMethod = panel.dispose.bind(panel);
+      expect(disposeMethod).toBeDefined();
+      expect(typeof disposeMethod).toBe("function");
     });
   });
 });

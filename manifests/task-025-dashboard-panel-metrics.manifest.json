@@ -104,13 +104,13 @@
         "class": "DashboardPanel",
         "args": [
           {
-            "name": "workspaceRoot",
+            "name": "_workspaceRoot",
             "type": "string"
           }
         ],
         "parameters": [
           {
-            "name": "workspaceRoot",
+            "name": "_workspaceRoot",
             "type": "string"
           }
         ]

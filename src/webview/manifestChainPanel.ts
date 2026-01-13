@@ -160,7 +160,7 @@ export class ManifestChainPanel {
    */
   public setManifest(manifestPath: string): void {
     this._currentManifestPath = manifestPath;
-    this._loadAndSendChainData();
+    void this._loadAndSendChainData();
   }
 
   /**
@@ -177,12 +177,12 @@ export class ManifestChainPanel {
     switch (message.type) {
       case "ready":
         log("[ManifestChainPanel] Webview ready, loading data...");
-        await this._loadAndSendChainData();
+        this._loadAndSendChainData();
         break;
 
       case "refresh":
         log("[ManifestChainPanel] Refresh requested");
-        await this._loadAndSendChainData();
+        this._loadAndSendChainData();
         break;
 
       case "openManifest":
@@ -206,8 +206,9 @@ export class ManifestChainPanel {
       await vscode.window.showTextDocument(document);
       // Update the panel to show the new manifest's chain
       this.setManifest(manifestPath);
-    } catch (error: any) {
-      log(`[ManifestChainPanel] Error opening manifest: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error opening manifest: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open manifest: ${manifestPath}`);
     }
   }
@@ -215,7 +216,7 @@ export class ManifestChainPanel {
   /**
    * Load chain data from manifest index and send to webview.
    */
-  private async _loadAndSendChainData(): Promise<void> {
+  private _loadAndSendChainData(): void {
     if (!this._currentManifestPath) {
       this._postMessage({
         type: "error",
@@ -337,12 +338,13 @@ export class ManifestChainPanel {
         type: "chainData",
         payload: chainData,
       });
-    } catch (error: any) {
-      log(`[ManifestChainPanel] Error loading chain: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error loading chain: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load manifest chain: ${error.message}`,
+          message: `Failed to load manifest chain: ${message}`,
         },
       });
     }
@@ -383,11 +385,11 @@ export class ManifestChainPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Manifest Chain</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="manifestChain"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }
@@ -395,13 +397,13 @@ export class ManifestChainPanel {
   /**
    * Load all relationship types beyond supersedes (file references, artifacts).
    */
-  private async _loadFullRelationships(): Promise<void> {
+  private _loadFullRelationships(): Promise<void> {
     if (!this._currentManifestPath || !this._manifestIndex) {
       this._postMessage({
         type: "error",
         payload: { message: "Cannot load relationships: manifest or index not available." },
       });
-      return;
+      return Promise.resolve();
     }
 
     this._postMessage({ type: "loading", payload: { isLoading: true } });
@@ -413,7 +415,7 @@ export class ManifestChainPanel {
           type: "error",
           payload: { message: "Manifest entry not found in index." },
         });
-        return;
+        return Promise.resolve();
       }
 
       // Load file references and artifacts from the manifest entry
@@ -428,12 +430,15 @@ export class ManifestChainPanel {
       this._highlightConflicts();
 
       this._postMessage({ type: "loading", payload: { isLoading: false } });
-    } catch (error: any) {
-      log(`[ManifestChainPanel] Error loading relationships: ${error.message}`, "error");
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error loading relationships: ${message}`, "error");
       this._postMessage({
         type: "error",
-        payload: { message: `Failed to load relationships: ${error.message}` },
+        payload: { message: `Failed to load relationships: ${message}` },
       });
+      return Promise.resolve();
     }
   }
 
@@ -533,7 +538,6 @@ export class ManifestChainPanel {
     // If conflicts were found, notify the webview
     if (this._conflicts.length > 0) {
       log(`[ManifestChainPanel] Found ${this._conflicts.length} conflicts in chain`);
-      const metrics = this._computeChainMetrics();
       this._postMessage({
         type: "chainData",
         payload: {

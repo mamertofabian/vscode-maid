@@ -10,14 +10,6 @@ import {
   setOutputChannel,
   getOutputChannel,
   log,
-  executeCommand,
-  executeMaidCommand,
-  runValidation,
-  getManifests,
-  getTrackedFiles,
-  checkMaidLspInstalled,
-  checkMaidCliInstalled,
-  getInstalledVersion,
   getWorkspaceRoot,
   getMaidRoot,
   isManifestFile,
@@ -39,10 +31,12 @@ vi.mock("child_process", () => {
 
 describe("utils", () => {
   let mockChannel: vscode.OutputChannel;
+  let appendLineMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    appendLineMock = vi.fn();
     mockChannel = {
-      appendLine: vi.fn(),
+      appendLine: appendLineMock,
       show: vi.fn(),
       hide: vi.fn(),
       dispose: vi.fn(),
@@ -51,7 +45,7 @@ describe("utils", () => {
   });
 
   afterEach(() => {
-    setOutputChannel(undefined as any);
+    setOutputChannel(undefined as vscode.OutputChannel | undefined);
   });
 
   describe("setOutputChannel and getOutputChannel", () => {
@@ -61,7 +55,7 @@ describe("utils", () => {
     });
 
     it("should return undefined when no channel is set", () => {
-      setOutputChannel(undefined as any);
+      setOutputChannel(undefined as vscode.OutputChannel | undefined);
       const channel = getOutputChannel();
       expect(channel).toBeUndefined();
     });
@@ -70,8 +64,8 @@ describe("utils", () => {
   describe("log", () => {
     it("should append log messages to the output channel with timestamp and prefix", () => {
       log("Test message");
-      expect(mockChannel.appendLine).toHaveBeenCalled();
-      const callArg = (mockChannel.appendLine as any).mock.calls[0][0];
+      expect(appendLineMock).toHaveBeenCalled();
+      const callArg = appendLineMock.mock.calls[0]?.[0] as string;
       expect(callArg).toContain("Test message");
       expect(callArg).toMatch(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/); // ISO timestamp
       expect(callArg).toContain("[INFO]");
@@ -79,20 +73,20 @@ describe("utils", () => {
 
     it("should use ERROR prefix for error level", () => {
       log("Error message", "error");
-      const callArg = (mockChannel.appendLine as any).mock.calls[0][0];
+      const callArg = appendLineMock.mock.calls[0]?.[0] as string;
       expect(callArg).toContain("[ERROR]");
     });
 
     it("should use WARN prefix for warn level", () => {
       log("Warning message", "warn");
-      const callArg = (mockChannel.appendLine as any).mock.calls[0][0];
+      const callArg = appendLineMock.mock.calls[0]?.[0] as string;
       expect(callArg).toContain("[WARN]");
     });
 
     it("should not append when no output channel is set", () => {
-      setOutputChannel(undefined as any);
+      setOutputChannel(undefined as vscode.OutputChannel | undefined);
       log("Message");
-      expect(mockChannel.appendLine).not.toHaveBeenCalled();
+      expect(appendLineMock).not.toHaveBeenCalled();
     });
   });
 
@@ -123,13 +117,15 @@ describe("utils", () => {
 
   describe("getWorkspaceRoot", () => {
     it("should return the first workspace folder path when available", () => {
-      (mockVscode.workspace.workspaceFolders as any) = [{ uri: { fsPath: "/workspace/path" } }];
+      (mockVscode.workspace.workspaceFolders as vscode.WorkspaceFolder[]) = [
+        { uri: { fsPath: "/workspace/path" } } as vscode.WorkspaceFolder,
+      ];
       const root = getWorkspaceRoot();
       expect(root).toBe("/workspace/path");
     });
 
     it("should return undefined when no workspace folders exist", () => {
-      (mockVscode.workspace.workspaceFolders as any) = [];
+      (mockVscode.workspace.workspaceFolders as vscode.WorkspaceFolder[]) = [];
       const root = getWorkspaceRoot();
       expect(root).toBeUndefined();
     });
@@ -220,7 +216,11 @@ describe("utils", () => {
   describe("findManifestFiles", () => {
     it("should call workspace.findFiles with correct pattern", async () => {
       const mockUris = [vscode.Uri.file("/path/to/manifest.manifest.json")];
-      (mockVscode.workspace.findFiles as any) = vi.fn().mockResolvedValue(mockUris);
+      (
+        vi.mocked(mockVscode.workspace.findFiles) as unknown as {
+          mockResolvedValue: (value: vscode.Uri[]) => void;
+        }
+      ).mockResolvedValue(mockUris);
 
       const result = await findManifestFiles();
 

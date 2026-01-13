@@ -16,7 +16,7 @@ vi.mock("../src/utils", () => ({
 describe("gitHistory", () => {
   describe("isGitRepository", () => {
     it("should return true when git rev-parse succeeds", async () => {
-      (executeCommand as any) = vi.fn().mockResolvedValue({
+      vi.mocked(executeCommand).mockResolvedValue({
         success: true,
         stdout: "/workspace",
         stderr: "",
@@ -33,7 +33,7 @@ describe("gitHistory", () => {
     });
 
     it("should return false when git rev-parse fails", async () => {
-      (executeCommand as any) = vi.fn().mockResolvedValue({
+      vi.mocked(executeCommand).mockResolvedValue({
         success: false,
         stdout: "",
         stderr: "not a git repository",
@@ -47,7 +47,7 @@ describe("gitHistory", () => {
 
   describe("getGitRoot", () => {
     it("should return git root path when command succeeds", async () => {
-      (executeCommand as any) = vi.fn().mockResolvedValue({
+      vi.mocked(executeCommand).mockResolvedValue({
         success: true,
         stdout: "/workspace\n",
         stderr: "",
@@ -59,7 +59,7 @@ describe("gitHistory", () => {
     });
 
     it("should return null when command fails", async () => {
-      (executeCommand as any) = vi.fn().mockResolvedValue({
+      vi.mocked(executeCommand).mockResolvedValue({
         success: false,
         stdout: "",
         stderr: "not a git repository",

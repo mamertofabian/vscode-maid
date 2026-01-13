@@ -57,6 +57,10 @@
         "name": "ManifestsResult"
       },
       {
+        "type": "interface",
+        "name": "ParsedManifestJson"
+      },
+      {
         "type": "type",
         "name": "StatusBarState"
       },
@@ -99,6 +103,10 @@
       {
         "type": "interface",
         "name": "ManifestIndexEntry"
+      },
+      {
+        "type": "interface",
+        "name": "ChainInfo"
       },
       {
         "type": "interface",

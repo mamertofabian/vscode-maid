@@ -11,7 +11,7 @@ describe("ManifestTreeDataProvider", () => {
   let provider: ManifestTreeDataProvider;
 
   beforeEach(() => {
-    (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([]);
+    vi.mocked(vscode.workspace.findFiles).mockResolvedValue([]);
     provider = new ManifestTreeDataProvider();
   });
 

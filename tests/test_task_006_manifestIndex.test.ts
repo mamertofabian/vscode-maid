@@ -31,11 +31,11 @@ describe("ManifestIndex", () => {
       dispose: vi.fn(),
     } as unknown as vscode.OutputChannel;
 
-    (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([]);
-    (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
+    vi.mocked(vscode.workspace.findFiles).mockResolvedValue([]);
+    vi.mocked(vscode.workspace.openTextDocument).mockResolvedValue({
       getText: vi.fn(() => "{}"),
       uri: { fsPath: "/test.manifest.json" },
-    });
+    } as unknown as vscode.TextDocument);
 
     manifestIndex = new ManifestIndex(mockContext);
   });

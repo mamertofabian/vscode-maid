@@ -19,14 +19,15 @@ import type { ManifestIndex } from "../src/manifestIndex";
  * Helper to access private methods on the panel instance
  */
 function getPrivateMethod<T>(instance: ManifestChainPanel, methodName: string): T {
-  return (instance as any)[methodName] as T;
+  return (instance as unknown as Record<string, T>)[methodName];
 }
 
 /**
  * Helper to get the mock webview postMessage function
  */
 function getMockPostMessage(panel: ManifestChainPanel): ReturnType<typeof vi.fn> {
-  return (panel as any)._panel.webview.postMessage;
+  return (panel as unknown as { _panel: { webview: { postMessage: ReturnType<typeof vi.fn> } } })
+    ._panel.webview.postMessage;
 }
 
 /**
@@ -75,7 +76,9 @@ describe("ManifestChainPanel Enhancements", () => {
   describe("ChainMetrics interface", () => {
     it("should have ChainMetrics type available", () => {
       // The _computeChainMetrics method should return a ChainMetrics object
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       // Verify the structure of ChainMetrics
@@ -86,25 +89,33 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should return numeric values for depth", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
       expect(typeof result.depth).toBe("number");
     });
 
     it("should return numeric values for breadth", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
       expect(typeof result.breadth).toBe("number");
     });
 
     it("should return numeric values for totalNodes", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
       expect(typeof result.totalNodes).toBe("number");
     });
 
     it("should return boolean for hasConflicts", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
       expect(typeof result.hasConflicts).toBe("boolean");
     });
@@ -112,7 +123,7 @@ describe("ManifestChainPanel Enhancements", () => {
 
   describe("_loadFullRelationships", () => {
     it("should exist as a method on ManifestChainPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_loadFullRelationships");
+      const method = getPrivateMethod<() => Promise<void>>(panel, "_loadFullRelationships");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -155,7 +166,8 @@ describe("ManifestChainPanel Enhancements", () => {
 
     it("should handle missing manifest path gracefully", async () => {
       // Panel without a manifest path set
-      (panel as any)._currentManifestPath = undefined;
+      (panel as unknown as { _currentManifestPath: string | undefined })._currentManifestPath =
+        undefined;
 
       const method = getPrivateMethod<() => Promise<void>>(panel, "_loadFullRelationships");
 
@@ -166,13 +178,13 @@ describe("ManifestChainPanel Enhancements", () => {
 
   describe("_computeChainMetrics", () => {
     it("should exist as a method on ManifestChainPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<() => unknown>(panel, "_computeChainMetrics");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should return a ChainMetrics object", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<() => unknown>(panel, "_computeChainMetrics");
       const result = method.call(panel);
       expect(result).toBeDefined();
       expect(typeof result).toBe("object");
@@ -180,7 +192,7 @@ describe("ManifestChainPanel Enhancements", () => {
 
     it("should calculate depth based on chain levels", () => {
       // Set up mock chain data with multiple levels
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [
           { id: "1", level: -2 },
           { id: "2", level: -1 },
@@ -191,7 +203,9 @@ describe("ManifestChainPanel Enhancements", () => {
         currentManifest: "3",
       };
 
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       // Depth should be calculated from the levels
@@ -200,7 +214,7 @@ describe("ManifestChainPanel Enhancements", () => {
 
     it("should calculate breadth as max nodes at any level", () => {
       // Set up mock chain data
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [
           { id: "1", level: 0 },
           { id: "2", level: 0 },
@@ -210,7 +224,9 @@ describe("ManifestChainPanel Enhancements", () => {
         currentManifest: "1",
       };
 
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       // Breadth should be at least 1
@@ -218,7 +234,7 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should return totalNodes count", () => {
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [
           { id: "1", level: 0 },
           { id: "2", level: 1 },
@@ -228,14 +244,18 @@ describe("ManifestChainPanel Enhancements", () => {
         currentManifest: "1",
       };
 
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       expect(result.totalNodes).toBe(3);
     });
 
     it("should detect conflicts in the chain", () => {
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       // hasConflicts should be a boolean
@@ -243,9 +263,11 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should handle empty chain data", () => {
-      (panel as any)._chainData = null;
+      (panel as unknown as { _chainData: unknown })._chainData = null;
 
-      const method = getPrivateMethod<() => any>(panel, "_computeChainMetrics");
+      const method = getPrivateMethod<
+        () => { depth: number; breadth: number; totalNodes: number; hasConflicts: boolean }
+      >(panel, "_computeChainMetrics");
       const result = method.call(panel);
 
       expect(result.depth).toBe(0);
@@ -257,7 +279,7 @@ describe("ManifestChainPanel Enhancements", () => {
 
   describe("_highlightConflicts", () => {
     it("should exist as a method on ManifestChainPanel", () => {
-      const method = getPrivateMethod<Function>(panel, "_highlightConflicts");
+      const method = getPrivateMethod<() => void>(panel, "_highlightConflicts");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
@@ -276,7 +298,7 @@ describe("ManifestChainPanel Enhancements", () => {
 
     it("should post a message to webview when conflicts are found", () => {
       // Set up chain data with potential conflicts
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [
           { id: "1", level: 0, path: "/test/a.manifest.json" },
           { id: "2", level: 0, path: "/test/b.manifest.json" },
@@ -285,7 +307,9 @@ describe("ManifestChainPanel Enhancements", () => {
         currentManifest: "1",
       };
       // Set up conflicts
-      (panel as any)._conflicts = [{ node1: "1", node2: "2", reason: "file overlap" }];
+      (panel as unknown as { _conflicts: unknown })._conflicts = [
+        { node1: "1", node2: "2", reason: "file overlap" },
+      ];
 
       const method = getPrivateMethod<() => void>(panel, "_highlightConflicts");
       const postMessage = getMockPostMessage(panel);
@@ -298,12 +322,12 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should handle chain data with no conflicts", () => {
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [{ id: "1", level: 0, path: "/test/a.manifest.json" }],
         edges: [],
         currentManifest: "1",
       };
-      (panel as any)._conflicts = [];
+      (panel as unknown as { _conflicts: unknown })._conflicts = [];
 
       const method = getPrivateMethod<() => void>(panel, "_highlightConflicts");
 
@@ -312,7 +336,7 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should handle null chain data gracefully", () => {
-      (panel as any)._chainData = null;
+      (panel as unknown as { _chainData: unknown })._chainData = null;
 
       const method = getPrivateMethod<() => void>(panel, "_highlightConflicts");
 
@@ -321,7 +345,7 @@ describe("ManifestChainPanel Enhancements", () => {
     });
 
     it("should mark conflicting nodes in the chain data", () => {
-      (panel as any)._chainData = {
+      (panel as unknown as { _chainData: unknown })._chainData = {
         nodes: [
           { id: "1", level: 0, path: "/test/a.manifest.json" },
           { id: "2", level: 1, path: "/test/b.manifest.json" },
@@ -340,36 +364,41 @@ describe("ManifestChainPanel Enhancements", () => {
 
   describe("Integration with existing methods", () => {
     it("should have _loadAndSendChainData method", () => {
-      const method = getPrivateMethod<Function>(panel, "_loadAndSendChainData");
+      const method = getPrivateMethod<() => Promise<void>>(panel, "_loadAndSendChainData");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _postMessage method", () => {
-      const method = getPrivateMethod<Function>(panel, "_postMessage");
+      const method = getPrivateMethod<(message: unknown) => void>(panel, "_postMessage");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _handleMessage method", () => {
-      const method = getPrivateMethod<Function>(panel, "_handleMessage");
+      const method = getPrivateMethod<
+        (message: { type: string; payload?: unknown }) => Promise<void>
+      >(panel, "_handleMessage");
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have _getHtmlForWebview method", () => {
-      const method = getPrivateMethod<Function>(panel, "_getHtmlForWebview");
+      const method = getPrivateMethod<(webview: vscode.Webview) => string>(
+        panel,
+        "_getHtmlForWebview"
+      );
       expect(method).toBeDefined();
       expect(typeof method).toBe("function");
     });
 
     it("should have dispose method", () => {
-      expect(panel.dispose).toBeDefined();
+      expect("dispose" in panel).toBe(true);
       expect(typeof panel.dispose).toBe("function");
     });
 
     it("should have setManifest method", () => {
-      expect(panel.setManifest).toBeDefined();
+      expect("setManifest" in panel).toBe(true);
       expect(typeof panel.setManifest).toBe("function");
     });
   });
@@ -396,21 +425,21 @@ describe("ManifestChainPanel Enhancements", () => {
 
   describe("Existing interfaces preserved", () => {
     it("should export ManifestChainNode interface", async () => {
-      const module = await import("../src/webview/manifestChainPanel");
+      await import("../src/webview/manifestChainPanel");
       // TypeScript interface - we verify by checking the panel uses it
-      expect((panel as any)._chainData || true).toBeTruthy();
+      expect((panel as unknown as { _chainData: unknown })._chainData || true).toBeTruthy();
     });
 
     it("should export ManifestChainEdge interface", async () => {
-      const module = await import("../src/webview/manifestChainPanel");
+      await import("../src/webview/manifestChainPanel");
       // TypeScript interface - we verify by checking the panel uses it
-      expect((panel as any)._chainData || true).toBeTruthy();
+      expect((panel as unknown as { _chainData: unknown })._chainData || true).toBeTruthy();
     });
 
     it("should export ManifestChainData interface", async () => {
-      const module = await import("../src/webview/manifestChainPanel");
+      await import("../src/webview/manifestChainPanel");
       // TypeScript interface - we verify by checking the panel uses it
-      expect((panel as any)._chainData || true).toBeTruthy();
+      expect((panel as unknown as { _chainData: unknown })._chainData || true).toBeTruthy();
     });
   });
 });

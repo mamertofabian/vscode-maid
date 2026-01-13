@@ -208,7 +208,7 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
     return element;
   }
 
-  async getChildren(element?: FileManifestTreeItem): Promise<FileManifestTreeItem[]> {
+  getChildren(element?: FileManifestTreeItem): FileManifestTreeItem[] {
     // Root level - show current file or empty state
     if (!element) {
       if (!this.currentFile) {
@@ -266,9 +266,14 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
           undefined,
           category
         );
-        (categoryItem as any).categoryType = category;
-        (categoryItem as any).references = refs;
-        categoryItems.push(categoryItem);
+        interface ExtendedFileManifestTreeItem extends FileManifestTreeItem {
+          categoryType?: string;
+          references?: FileReference[];
+        }
+        const categoryItemExtended = categoryItem as ExtendedFileManifestTreeItem;
+        categoryItemExtended.categoryType = category;
+        categoryItemExtended.references = refs;
+        categoryItems.push(categoryItemExtended);
       }
 
       // Sort categories by label
@@ -278,12 +283,15 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
 
     // Category level - show manifests
     if (element.itemType === "category") {
-      const anyElement = element as any;
-      const references: FileReference[] = anyElement.references || [];
+      interface ExtendedFileManifestTreeItem extends FileManifestTreeItem {
+        categoryType?: string;
+        references?: FileReference[];
+      }
+      const extendedElement = element as ExtendedFileManifestTreeItem;
+      const references: FileReference[] = extendedElement.references || [];
 
       const manifestItems: FileManifestTreeItem[] = [];
       for (const ref of references) {
-        const manifestName = path.basename(ref.manifestPath, ".manifest.json");
         const relativePath = vscode.workspace.asRelativePath(ref.manifestPath);
         const manifestItem = new FileManifestTreeItem(
           relativePath,
@@ -316,8 +324,10 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
         return "Supersedes";
       case "expectedArtifact":
         return "Expected Artifacts";
-      default:
-        return category;
+      default: {
+        const _exhaustive: never = category;
+        return String(_exhaustive);
+      }
     }
   }
 
@@ -325,7 +335,9 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
    * Dispose of resources.
    */
   dispose(): void {
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
     log("[FileManifests] Disposed");
   }
 }

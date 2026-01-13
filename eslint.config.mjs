@@ -25,7 +25,7 @@ export default tseslint.config(
     extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
+        project: "./tsconfig.src.json",
         tsconfigRootDir: import.meta.dirname,
       },
     },

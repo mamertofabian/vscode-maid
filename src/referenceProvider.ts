@@ -19,12 +19,12 @@ import { getMaidRoot } from "./utils";
 export class ManifestReferenceProvider implements vscode.ReferenceProvider {
   constructor(private manifestIndex: ManifestIndex) {}
 
-  async provideReferences(
+  provideReferences(
     document: vscode.TextDocument,
     position: vscode.Position,
     context: vscode.ReferenceContext,
     _token: vscode.CancellationToken
-  ): Promise<vscode.Location[]> {
+  ): vscode.Location[] {
     const content = document.getText();
     const offset = document.offsetAt(position);
 
@@ -102,11 +102,11 @@ export class ManifestReferenceProvider implements vscode.ReferenceProvider {
   /**
    * Find all manifests that reference a file.
    */
-  private async findFileReferences(
+  private findFileReferences(
     filePath: string,
     manifestPath: string,
     includeDeclaration: boolean
-  ): Promise<vscode.Location[]> {
+  ): vscode.Location[] {
     const resolvedPath = this.resolveFilePath(filePath, manifestPath);
     const references = this.manifestIndex.getManifestsReferencingFile(resolvedPath);
 
@@ -133,10 +133,10 @@ export class ManifestReferenceProvider implements vscode.ReferenceProvider {
   /**
    * Find all manifests that expect an artifact.
    */
-  private async findArtifactReferences(
+  private findArtifactReferences(
     artifactName: string,
-    includeDeclaration: boolean
-  ): Promise<vscode.Location[]> {
+    _includeDeclaration: boolean
+  ): vscode.Location[] {
     const references = this.manifestIndex.getManifestsReferencingArtifact(artifactName);
 
     const locations: vscode.Location[] = [];
@@ -174,12 +174,12 @@ export class ManifestReferenceProvider implements vscode.ReferenceProvider {
 export class FileReferenceProvider implements vscode.ReferenceProvider {
   constructor(private manifestIndex: ManifestIndex) {}
 
-  async provideReferences(
+  provideReferences(
     document: vscode.TextDocument,
     _position: vscode.Position,
     _context: vscode.ReferenceContext,
     _token: vscode.CancellationToken
-  ): Promise<vscode.Location[]> {
+  ): vscode.Location[] {
     // Don't provide references for manifest files (handled by ManifestReferenceProvider)
     if (document.uri.fsPath.endsWith(".manifest.json")) {
       return [];

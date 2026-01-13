@@ -141,7 +141,7 @@ export class KnowledgeGraphPanel {
         break;
 
       case "exportGraph":
-        await this._handleExportGraph(message.payload.format, message.payload.filename);
+        void this._handleExportGraph(message.payload.format, message.payload.filename);
         break;
     }
   }
@@ -159,8 +159,9 @@ export class KnowledgeGraphPanel {
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
       await vscode.window.showTextDocument(document);
-    } catch (error: any) {
-      log(`[KnowledgeGraphPanel] Error opening file: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[KnowledgeGraphPanel] Error opening file: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open file: ${filePath}`);
     }
   }
@@ -194,7 +195,7 @@ export class KnowledgeGraphPanel {
           cwd = getMaidRoot(manifestPath);
           log(`[KnowledgeGraphPanel] Using MAID root: ${cwd}`);
         }
-      } catch (error) {
+      } catch {
         log(
           `[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`,
           "warn"
@@ -216,7 +217,7 @@ export class KnowledgeGraphPanel {
 
       // Read and parse
       const content = await fs.readFile(tempFile, "utf-8");
-      this._graphData = JSON.parse(content);
+      this._graphData = JSON.parse(content) as KnowledgeGraphResult;
 
       // Resolve file paths relative to MAID root
       if (this._graphData && cwd !== workspaceRoot) {
@@ -234,12 +235,13 @@ export class KnowledgeGraphPanel {
         type: "graphData",
         payload: this._graphData || { nodes: [], edges: [] },
       });
-    } catch (error: any) {
-      log(`[KnowledgeGraphPanel] Error loading graph: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[KnowledgeGraphPanel] Error loading graph: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load knowledge graph: ${error.message}. Make sure 'maid' CLI is installed and you have manifest files in your workspace.`,
+          message: `Failed to load knowledge graph: ${message}. Make sure 'maid' CLI is installed and you have manifest files in your workspace.`,
         },
       });
     }
@@ -251,7 +253,7 @@ export class KnowledgeGraphPanel {
   private _resolveGraphPaths(
     graphData: KnowledgeGraphResult,
     maidRoot: string,
-    workspaceRoot: string
+    _workspaceRoot: string
   ): KnowledgeGraphResult {
     const resolvedNodes = graphData.nodes.map((node) => {
       if (node.path) {
@@ -274,7 +276,7 @@ export class KnowledgeGraphPanel {
   /**
    * Load hierarchical data and send to webview.
    */
-  private async _loadHierarchicalData(): Promise<void> {
+  private _loadHierarchicalData(): Promise<void> {
     this._postMessage({ type: "loading", payload: { isLoading: true } });
 
     try {
@@ -333,11 +335,14 @@ export class KnowledgeGraphPanel {
           selectedNodeId: null,
         },
       });
-    } catch (error: any) {
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       this._postMessage({
         type: "error",
-        payload: { message: `Failed to load hierarchical data: ${error.message}` },
+        payload: { message: `Failed to load hierarchical data: ${message}` },
       });
+      return Promise.resolve();
     }
   }
 
@@ -384,7 +389,7 @@ export class KnowledgeGraphPanel {
   /**
    * Handle graph export requests.
    */
-  private async _handleExportGraph(format: string, filename: string | null): Promise<void> {
+  private _handleExportGraph(format: string, _filename: string | null): Promise<void> {
     log(`[KnowledgeGraphPanel] Exporting graph as ${format}`);
 
     try {
@@ -408,11 +413,14 @@ export class KnowledgeGraphPanel {
         type: "exportReady",
         payload: { format, data },
       });
-    } catch (error: any) {
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       this._postMessage({
         type: "error",
-        payload: { message: `Export failed: ${error.message}` },
+        payload: { message: `Export failed: ${message}` },
       });
+      return Promise.resolve();
     }
   }
 
@@ -451,11 +459,11 @@ export class KnowledgeGraphPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Knowledge Graph</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="knowledgeGraph"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

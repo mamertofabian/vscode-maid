@@ -15,6 +15,19 @@ import type { ManifestDesignerState, ExpectedArtifact } from "../types";
 import { log } from "../utils";
 
 /**
+ * Type for parsed manifest JSON structure
+ */
+interface ParsedManifest {
+  goal?: string;
+  taskType?: string;
+  creatableFiles?: string[];
+  editableFiles?: string[];
+  readonlyFiles?: string[];
+  expectedArtifacts?: unknown;
+  validationCommand?: string[];
+}
+
+/**
  * Manages the Manifest Designer webview panel.
  */
 export class ManifestDesignerPanel {
@@ -136,16 +149,40 @@ export class ManifestDesignerPanel {
 
     try {
       const content = await fs.promises.readFile(fullPath, "utf-8");
-      const manifest = JSON.parse(content);
+      const manifest = JSON.parse(content) as ParsedManifest;
 
       this._currentManifestPath = manifestPath;
+
+      // Validate taskType is a valid literal type
+      const validTaskTypes = ["create", "edit", "refactor", "snapshot"] as const;
+      const taskType = manifest.taskType;
+      const validatedTaskType: "create" | "edit" | "refactor" | "snapshot" =
+        taskType && validTaskTypes.includes(taskType as (typeof validTaskTypes)[number])
+          ? (taskType as (typeof validTaskTypes)[number])
+          : "create";
+
+      // Validate expectedArtifacts structure
+      let parsedArtifacts: ExpectedArtifact[] = [];
+      if (manifest.expectedArtifacts) {
+        if (
+          typeof manifest.expectedArtifacts === "object" &&
+          manifest.expectedArtifacts !== null &&
+          "file" in manifest.expectedArtifacts &&
+          typeof manifest.expectedArtifacts.file === "string"
+        ) {
+          parsedArtifacts = this._parseExpectedArtifacts(
+            manifest.expectedArtifacts as { file: string; contains: unknown[] }
+          );
+        }
+      }
+
       this._state = {
         goal: manifest.goal || "",
-        taskType: manifest.taskType || "create",
+        taskType: validatedTaskType,
         creatableFiles: manifest.creatableFiles || [],
         editableFiles: manifest.editableFiles || [],
         readonlyFiles: manifest.readonlyFiles || [],
-        expectedArtifacts: this._parseExpectedArtifacts(manifest.expectedArtifacts),
+        expectedArtifacts: parsedArtifacts,
         validationCommand: manifest.validationCommand || [],
         isDirty: false,
         validationErrors: [],
@@ -452,11 +489,11 @@ export class ManifestDesignerPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Manifest Designer</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="manifestDesigner"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

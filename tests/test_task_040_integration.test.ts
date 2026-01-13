@@ -93,28 +93,35 @@ describe("task-040: Integration and Registration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    (vscode.window.createOutputChannel as any) = vi.fn(() => ({
+    vi.mocked(vscode.window.createOutputChannel).mockReturnValue({
       appendLine: vi.fn(),
       show: vi.fn(),
       hide: vi.fn(),
       dispose: vi.fn(),
-    }));
+      logLevel: 0,
+      onDidChangeLogLevel: { dispose: vi.fn() },
+      trace: vi.fn(),
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    } as unknown as vscode.OutputChannel & vscode.LogOutputChannel);
 
-    (vscode.window.registerTreeDataProvider as any) = vi.fn(() => ({
+    vi.mocked(vscode.window.registerTreeDataProvider).mockReturnValue({
       dispose: vi.fn(),
-    }));
+    } as vscode.Disposable);
 
-    (vscode.workspace.onDidOpenTextDocument as any) = vi.fn(() => ({
+    vi.mocked(vscode.workspace.onDidOpenTextDocument).mockReturnValue({
       dispose: vi.fn(),
-    }));
+    } as vscode.Disposable);
 
-    (vscode.workspace.onDidChangeTextDocument as any) = vi.fn(() => ({
+    vi.mocked(vscode.workspace.onDidChangeTextDocument).mockReturnValue({
       dispose: vi.fn(),
-    }));
+    } as vscode.Disposable);
 
-    (vscode.workspace.onDidSaveTextDocument as any) = vi.fn(() => ({
+    vi.mocked(vscode.workspace.onDidSaveTextDocument).mockReturnValue({
       dispose: vi.fn(),
-    }));
+    } as vscode.Disposable);
   });
 
   describe("registerImpactAnalysisCommand", () => {

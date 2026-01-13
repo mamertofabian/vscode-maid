@@ -2,7 +2,7 @@
  * Behavioral tests for src/manifestHistory.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import "./vscode-mock";
 import { ManifestHistoryTreeDataProvider } from "../src/manifestHistory";
 

@@ -2,7 +2,7 @@
  * Behavioral tests for src/referenceProvider.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import "./vscode-mock";
 import * as vscode from "vscode";
 import { ManifestReferenceProvider, FileReferenceProvider } from "../src/referenceProvider";

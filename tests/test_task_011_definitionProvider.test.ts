@@ -2,7 +2,7 @@
  * Behavioral tests for src/definitionProvider.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import "./vscode-mock";
 import * as vscode from "vscode";
 import { ManifestDefinitionProvider } from "../src/definitionProvider";

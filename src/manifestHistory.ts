@@ -128,15 +128,19 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
 
     // Watch for manifest file changes
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
-    watcher.onDidChange(() => this.debouncedRefresh());
-    watcher.onDidCreate(() => this.debouncedRefresh());
+    watcher.onDidChange(() => {
+      void this.debouncedRefresh();
+    });
+    watcher.onDidCreate(() => {
+      void this.debouncedRefresh();
+    });
     this.disposables.push(watcher);
 
     // Check initial selection
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor && isManifestPath(activeEditor.document.uri.fsPath)) {
       this.selectedManifest = activeEditor.document.uri.fsPath;
-      this.checkGitAndRefresh();
+      void this.checkGitAndRefresh();
     }
   }
 
@@ -145,7 +149,7 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
    */
   refresh(): void {
     log("[ManifestHistory] Manual refresh triggered");
-    this.checkGitAndRefresh();
+    void this.checkGitAndRefresh();
   }
 
   /**
@@ -160,7 +164,7 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
     }
 
     this.isGitRepo = await isGitRepository(workspaceRoot);
-    await this.loadHistory();
+    void this.loadHistory();
   }
 
   /**
@@ -188,8 +192,9 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
       const maxCommits = config.get<number>("history.maxCommits", 50);
       this.commitHistory = await getManifestHistory(this.selectedManifest, maxCommits);
       log(`[ManifestHistory] Loaded ${this.commitHistory.length} commits`);
-    } catch (error) {
-      log(`[ManifestHistory] Error loading history: ${error}`, "error");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log(`[ManifestHistory] Error loading history: ${errorMessage}`, "error");
       this.commitHistory = [];
     } finally {
       this.isLoading = false;
@@ -203,7 +208,7 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
   setSelectedManifest(manifestPath: string | undefined): void {
     if (this.selectedManifest !== manifestPath) {
       this.selectedManifest = manifestPath;
-      this.loadHistory();
+      void this.loadHistory();
     }
   }
 
@@ -217,7 +222,7 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
   /**
    * Get children of a tree item.
    */
-  async getChildren(element?: HistoryTreeItem): Promise<HistoryTreeItem[]> {
+  getChildren(element?: HistoryTreeItem): HistoryTreeItem[] {
     // Root level: show selected manifest or empty state
     if (!element) {
       if (!this.selectedManifest) {
@@ -289,6 +294,8 @@ export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<
    * Dispose of resources.
    */
   dispose(): void {
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
   }
 }

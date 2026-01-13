@@ -420,7 +420,7 @@ describe("ManifestDesignerState", () => {
     taskTypes.forEach((taskType) => {
       const state: ManifestDesignerState = {
         goal: "Test goal",
-        taskType: taskType,
+        taskType: taskType as "create" | "edit" | "refactor" | "snapshot",
         creatableFiles: [],
         editableFiles: [],
         readonlyFiles: [],

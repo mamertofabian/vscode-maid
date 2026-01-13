@@ -3,10 +3,11 @@
  * Tests the new methods: _collectSystemMetrics, _computeHealth, _getDependencyStats
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import "./vscode-mock";
 import * as vscode from "vscode";
 import { DashboardPanel } from "../src/webview/dashboardPanel";
+import type { SystemMetrics } from "../src/types";
 
 describe("DashboardPanel Metrics Collection", () => {
   beforeEach(() => {
@@ -19,7 +20,9 @@ describe("DashboardPanel Metrics Collection", () => {
       const panel = DashboardPanel.createOrShow(mockUri);
 
       // Access the private method via type assertion
-      const collectMetrics = (panel as any)._collectSystemMetrics.bind(panel);
+      const collectMetrics = (
+        panel as unknown as { _collectSystemMetrics: () => Promise<SystemMetrics> }
+      )._collectSystemMetrics.bind(panel);
       const metrics = await collectMetrics();
 
       expect(metrics).toBeDefined();
@@ -38,7 +41,9 @@ describe("DashboardPanel Metrics Collection", () => {
       const panel = DashboardPanel.createOrShow(mockUri);
 
       // Access the private method via type assertion
-      const computeHealth = (panel as any)._computeHealth.bind(panel);
+      const computeHealth = (
+        panel as unknown as { _computeHealth: (metrics: unknown) => number }
+      )._computeHealth.bind(panel);
 
       const metrics = {
         totalManifests: 10,
@@ -64,7 +69,9 @@ describe("DashboardPanel Metrics Collection", () => {
       const mockUri = vscode.Uri.file("/test");
       const panel = DashboardPanel.createOrShow(mockUri);
 
-      const computeHealth = (panel as any)._computeHealth.bind(panel);
+      const computeHealth = (
+        panel as unknown as { _computeHealth: (metrics: unknown) => number }
+      )._computeHealth.bind(panel);
 
       const perfectMetrics = {
         totalManifests: 10,
@@ -87,7 +94,9 @@ describe("DashboardPanel Metrics Collection", () => {
       const mockUri = vscode.Uri.file("/test");
       const panel = DashboardPanel.createOrShow(mockUri);
 
-      const computeHealth = (panel as any)._computeHealth.bind(panel);
+      const computeHealth = (
+        panel as unknown as { _computeHealth: (metrics: unknown) => number }
+      )._computeHealth.bind(panel);
 
       const emptyMetrics = {
         totalManifests: 0,
@@ -113,7 +122,15 @@ describe("DashboardPanel Metrics Collection", () => {
       const panel = DashboardPanel.createOrShow(mockUri);
 
       // Access the private method via type assertion
-      const getDependencyStats = (panel as any)._getDependencyStats.bind(panel);
+      const getDependencyStats = (
+        panel as unknown as {
+          _getDependencyStats: () => {
+            totalFiles: number;
+            supersessionChains: number;
+            averageFilesPerManifest: number;
+          };
+        }
+      )._getDependencyStats.bind(panel);
       const stats = getDependencyStats();
 
       expect(stats).toBeDefined();

@@ -9,6 +9,10 @@
     "file": "src/utils.ts",
     "contains": [
       {
+        "type": "interface",
+        "name": "ExecError"
+      },
+      {
         "type": "function",
         "name": "checkMaidCliInstalled"
       },

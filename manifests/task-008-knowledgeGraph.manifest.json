@@ -13,6 +13,10 @@
         "name": "GraphTreeItem"
       },
       {
+        "type": "interface",
+        "name": "ExtendedGraphTreeItem"
+      },
+      {
         "type": "class",
         "name": "KnowledgeGraphTreeDataProvider"
       },

@@ -82,14 +82,14 @@ export class DashboardPanel {
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
     watcher.onDidCreate((uri) => {
       this._addActivity("created", `Created ${path.basename(uri.fsPath)}`, uri.fsPath);
-      this._loadAndSendDashboardData();
+      void this._loadAndSendDashboardData();
     });
     watcher.onDidChange((uri) => {
       this._addActivity("modified", `Modified ${path.basename(uri.fsPath)}`, uri.fsPath);
     });
     watcher.onDidDelete((uri) => {
       this._addActivity("modified", `Deleted ${path.basename(uri.fsPath)}`);
-      this._loadAndSendDashboardData();
+      void this._loadAndSendDashboardData();
     });
     this._disposables.push(watcher);
 
@@ -181,8 +181,9 @@ export class DashboardPanel {
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
       await vscode.window.showTextDocument(document);
-    } catch (error: any) {
-      log(`[DashboardPanel] Error opening file: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Error opening file: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open file: ${filePath}`);
     }
   }
@@ -203,9 +204,10 @@ export class DashboardPanel {
         await this._loadAndSendDashboardData();
         this._addActivity("validated", "Validated all manifests");
       }
-    } catch (error: any) {
-      log(`[DashboardPanel] Validation error: ${error.message}`, "error");
-      this._addActivity("error", `Validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Validation error: ${message}`, "error");
+      this._addActivity("error", `Validation failed: ${message}`);
     }
 
     // Reload dashboard data
@@ -228,13 +230,16 @@ export class DashboardPanel {
         await vscode.commands.executeCommand("vscode-maid.runTests");
         this._addActivity("validated", "Ran all tests");
       }
-    } catch (error: any) {
-      log(`[DashboardPanel] Test error: ${error.message}`, "error");
-      this._addActivity("error", `Tests failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Test error: ${message}`, "error");
+      this._addActivity("error", `Tests failed: ${message}`);
     }
 
     // Reload dashboard data
-    setTimeout(() => this._loadAndSendDashboardData(), 1000);
+    setTimeout(() => {
+      void this._loadAndSendDashboardData();
+    }, 1000);
   }
 
   /**
@@ -277,12 +282,13 @@ export class DashboardPanel {
       });
 
       log(`[DashboardPanel] Loaded ${manifests.length} manifests`);
-    } catch (error: any) {
-      log(`[DashboardPanel] Error loading data: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Error loading data: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load dashboard data: ${error.message}`,
+          message: `Failed to load dashboard data: ${message}`,
         },
       });
     }
@@ -291,7 +297,7 @@ export class DashboardPanel {
   /**
    * Get manifest data by scanning workspace and optionally validating.
    */
-  private async _getManifestData(workspaceRoot: string): Promise<ManifestSummary[]> {
+  private async _getManifestData(_workspaceRoot: string): Promise<ManifestSummary[]> {
     // Find all manifest files in the workspace
     const manifestFiles = await vscode.workspace.findFiles(
       "**/*.manifest.json",
@@ -308,7 +314,7 @@ export class DashboardPanel {
       let goal: string | undefined;
       try {
         const content = await vscode.workspace.fs.readFile(uri);
-        const json = JSON.parse(content.toString());
+        const json = JSON.parse(content.toString()) as { goal?: string };
         goal = json.goal;
       } catch {
         // Ignore parse errors
@@ -404,7 +410,11 @@ export class DashboardPanel {
       // Try to read the manifest to count tracked files
       try {
         const content = await vscode.workspace.fs.readFile(uri);
-        const json = JSON.parse(content.toString());
+        const json = JSON.parse(content.toString()) as {
+          creatableFiles?: string[];
+          editableFiles?: string[];
+          readonlyFiles?: string[];
+        };
         const files = [
           ...(json.creatableFiles || []),
           ...(json.editableFiles || []),
@@ -522,11 +532,11 @@ export class DashboardPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Dashboard</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="dashboard"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

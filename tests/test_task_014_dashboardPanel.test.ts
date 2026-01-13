@@ -2,7 +2,7 @@
  * Behavioral tests for src/webview/dashboardPanel.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import "./vscode-mock";
 import * as vscode from "vscode";
 import { DashboardPanel } from "../src/webview/dashboardPanel";

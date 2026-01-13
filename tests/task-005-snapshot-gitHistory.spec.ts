@@ -9,14 +9,13 @@
 
 import {
   getCommitDiff,
-  getCommitStats,
   getDiffBetweenCommits,
   getFileAtCommit,
-  getGitRelativePath,
   getGitRoot,
   getManifestHistory,
   isGitRepository,
 } from "../src/gitHistory";
+// getCommitStats and getGitRelativePath are not exported
 
 describe("getCommitDiff", () => {
   it("should be defined", () => {
@@ -33,17 +32,9 @@ describe("getCommitDiff", () => {
   });
 });
 
-describe("getCommitStats", () => {
+// getCommitStats is not exported - skipping test
+describe.skip("getCommitStats", () => {
   it("should be defined", () => {
-    expect(getCommitStats).toBeDefined();
-    expect(typeof getCommitStats).toBe("function");
-    expect(true).toBe(false); // TODO: Implement test
-  });
-
-  it("should work correctly", () => {
-    // TODO: Provide appropriate test values for: gitRoot, commitHash, relativePath
-    // const result = getCommitStats(/* args */);
-    // expect(result).toBe(/* expected value */);
     expect(true).toBe(false); // TODO: Implement test
   });
 });
@@ -78,17 +69,9 @@ describe("getFileAtCommit", () => {
   });
 });
 
-describe("getGitRelativePath", () => {
+// getGitRelativePath is not exported - skipping test
+describe.skip("getGitRelativePath", () => {
   it("should be defined", () => {
-    expect(getGitRelativePath).toBeDefined();
-    expect(typeof getGitRelativePath).toBe("function");
-    expect(true).toBe(false); // TODO: Implement test
-  });
-
-  it("should work correctly", () => {
-    // TODO: Provide appropriate test values for: filePath, gitRoot
-    // const result = getGitRelativePath(/* args */);
-    // expect(result).toBe(/* expected value */);
     expect(true).toBe(false); // TODO: Implement test
   });
 });

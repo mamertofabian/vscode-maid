@@ -218,7 +218,7 @@
             "type": "string"
           },
           {
-            "name": "diff",
+            "name": "_diff",
             "type": "string"
           }
         ],
@@ -236,7 +236,7 @@
             "type": "string"
           },
           {
-            "name": "diff",
+            "name": "_diff",
             "type": "string"
           }
         ]

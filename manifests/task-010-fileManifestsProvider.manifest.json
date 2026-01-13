@@ -13,6 +13,10 @@
         "name": "FileManifestTreeItem"
       },
       {
+        "type": "interface",
+        "name": "ExtendedFileManifestTreeItem"
+      },
+      {
         "type": "class",
         "name": "FileManifestsTreeDataProvider"
       },
