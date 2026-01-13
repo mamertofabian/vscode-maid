@@ -149,5 +149,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_009_manifestHistory"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_009_manifestHistory.test.ts"
+  ]
 }

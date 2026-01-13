@@ -1,0 +1,60 @@
+{
+  "goal": "Enhance KnowledgeGraph React component with multiple layouts, layout switching, and export functionality",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": [
+    "webview-ui/src/components/KnowledgeGraph/KnowledgeGraph.tsx"
+  ],
+  "readonlyFiles": [
+    "webview-ui/src/types.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/KnowledgeGraph/KnowledgeGraph.tsx",
+    "contains": [
+      {
+        "type": "function",
+        "name": "KnowledgeGraph"
+      },
+      {
+        "type": "function",
+        "name": "getNodeLabel"
+      },
+      {
+        "type": "function",
+        "name": "getNodeTooltip"
+      },
+      {
+        "type": "function",
+        "name": "getEdgeColor"
+      },
+      {
+        "type": "function",
+        "name": "handleFilterChange"
+      },
+      {
+        "type": "function",
+        "name": "handleRefresh"
+      },
+      {
+        "type": "function",
+        "name": "handleOpenNode"
+      },
+      {
+        "type": "function",
+        "name": "handleLayoutChange"
+      },
+      {
+        "type": "function",
+        "name": "handleExport"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_023_knowledge_graph_component_enhancements.test.ts"
+  ]
+}

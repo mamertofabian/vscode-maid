@@ -190,5 +190,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_008_knowledgeGraph"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_008_knowledgeGraph.test.ts"
+  ]
 }

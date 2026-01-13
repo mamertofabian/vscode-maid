@@ -140,5 +140,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_003_statusBar"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_003_statusBar.test.ts"
+  ]
 }

@@ -1,0 +1,46 @@
+{
+  "goal": "Enhance ManifestChain React component with view mode toggle (graph/timeline) and chain statistics panel",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["webview-ui/src/components/ManifestChain/ManifestChain.tsx"],
+  "readonlyFiles": ["webview-ui/src/types.ts", "webview-ui/src/hooks/useVsCodeApi.ts"],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/ManifestChain/ManifestChain.tsx",
+    "contains": [
+      {
+        "type": "function",
+        "name": "ManifestChain",
+        "description": "Main React functional component for manifest chain visualization"
+      },
+      {
+        "type": "function",
+        "name": "handleRefresh",
+        "description": "Handler for refreshing chain data"
+      },
+      {
+        "type": "function",
+        "name": "handleViewModeChange",
+        "description": "Toggle between graph and timeline view modes",
+        "args": [
+          {
+            "name": "mode",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getChainStatistics",
+        "description": "Calculate and return chain statistics including depth and breadth"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_033_manifest_chain_component_enhancements.test.ts"
+  ]
+}

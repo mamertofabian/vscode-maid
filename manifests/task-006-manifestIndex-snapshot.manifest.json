@@ -404,5 +404,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_006_manifestIndex"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_006_manifestIndex.test.ts"
+  ]
 }

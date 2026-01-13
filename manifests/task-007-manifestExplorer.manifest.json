@@ -418,5 +418,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_007_manifestExplorer"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_007_manifestExplorer.test.ts"
+  ]
 }

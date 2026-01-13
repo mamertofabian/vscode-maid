@@ -1,0 +1,39 @@
+{
+  "goal": "Create HealthIndicator component with circular progress showing health score with color coding",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/Dashboard/HealthIndicator.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/Dashboard/HealthIndicator.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "HealthIndicatorProps"
+      },
+      {
+        "type": "function",
+        "name": "HealthIndicator"
+      },
+      {
+        "type": "function",
+        "name": "getHealthColor",
+        "args": [
+          {
+            "name": "score",
+            "type": "number"
+          }
+        ],
+        "returns": "string"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_027b_health_indicator.test.ts"
+  ]
+}

@@ -12,6 +12,9 @@ interface GraphControlsProps {
   isLoading: boolean;
   nodeCount: number;
   edgeCount: number;
+  currentLayout?: string;
+  onLayoutChange?: (layoutType: string) => void;
+  onExport?: (format: string) => void;
 }
 
 const GraphControls: React.FC<GraphControlsProps> = ({
@@ -21,6 +24,9 @@ const GraphControls: React.FC<GraphControlsProps> = ({
   isLoading,
   nodeCount,
   edgeCount,
+  currentLayout,
+  onLayoutChange,
+  onExport,
 }) => {
   const handleCheckboxChange = (key: keyof GraphFilters) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onFilterChange({
@@ -34,6 +40,14 @@ const GraphControls: React.FC<GraphControlsProps> = ({
       ...filters,
       searchQuery: e.target.value,
     });
+  };
+
+  const handleLayoutSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onLayoutChange?.(e.target.value);
+  };
+
+  const handleExportClick = (format: string) => {
+    onExport?.(format);
   };
 
   return (
@@ -51,6 +65,19 @@ const GraphControls: React.FC<GraphControlsProps> = ({
         <button onClick={onRefresh} disabled={isLoading} className="refresh-button">
           {isLoading ? "Loading..." : "Refresh"}
         </button>
+        <select
+          value={currentLayout || "force-directed"}
+          onChange={handleLayoutSelect}
+          className="layout-select"
+        >
+          <option value="force-directed">Force-Directed</option>
+          <option value="hierarchical">Hierarchical</option>
+          <option value="circular">Circular</option>
+        </select>
+        <div className="export-controls">
+          <button onClick={() => handleExportClick("json")}>Export JSON</button>
+          <button onClick={() => handleExportClick("dot")}>Export DOT</button>
+        </div>
       </div>
 
       <div className="controls-row filters">

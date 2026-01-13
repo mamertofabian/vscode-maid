@@ -1,0 +1,148 @@
+{
+  "goal": "Add Visual Architecture Studio type definitions for hierarchical views, impact analysis, graph layouts, filtering, system metrics, and manifest designer state",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["src/types.ts"],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/types.ts",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ValidationError"
+      },
+      {
+        "type": "interface",
+        "name": "ValidationResult"
+      },
+      {
+        "type": "type",
+        "name": "FileTrackingStatus"
+      },
+      {
+        "type": "interface",
+        "name": "UndeclaredFile"
+      },
+      {
+        "type": "interface",
+        "name": "MaidFilesResult"
+      },
+      {
+        "type": "type",
+        "name": "GraphNodeType"
+      },
+      {
+        "type": "interface",
+        "name": "GraphNode"
+      },
+      {
+        "type": "interface",
+        "name": "GraphEdge"
+      },
+      {
+        "type": "interface",
+        "name": "KnowledgeGraphResult"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestTask"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestInfo"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestsResult"
+      },
+      {
+        "type": "type",
+        "name": "StatusBarState"
+      },
+      {
+        "type": "type",
+        "name": "LogLevel"
+      },
+      {
+        "type": "interface",
+        "name": "CommandResult"
+      },
+      {
+        "type": "type",
+        "name": "ManifestTreeItemType"
+      },
+      {
+        "type": "type",
+        "name": "ManifestTreeItemContext"
+      },
+      {
+        "type": "interface",
+        "name": "ExpectedArtifact"
+      },
+      {
+        "type": "interface",
+        "name": "ArtifactContains"
+      },
+      {
+        "type": "type",
+        "name": "FileReferenceCategory"
+      },
+      {
+        "type": "interface",
+        "name": "FileReference"
+      },
+      {
+        "type": "interface",
+        "name": "ArtifactReference"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestIndexEntry"
+      },
+      {
+        "type": "interface",
+        "name": "CommitHistory"
+      },
+      {
+        "type": "interface",
+        "name": "SerializedCommitHistory"
+      },
+      {
+        "type": "interface",
+        "name": "HistoryPanelData"
+      },
+      {
+        "type": "interface",
+        "name": "HierarchicalNode"
+      },
+      {
+        "type": "interface",
+        "name": "DependencyImpact"
+      },
+      {
+        "type": "interface",
+        "name": "GraphLayout"
+      },
+      {
+        "type": "interface",
+        "name": "FilterConfig"
+      },
+      {
+        "type": "interface",
+        "name": "SystemMetrics"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestDesignerState"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_019_visual_types.test.ts"
+  ]
+}

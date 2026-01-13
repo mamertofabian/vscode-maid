@@ -185,5 +185,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_010_fileManifestsProvider"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_010_fileManifestsProvider.test.ts"
+  ]
 }

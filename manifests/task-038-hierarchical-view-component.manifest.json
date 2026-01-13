@@ -1,0 +1,56 @@
+{
+  "goal": "Create the HierarchicalView React component for displaying hierarchical system visualization. The component supports multiple visualization modes (treemap, sunburst, nested), handles drill-down/drill-up navigation, and filters nodes by level.",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": [
+    "webview-ui/src/components/HierarchicalView/HierarchicalView.tsx"
+  ],
+  "editableFiles": [],
+  "readonlyFiles": [
+    "src/types.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/HierarchicalView/HierarchicalView.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "HierarchicalViewProps"
+      },
+      {
+        "type": "function",
+        "name": "HierarchicalView"
+      },
+      {
+        "type": "function",
+        "name": "getViewModeOptions",
+        "returns": {
+          "type": "ViewModeOption[]"
+        }
+      },
+      {
+        "type": "function",
+        "name": "filterNodesByLevel",
+        "args": [
+          {
+            "name": "nodes",
+            "type": "HierarchicalNode[]"
+          },
+          {
+            "name": "level",
+            "type": "number"
+          }
+        ],
+        "returns": {
+          "type": "HierarchicalNode[]"
+        }
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_038_hierarchical_view_component.test.ts"
+  ]
+}

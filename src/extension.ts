@@ -34,6 +34,8 @@ import { DashboardPanel } from "./webview/dashboardPanel";
 import { HistoryPanel } from "./webview/historyPanel";
 import { ManifestChainPanel } from "./webview/manifestChainPanel";
 import { FileManifestsTreeDataProvider } from "./fileManifestsProvider";
+import { ImpactAnalysisPanel } from "./webview/impactAnalysisPanel";
+import { HierarchicalViewPanel } from "./webview/hierarchicalViewPanel";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -1135,6 +1137,30 @@ function findArtifactPosition(
   }
 
   return undefined;
+}
+
+/**
+ * Register the Impact Analysis command.
+ * Creates and registers the vscode-maid.showImpactAnalysis command.
+ */
+export function registerImpactAnalysisCommand(context: vscode.ExtensionContext): void {
+  const disposable = vscode.commands.registerCommand("vscode-maid.showImpactAnalysis", () => {
+    ImpactAnalysisPanel.createOrShow(context.extensionUri);
+  });
+  context.subscriptions.push(disposable);
+  log("Impact Analysis command registered");
+}
+
+/**
+ * Register the Hierarchical View command.
+ * Creates and registers the vscode-maid.showHierarchicalView command.
+ */
+export function registerHierarchicalViewCommand(context: vscode.ExtensionContext): void {
+  const disposable = vscode.commands.registerCommand("vscode-maid.showHierarchicalView", () => {
+    HierarchicalViewPanel.createOrShow(context.extensionUri);
+  });
+  context.subscriptions.push(disposable);
+  log("Hierarchical View command registered");
 }
 
 /**

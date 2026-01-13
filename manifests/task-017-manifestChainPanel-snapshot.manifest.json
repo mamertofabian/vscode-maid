@@ -246,5 +246,11 @@
       }
     ]
   },
-  "validationCommand": ["bash", "scripts/run-tests.sh", "test_task_017_manifestChainPanel"]
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_017_manifestChainPanel.test.ts"
+  ]
 }

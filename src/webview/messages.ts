@@ -8,6 +8,10 @@ import type {
   ManifestInfo,
   CommitHistory,
   HistoryPanelData,
+  HierarchicalNode,
+  DependencyImpact,
+  GraphLayout,
+  ManifestDesignerState,
 } from "../types";
 import type { ManifestChainData } from "./manifestChainPanel";
 
@@ -74,6 +78,51 @@ export interface ThemeInfo {
   kind: "light" | "dark" | "high-contrast";
 }
 
+/**
+ * Data for the hierarchical system view panel (#82)
+ */
+export interface HierarchicalViewData {
+  nodes: HierarchicalNode[];
+  rootId: string;
+  currentLevel: number;
+  selectedNodeId: string | null;
+}
+
+/**
+ * Data for the impact analysis panel (#81)
+ */
+export interface ImpactAnalysisData {
+  targetFile: string;
+  impact: DependencyImpact | null;
+  loading: boolean;
+  error: string | null;
+}
+
+/**
+ * Data for the manifest designer panel (#79)
+ */
+export interface ManifestDesignerData {
+  state: ManifestDesignerState;
+  availableFiles: string[];
+  recentManifests: string[];
+}
+
+/**
+ * Payload for layout change requests (#77)
+ */
+export interface LayoutChangePayload {
+  layout: GraphLayout;
+  animate: boolean;
+}
+
+/**
+ * Payload for graph export requests (#77)
+ */
+export interface ExportPayload {
+  format: "png" | "svg" | "json" | "dot";
+  filename: string | null;
+}
+
 // ============================================================================
 // Extension -> Webview Messages
 // ============================================================================
@@ -91,7 +140,12 @@ export type ExtensionToWebviewMessage =
     }
   | { type: "themeChanged"; payload: ThemeInfo }
   | { type: "loading"; payload: { isLoading: boolean } }
-  | { type: "error"; payload: { message: string } };
+  | { type: "error"; payload: { message: string } }
+  | { type: "hierarchicalData"; payload: HierarchicalViewData }
+  | { type: "impactData"; payload: ImpactAnalysisData }
+  | { type: "designerData"; payload: ManifestDesignerData }
+  | { type: "layoutChanged"; payload: { layout: GraphLayout } }
+  | { type: "exportReady"; payload: { format: string; data: string } };
 
 // ============================================================================
 // Webview -> Extension Messages
@@ -113,4 +167,12 @@ export type WebviewToExtensionMessage =
       payload: { manifestPath: string; commitHash1: string; commitHash2: string };
     }
   | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } }
-  | { type: "setManifest"; payload: { manifestPath: string } };
+  | { type: "setManifest"; payload: { manifestPath: string } }
+  | { type: "changeLayout"; payload: LayoutChangePayload }
+  | { type: "exportGraph"; payload: ExportPayload }
+  | { type: "analyzeImpact"; payload: { filePath: string } }
+  | { type: "saveManifest"; payload: { state: ManifestDesignerState } }
+  | { type: "validateDesigner"; payload: { state: ManifestDesignerState } }
+  | { type: "selectHierarchyNode"; payload: { nodeId: string } }
+  | { type: "drillDown"; payload: { nodeId: string } }
+  | { type: "drillUp"; payload: Record<string, never> };

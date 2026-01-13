@@ -1,0 +1,31 @@
+{
+  "goal": "Create main ManifestDesigner React component with form-based editing for manifest properties",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/ManifestDesigner/ManifestDesigner.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": [
+    "webview-ui/src/components/shared/Card.tsx",
+    "src/types.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/ManifestDesigner/ManifestDesigner.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ManifestDesignerProps"
+      },
+      {
+        "type": "function",
+        "name": "ManifestDesigner"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_029_manifest_designer_component.test.ts"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "goal": "Enhance GraphControls component with layout selector dropdown and export options",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": [
+    "webview-ui/src/components/KnowledgeGraph/GraphControls.tsx"
+  ],
+  "readonlyFiles": [
+    "webview-ui/src/types.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/KnowledgeGraph/GraphControls.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "GraphControlsProps"
+      },
+      {
+        "type": "function",
+        "name": "GraphControls"
+      },
+      {
+        "type": "function",
+        "name": "handleCheckboxChange"
+      },
+      {
+        "type": "function",
+        "name": "handleSearchChange"
+      },
+      {
+        "type": "function",
+        "name": "handleLayoutSelect"
+      },
+      {
+        "type": "function",
+        "name": "handleExportClick"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_024_graph_controls_enhancements.test.ts"
+  ]
+}

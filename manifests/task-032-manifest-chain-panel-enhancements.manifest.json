@@ -1,0 +1,218 @@
+{
+  "goal": "Enhance ManifestChainPanel with full relationship loading, chain metrics computation, and conflict highlighting",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["src/webview/manifestChainPanel.ts"],
+  "readonlyFiles": ["src/types.ts", "src/webview/messages.ts", "src/manifestIndex.ts"],
+  "expectedArtifacts": {
+    "file": "src/webview/manifestChainPanel.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "ManifestChainPanel"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestChainData"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestChainEdge"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestChainNode"
+      },
+      {
+        "type": "interface",
+        "name": "ChainMetrics",
+        "description": "Metrics for the manifest chain including depth, breadth, and conflict detection"
+      },
+      {
+        "type": "function",
+        "name": "addChildren",
+        "args": [
+          {
+            "name": "childPaths",
+            "type": "string[]"
+          },
+          {
+            "name": "level",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "addParents",
+        "args": [
+          {
+            "name": "parentPaths",
+            "type": "string[]"
+          },
+          {
+            "name": "level",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getNonce"
+      },
+      {
+        "type": "function",
+        "name": "_currentManifestPath",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_disposables",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_extensionUri",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_getHtmlForWebview",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "webview",
+            "type": "vscode.Webview"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_handleMessage",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "message",
+            "type": "WebviewToExtensionMessage"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_loadAndSendChainData",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_manifestIndex",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_openManifest",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_panel",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_postMessage",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "message",
+            "type": "ExtensionToWebviewMessage"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_update",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "createOrShow",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "extensionUri",
+            "type": "vscode.Uri"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "manifestIndex",
+            "type": "ManifestIndex"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "currentPanel",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "setManifest",
+        "class": "ManifestChainPanel",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "viewType",
+        "class": "ManifestChainPanel"
+      },
+      {
+        "type": "function",
+        "name": "_loadFullRelationships",
+        "class": "ManifestChainPanel",
+        "description": "Load all relationship types beyond supersedes (file references, artifacts)",
+        "returns": "Promise<void>"
+      },
+      {
+        "type": "function",
+        "name": "_computeChainMetrics",
+        "class": "ManifestChainPanel",
+        "description": "Calculate chain depth, breadth, total nodes, and conflict detection",
+        "returns": "ChainMetrics"
+      },
+      {
+        "type": "function",
+        "name": "_highlightConflicts",
+        "class": "ManifestChainPanel",
+        "description": "Mark conflicting manifests in the chain",
+        "returns": "void"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_032_manifest_chain_panel_enhancements.test.ts"
+  ]
+}

@@ -6,7 +6,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
-import type { KnowledgeGraphResult } from "../types";
+import type { KnowledgeGraphResult, GraphLayout, HierarchicalNode } from "../types";
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from "./messages";
 import { log, getMaidRoot } from "../utils";
 
@@ -21,6 +21,7 @@ export class KnowledgeGraphPanel {
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
   private _graphData: KnowledgeGraphResult | null = null;
+  private _hierarchicalData: HierarchicalNode[] | null = null;
 
   /**
    * Create or show the Knowledge Graph panel.
@@ -133,6 +134,14 @@ export class KnowledgeGraphPanel {
 
       case "filterChange":
         log("[KnowledgeGraphPanel] Filters changed");
+        break;
+
+      case "changeLayout":
+        this._handleLayoutChange(message.payload.layout);
+        break;
+
+      case "exportGraph":
+        await this._handleExportGraph(message.payload.format, message.payload.filename);
         break;
     }
   }
@@ -260,6 +269,151 @@ export class KnowledgeGraphPanel {
       ...graphData,
       nodes: resolvedNodes,
     };
+  }
+
+  /**
+   * Load hierarchical data and send to webview.
+   */
+  private async _loadHierarchicalData(): Promise<void> {
+    this._postMessage({ type: "loading", payload: { isLoading: true } });
+
+    try {
+      // For now, create hierarchical view from graph data
+      // In full implementation, would use ManifestIndex.getHierarchicalView()
+      const nodes: HierarchicalNode[] = [];
+
+      if (this._graphData) {
+        // Group manifests by module (directory)
+        const moduleMap = new Map<string, (typeof this._graphData.nodes)[number][]>();
+
+        for (const node of this._graphData.nodes) {
+          if (node.type === "manifest" && node.path) {
+            const dir = node.path.split("/").slice(0, -1).join("/") || "root";
+            if (!moduleMap.has(dir)) {
+              moduleMap.set(dir, []);
+            }
+            moduleMap.get(dir)!.push(node);
+          }
+        }
+
+        // Create hierarchical nodes
+        for (const [moduleName, manifestNodes] of moduleMap) {
+          nodes.push({
+            id: moduleName,
+            name: moduleName || "root",
+            type: "module",
+            level: 0,
+            parent: null,
+            children: manifestNodes.map((m) => ({
+              id: m.id,
+              name: m.path?.split("/").pop() || m.id,
+              type: "manifest" as const,
+              level: 1,
+              parent: moduleName,
+              children: [],
+              metrics: { manifestCount: 1, fileCount: 0, artifactCount: 0, errorCount: 0 },
+            })),
+            metrics: {
+              manifestCount: manifestNodes.length,
+              fileCount: 0,
+              artifactCount: 0,
+              errorCount: 0,
+            },
+          });
+        }
+      }
+
+      this._hierarchicalData = nodes;
+      this._postMessage({
+        type: "hierarchicalData",
+        payload: {
+          nodes,
+          rootId: nodes[0]?.id || "",
+          currentLevel: 0,
+          selectedNodeId: null,
+        },
+      });
+    } catch (error: any) {
+      this._postMessage({
+        type: "error",
+        payload: { message: `Failed to load hierarchical data: ${error.message}` },
+      });
+    }
+  }
+
+  /**
+   * Compute and send graph metrics to webview.
+   */
+  private _computeMetrics(): void {
+    if (!this._graphData) {
+      return;
+    }
+
+    const metrics = {
+      totalNodes: this._graphData.nodes.length,
+      totalEdges: this._graphData.edges?.length || 0,
+      nodesByType: {
+        manifest: 0,
+        file: 0,
+        module: 0,
+        artifact: 0,
+      },
+    };
+
+    for (const node of this._graphData.nodes) {
+      if (node.type in metrics.nodesByType) {
+        metrics.nodesByType[node.type as keyof typeof metrics.nodesByType]++;
+      }
+    }
+
+    // Send metrics as part of graph data or separate message
+    log(`[KnowledgeGraphPanel] Metrics: ${JSON.stringify(metrics)}`);
+  }
+
+  /**
+   * Handle layout change requests from webview.
+   */
+  private _handleLayoutChange(layout: GraphLayout): void {
+    log(`[KnowledgeGraphPanel] Layout changed to: ${layout.type}`);
+    this._postMessage({
+      type: "layoutChanged",
+      payload: { layout },
+    });
+  }
+
+  /**
+   * Handle graph export requests.
+   */
+  private async _handleExportGraph(format: string, filename: string | null): Promise<void> {
+    log(`[KnowledgeGraphPanel] Exporting graph as ${format}`);
+
+    try {
+      let data: string;
+
+      if (format === "json") {
+        data = JSON.stringify(this._graphData || { nodes: [], edges: [] }, null, 2);
+      } else if (format === "dot") {
+        // Generate DOT format for Graphviz
+        const nodes = this._graphData?.nodes || [];
+        const edges = this._graphData?.edges || [];
+        const dotNodes = nodes.map((n) => `  "${n.id}" [label="${n.name || n.id}"];`).join("\n");
+        const dotEdges = edges.map((e) => `  "${e.source}" -> "${e.target}";`).join("\n");
+        data = `digraph MAID {\n${dotNodes}\n${dotEdges}\n}`;
+      } else {
+        // For PNG/SVG, would need canvas rendering - return placeholder
+        data = `Export to ${format} requires canvas rendering (not implemented in backend)`;
+      }
+
+      this._postMessage({
+        type: "exportReady",
+        payload: { format, data },
+      });
+    } catch (error: any) {
+      this._postMessage({
+        type: "error",
+        payload: { message: `Export failed: ${error.message}` },
+      });
+    }
   }
 
   /**

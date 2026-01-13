@@ -13,6 +13,7 @@ import type {
   ExtensionToWebviewMessage,
   WebviewToExtensionMessage,
 } from "./messages";
+import type { SystemMetrics } from "../types";
 import { log } from "../utils";
 
 /**
@@ -348,6 +349,143 @@ export class DashboardPanel {
       passingTests: validManifests,
       failingTests: manifests.length - validManifests,
       coverage: coveragePercent,
+    };
+  }
+
+  /**
+   * Collect system-wide metrics for the MAID project.
+   * Gathers manifest counts, validation status, and file tracking statistics.
+   */
+  private async _collectSystemMetrics(): Promise<SystemMetrics> {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      return {
+        totalManifests: 0,
+        validManifests: 0,
+        errorCount: 0,
+        warningCount: 0,
+        fileTracking: {
+          undeclared: 0,
+          registered: 0,
+          tracked: 0,
+        },
+        coverage: 0,
+      };
+    }
+
+    // Find all manifest files
+    const manifestFiles = await vscode.workspace.findFiles(
+      "**/*.manifest.json",
+      "**/node_modules/**"
+    );
+
+    let totalErrors = 0;
+    let totalWarnings = 0;
+    let validCount = 0;
+    const trackedFiles = new Set<string>();
+
+    for (const uri of manifestFiles) {
+      // Get diagnostics for this manifest
+      const diagnostics = vscode.languages.getDiagnostics(uri);
+      const errors = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Error
+      ).length;
+      const warnings = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Warning
+      ).length;
+
+      totalErrors += errors;
+      totalWarnings += warnings;
+
+      if (errors === 0) {
+        validCount++;
+      }
+
+      // Try to read the manifest to count tracked files
+      try {
+        const content = await vscode.workspace.fs.readFile(uri);
+        const json = JSON.parse(content.toString());
+        const files = [
+          ...(json.creatableFiles || []),
+          ...(json.editableFiles || []),
+          ...(json.readonlyFiles || []),
+        ];
+        files.forEach((f: string) => trackedFiles.add(f));
+      } catch {
+        // Ignore parse errors
+      }
+    }
+
+    const totalManifests = manifestFiles.length;
+    const coverage = totalManifests > 0 ? (validCount / totalManifests) * 100 : 0;
+
+    return {
+      totalManifests,
+      validManifests: validCount,
+      errorCount: totalErrors,
+      warningCount: totalWarnings,
+      fileTracking: {
+        undeclared: 0, // Would require filesystem scan to determine
+        registered: 0,
+        tracked: trackedFiles.size,
+      },
+      coverage,
+    };
+  }
+
+  /**
+   * Compute project health score based on system metrics.
+   * Returns a value between 0 and 100.
+   */
+  private _computeHealth(metrics: SystemMetrics): number {
+    if (metrics.totalManifests === 0) {
+      return 0;
+    }
+
+    // Calculate health based on multiple factors:
+    // 1. Valid manifests ratio (50% weight)
+    const validRatio = metrics.validManifests / metrics.totalManifests;
+
+    // 2. Error penalty (30% weight) - more errors = lower health
+    // Cap penalty at 100% (10+ errors = maximum penalty)
+    const errorPenalty = Math.min(metrics.errorCount / 10, 1);
+
+    // 3. Warning penalty (20% weight) - warnings have less impact
+    // Cap penalty at 100% (20+ warnings = maximum penalty)
+    const warningPenalty = Math.min(metrics.warningCount / 20, 1);
+
+    // Calculate weighted health score
+    const validScore = validRatio * 50;
+    const errorScore = (1 - errorPenalty) * 30;
+    const warningScore = (1 - warningPenalty) * 20;
+
+    const health = Math.round(validScore + errorScore + warningScore);
+
+    return Math.max(0, Math.min(100, health));
+  }
+
+  /**
+   * Get dependency statistics for the project.
+   * Counts file dependencies and supersession chains.
+   */
+  private _getDependencyStats(): {
+    totalFiles: number;
+    supersessionChains: number;
+    averageFilesPerManifest: number;
+  } {
+    // This is a simplified implementation that works with available data
+    // A full implementation would use ManifestIndex for deeper analysis
+
+    const _manifests = this._activityHistory.filter(
+      (a) => a.type === "created" || a.type === "modified"
+    );
+
+    // For now, return basic stats
+    // These would be computed from actual manifest data in a full implementation
+    return {
+      totalFiles: 0,
+      supersessionChains: 0,
+      averageFilesPerManifest: 0,
     };
   }
 

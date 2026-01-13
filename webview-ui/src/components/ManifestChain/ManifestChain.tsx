@@ -21,6 +21,7 @@ const ManifestChain: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<ManifestChainNode | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<string>("graph");
 
   // Handle messages from the extension
   useEffect(() => {
@@ -175,6 +176,56 @@ const ManifestChain: React.FC = () => {
   const handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
+  };
+
+  /**
+   * Toggle between graph and timeline view modes.
+   */
+  const handleViewModeChange = (mode: string) => {
+    setViewMode(mode);
+  };
+
+  /**
+   * Calculate and return chain statistics including depth and breadth.
+   */
+  const getChainStatistics = () => {
+    if (!chainData || chainData.nodes.length === 0) {
+      return {
+        depth: 0,
+        breadth: 0,
+        totalNodes: 0,
+        parentCount: 0,
+        childCount: 0,
+      };
+    }
+
+    const nodes = chainData.nodes;
+
+    // Calculate depth: range of levels
+    const levels = nodes.map((n) => n.level);
+    const minLevel = Math.min(...levels);
+    const maxLevel = Math.max(...levels);
+    const depth = maxLevel - minLevel + 1;
+
+    // Calculate breadth: maximum nodes at any single level
+    const levelCounts = new Map<number, number>();
+    for (const node of nodes) {
+      const count = levelCounts.get(node.level) || 0;
+      levelCounts.set(node.level, count + 1);
+    }
+    const breadth = Math.max(...levelCounts.values());
+
+    // Count parents and children
+    const parentCount = nodes.filter((n) => n.level < 0).length;
+    const childCount = nodes.filter((n) => n.level > 0).length;
+
+    return {
+      depth,
+      breadth,
+      totalNodes: nodes.length,
+      parentCount,
+      childCount,
+    };
   };
 
   if (error) {

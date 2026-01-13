@@ -1,0 +1,191 @@
+{
+  "goal": "Enhance KnowledgeGraphPanel with hierarchical data loading, metrics computation, layout change handling, and graph export functionality",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["src/webview/knowledgeGraphPanel.ts"],
+  "readonlyFiles": ["src/types.ts", "src/webview/messages.ts"],
+  "expectedArtifacts": {
+    "file": "src/webview/knowledgeGraphPanel.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "getNonce"
+      },
+      {
+        "type": "function",
+        "name": "_disposables",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_extensionUri",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_getHtmlForWebview",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "webview",
+            "type": "vscode.Webview"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_graphData",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_handleMessage",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "message",
+            "type": "WebviewToExtensionMessage"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_loadAndSendGraphData",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_openFile",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_panel",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_postMessage",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "message",
+            "type": "ExtensionToWebviewMessage"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_resolveGraphPaths",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "graphData",
+            "type": "KnowledgeGraphResult"
+          },
+          {
+            "name": "maidRoot",
+            "type": "string"
+          },
+          {
+            "name": "workspaceRoot",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "_update",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "createOrShow",
+        "class": "KnowledgeGraphPanel",
+        "args": [
+          {
+            "name": "extensionUri",
+            "type": "vscode.Uri"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "currentPanel",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "viewType",
+        "class": "KnowledgeGraphPanel"
+      },
+      {
+        "type": "function",
+        "name": "_loadHierarchicalData",
+        "class": "KnowledgeGraphPanel",
+        "description": "Load hierarchy data from ManifestIndex and send to webview",
+        "returns": "Promise<void>"
+      },
+      {
+        "type": "function",
+        "name": "_computeMetrics",
+        "class": "KnowledgeGraphPanel",
+        "description": "Calculate and send graph metrics to webview",
+        "returns": "void"
+      },
+      {
+        "type": "function",
+        "name": "_handleLayoutChange",
+        "class": "KnowledgeGraphPanel",
+        "description": "Handle layout change requests from webview",
+        "args": [
+          {
+            "name": "layout",
+            "type": "GraphLayout"
+          }
+        ],
+        "returns": "void"
+      },
+      {
+        "type": "function",
+        "name": "_handleExportGraph",
+        "class": "KnowledgeGraphPanel",
+        "description": "Handle graph export requests to PNG, SVG, JSON, or DOT format",
+        "args": [
+          {
+            "name": "format",
+            "type": "string"
+          },
+          {
+            "name": "filename",
+            "type": "string | null"
+          }
+        ],
+        "returns": "Promise<void>"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_022_graph_panel_enhancements.test.ts"
+  ]
+}

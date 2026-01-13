@@ -1,0 +1,31 @@
+{
+  "goal": "Create ArtifactEditor component for editing expected artifacts with type selection and argument editors",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/ManifestDesigner/ArtifactEditor.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": [
+    "webview-ui/src/components/shared/Card.tsx",
+    "src/types.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/ManifestDesigner/ArtifactEditor.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ArtifactEditorProps"
+      },
+      {
+        "type": "function",
+        "name": "ArtifactEditor"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_031_artifact_editor_component.test.ts"
+  ]
+}
