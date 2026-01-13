@@ -2,12 +2,8 @@
   "goal": "Integrate ImpactAnalysisPanel into extension.ts with command registration and activation. Add imports for ImpactAnalysisPanel and setSharedManifestIndex, create registerImpactAnalysisCommand and registerHierarchicalViewCommand functions for registering new panel commands, and wire setSharedManifestIndex during activation.",
   "taskType": "edit",
   "creatableFiles": [],
-  "editableFiles": [
-    "src/extension.ts"
-  ],
-  "readonlyFiles": [
-    "src/webview/impactAnalysisPanel.ts"
-  ],
+  "editableFiles": ["src/extension.ts"],
+  "readonlyFiles": ["src/webview/impactAnalysisPanel.ts"],
   "expectedArtifacts": {
     "file": "src/extension.ts",
     "contains": [
@@ -35,11 +31,5 @@
       }
     ]
   },
-  "validationCommand": [
-    "pnpm",
-    "exec",
-    "vitest",
-    "run",
-    "tests/test_task_040_integration.test.ts"
-  ]
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_040_integration.test.ts"]
 }

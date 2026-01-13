@@ -75,17 +75,13 @@ describe("ImpactTree Component", () => {
     });
 
     it("should export ImpactTree", () => {
-      expect(sourceCode).toMatch(
-        /export\s+(default\s+)?ImpactTree|export\s*\{\s*ImpactTree/
-      );
+      expect(sourceCode).toMatch(/export\s+(default\s+)?ImpactTree|export\s*\{\s*ImpactTree/);
     });
   });
 
   describe("buildImpactTree Function", () => {
     it("should define buildImpactTree function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+buildImpactTree|const\s+buildImpactTree\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+buildImpactTree|const\s+buildImpactTree\s*=/);
     });
 
     it("should export buildImpactTree", () => {
@@ -105,15 +101,11 @@ describe("ImpactTree Component", () => {
 
   describe("getNodeIcon Function", () => {
     it("should define getNodeIcon function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+getNodeIcon|const\s+getNodeIcon\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+getNodeIcon|const\s+getNodeIcon\s*=/);
     });
 
     it("should export getNodeIcon", () => {
-      expect(sourceCode).toMatch(
-        /export\s+(function\s+)?getNodeIcon|export\s*\{[^}]*getNodeIcon/
-      );
+      expect(sourceCode).toMatch(/export\s+(function\s+)?getNodeIcon|export\s*\{[^}]*getNodeIcon/);
     });
 
     it("should return icon based on node type", () => {
@@ -124,9 +116,7 @@ describe("ImpactTree Component", () => {
 
   describe("getLevelColor Function", () => {
     it("should define getLevelColor function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+getLevelColor|const\s+getLevelColor\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+getLevelColor|const\s+getLevelColor\s*=/);
     });
 
     it("should export getLevelColor", () => {
@@ -212,9 +202,7 @@ describe("ImpactTree Component", () => {
 
   describe("Type Imports", () => {
     it("should import DependencyImpact from types", () => {
-      expect(sourceCode).toMatch(
-        /import.*DependencyImpact|from\s+["'][^"']*types["']/
-      );
+      expect(sourceCode).toMatch(/import.*DependencyImpact|from\s+["'][^"']*types["']/);
     });
   });
 
@@ -224,17 +212,13 @@ describe("ImpactTree Component", () => {
     });
 
     it("should have indentation for tree levels", () => {
-      expect(sourceCode).toMatch(
-        /indent|padding-left|marginLeft|level.*margin|level.*padding/i
-      );
+      expect(sourceCode).toMatch(/indent|padding-left|marginLeft|level.*margin|level.*padding/i);
     });
   });
 
   describe("Accessibility", () => {
     it("should have interactive elements for expand/collapse", () => {
-      expect(sourceCode).toMatch(
-        /onClick|onKeyDown|button|role=["']button["']/
-      );
+      expect(sourceCode).toMatch(/onClick|onKeyDown|button|role=["']button["']/);
     });
 
     it("should have aria attributes or semantic elements", () => {

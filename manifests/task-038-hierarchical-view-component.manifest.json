@@ -2,13 +2,9 @@
   "goal": "Create the HierarchicalView React component for displaying hierarchical system visualization. The component supports multiple visualization modes (treemap, sunburst, nested), handles drill-down/drill-up navigation, and filters nodes by level.",
   "taskType": "create",
   "supersedes": [],
-  "creatableFiles": [
-    "webview-ui/src/components/HierarchicalView/HierarchicalView.tsx"
-  ],
+  "creatableFiles": ["webview-ui/src/components/HierarchicalView/HierarchicalView.tsx"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/types.ts"
-  ],
+  "readonlyFiles": ["src/types.ts"],
   "expectedArtifacts": {
     "file": "webview-ui/src/components/HierarchicalView/HierarchicalView.tsx",
     "contains": [

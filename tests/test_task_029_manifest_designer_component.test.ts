@@ -37,7 +37,9 @@ describe("ManifestDesigner Component", () => {
     });
 
     it("should export ManifestDesigner", () => {
-      expect(sourceCode).toMatch(/export\s+(default\s+)?ManifestDesigner|export\s*\{\s*ManifestDesigner/);
+      expect(sourceCode).toMatch(
+        /export\s+(default\s+)?ManifestDesigner|export\s*\{\s*ManifestDesigner/
+      );
     });
   });
 

@@ -2,15 +2,9 @@
   "goal": "Create the ImpactAnalysisPanel class for analyzing dependency impacts in the VS Code extension. The panel provides a webview interface for analyzing how changes to files impact other manifests, artifacts, and files in the MAID project.",
   "taskType": "create",
   "supersedes": [],
-  "creatableFiles": [
-    "src/webview/impactAnalysisPanel.ts"
-  ],
+  "creatableFiles": ["src/webview/impactAnalysisPanel.ts"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/types.ts",
-    "src/webview/messages.ts",
-    "src/manifestIndex.ts"
-  ],
+  "readonlyFiles": ["src/types.ts", "src/webview/messages.ts", "src/manifestIndex.ts"],
   "expectedArtifacts": {
     "file": "src/webview/impactAnalysisPanel.ts",
     "contains": [

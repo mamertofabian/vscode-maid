@@ -54,9 +54,7 @@ describe("ImpactAnalysis Component", () => {
 
   describe("getSeverityColor Function", () => {
     it("should define getSeverityColor function with severity parameter", () => {
-      expect(sourceCode).toMatch(
-        /const getSeverityColor\s*=\s*\(severity:\s*string\)/
-      );
+      expect(sourceCode).toMatch(/const getSeverityColor\s*=\s*\(severity:\s*string\)/);
     });
 
     it("should return string type from getSeverityColor", () => {
@@ -71,9 +69,7 @@ describe("ImpactAnalysis Component", () => {
 
   describe("formatImpactCount Function", () => {
     it("should define formatImpactCount function with count parameter", () => {
-      expect(sourceCode).toMatch(
-        /const formatImpactCount\s*=\s*\(count:\s*number\)/
-      );
+      expect(sourceCode).toMatch(/const formatImpactCount\s*=\s*\(count:\s*number\)/);
     });
 
     it("should return string type from formatImpactCount", () => {
@@ -129,17 +125,13 @@ describe("ImpactAnalysis Component", () => {
 
   describe("Affected Manifests List", () => {
     it("should display affected manifests", () => {
-      expect(sourceCode).toMatch(
-        /affected.*manifest|manifest.*affected|affectedManifests/i
-      );
+      expect(sourceCode).toMatch(/affected.*manifest|manifest.*affected|affectedManifests/i);
     });
   });
 
   describe("Affected Artifacts List", () => {
     it("should display affected artifacts", () => {
-      expect(sourceCode).toMatch(
-        /affected.*artifact|artifact.*affected|affectedArtifacts/i
-      );
+      expect(sourceCode).toMatch(/affected.*artifact|artifact.*affected|affectedArtifacts/i);
     });
   });
 
@@ -149,9 +141,7 @@ describe("ImpactAnalysis Component", () => {
     });
 
     it("should display recommendations list or panel", () => {
-      expect(sourceCode).toMatch(
-        /recommendations.*map|Recommendations|recommendations-panel/i
-      );
+      expect(sourceCode).toMatch(/recommendations.*map|Recommendations|recommendations-panel/i);
     });
   });
 

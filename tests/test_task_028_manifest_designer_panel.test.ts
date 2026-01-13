@@ -31,7 +31,9 @@ describe("ManifestDesignerPanel", () => {
     });
 
     it("should have static viewType property with value maidManifestDesigner", () => {
-      expect(sourceCode).toMatch(/static\s+(readonly\s+)?viewType.*=.*["']maidManifestDesigner["']/);
+      expect(sourceCode).toMatch(
+        /static\s+(readonly\s+)?viewType.*=.*["']maidManifestDesigner["']/
+      );
     });
   });
 

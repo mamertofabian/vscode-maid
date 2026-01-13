@@ -2,13 +2,9 @@
   "goal": "Create the ImpactTree React component for displaying impact analysis results as an expandable tree visualization. The component renders impact levels with color coding, supports expand/collapse functionality, and handles click events to navigate to files.",
   "taskType": "create",
   "supersedes": [],
-  "creatableFiles": [
-    "webview-ui/src/components/ImpactAnalysis/ImpactTree.tsx"
-  ],
+  "creatableFiles": ["webview-ui/src/components/ImpactAnalysis/ImpactTree.tsx"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/types.ts"
-  ],
+  "readonlyFiles": ["src/types.ts"],
   "expectedArtifacts": {
     "file": "webview-ui/src/components/ImpactAnalysis/ImpactTree.tsx",
     "contains": [

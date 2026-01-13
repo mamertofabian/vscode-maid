@@ -45,7 +45,9 @@ describe("MetricsCard Component", () => {
     });
 
     it("should have optional trend property with union type", () => {
-      expect(sourceCode).toMatch(/trend\?:\s*["']up["']\s*\|\s*["']down["']\s*\|\s*["']neutral["']/);
+      expect(sourceCode).toMatch(
+        /trend\?:\s*["']up["']\s*\|\s*["']down["']\s*\|\s*["']neutral["']/
+      );
     });
 
     it("should have optional color property", () => {

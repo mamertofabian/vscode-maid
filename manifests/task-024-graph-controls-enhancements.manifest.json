@@ -3,12 +3,8 @@
   "taskType": "edit",
   "supersedes": [],
   "creatableFiles": [],
-  "editableFiles": [
-    "webview-ui/src/components/KnowledgeGraph/GraphControls.tsx"
-  ],
-  "readonlyFiles": [
-    "webview-ui/src/types.ts"
-  ],
+  "editableFiles": ["webview-ui/src/components/KnowledgeGraph/GraphControls.tsx"],
+  "readonlyFiles": ["webview-ui/src/types.ts"],
   "expectedArtifacts": {
     "file": "webview-ui/src/components/KnowledgeGraph/GraphControls.tsx",
     "contains": [

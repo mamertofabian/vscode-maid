@@ -140,11 +140,5 @@
       }
     ]
   },
-  "validationCommand": [
-    "pnpm",
-    "exec",
-    "vitest",
-    "run",
-    "tests/test_task_003_statusBar.test.ts"
-  ]
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_003_statusBar.test.ts"]
 }

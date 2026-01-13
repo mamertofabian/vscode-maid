@@ -173,7 +173,9 @@ export class HierarchicalViewPanel {
       const index = _sharedManifestIndex;
       if (index) {
         this._hierarchyData = index.getHierarchicalView();
-        log(`[HierarchicalViewPanel] Built hierarchy with ${this._hierarchyData.length} root nodes`);
+        log(
+          `[HierarchicalViewPanel] Built hierarchy with ${this._hierarchyData.length} root nodes`
+        );
       } else {
         this._hierarchyData = [];
         log("[HierarchicalViewPanel] ManifestIndex not available");
@@ -189,8 +191,13 @@ export class HierarchicalViewPanel {
    * Compute level data for visualization.
    * Returns computed metrics and information for each level.
    */
-  private _computeLevels(): { level: number; nodeCount: number; totalMetrics: HierarchicalNode["metrics"] }[] {
-    const levels: Map<number, { nodes: HierarchicalNode[]; metrics: HierarchicalNode["metrics"] }> = new Map();
+  private _computeLevels(): {
+    level: number;
+    nodeCount: number;
+    totalMetrics: HierarchicalNode["metrics"];
+  }[] {
+    const levels: Map<number, { nodes: HierarchicalNode[]; metrics: HierarchicalNode["metrics"] }> =
+      new Map();
 
     const _traverseNodes = (nodes: HierarchicalNode[]) => {
       for (const node of nodes) {

@@ -45,7 +45,9 @@ describe("ArtifactEditor Component", () => {
     });
 
     it("should export ArtifactEditor", () => {
-      expect(sourceCode).toMatch(/export\s+(default\s+)?ArtifactEditor|export\s*\{\s*ArtifactEditor/);
+      expect(sourceCode).toMatch(
+        /export\s+(default\s+)?ArtifactEditor|export\s*\{\s*ArtifactEditor/
+      );
     });
   });
 

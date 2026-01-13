@@ -2,13 +2,9 @@
   "goal": "Create the TreemapRenderer component using D3.js with Canvas rendering for performance. The component visualizes hierarchical data as a treemap with configurable size metrics (files, artifacts, errors, manifests), custom color scales, and click interaction for node selection.",
   "taskType": "create",
   "supersedes": [],
-  "creatableFiles": [
-    "webview-ui/src/components/HierarchicalView/TreemapRenderer.tsx"
-  ],
+  "creatableFiles": ["webview-ui/src/components/HierarchicalView/TreemapRenderer.tsx"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/types.ts"
-  ],
+  "readonlyFiles": ["src/types.ts"],
   "expectedArtifacts": {
     "file": "webview-ui/src/components/HierarchicalView/TreemapRenderer.tsx",
     "contains": [

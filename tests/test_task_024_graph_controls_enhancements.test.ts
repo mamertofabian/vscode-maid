@@ -56,15 +56,11 @@ describe("GraphControls Component Enhancements", () => {
     });
 
     it("should include onLayoutChange optional callback prop in interface", () => {
-      expect(sourceCode).toMatch(
-        /onLayoutChange\?:\s*\(layoutType:\s*string\)\s*=>\s*void/
-      );
+      expect(sourceCode).toMatch(/onLayoutChange\?:\s*\(layoutType:\s*string\)\s*=>\s*void/);
     });
 
     it("should include onExport optional callback prop in interface", () => {
-      expect(sourceCode).toMatch(
-        /onExport\?:\s*\(format:\s*string\)\s*=>\s*void/
-      );
+      expect(sourceCode).toMatch(/onExport\?:\s*\(format:\s*string\)\s*=>\s*void/);
     });
   });
 
@@ -87,9 +83,7 @@ describe("GraphControls Component Enhancements", () => {
 
   describe("handleExportClick function", () => {
     it("should define handleExportClick function", () => {
-      expect(sourceCode).toMatch(
-        /const handleExportClick\s*=\s*\(format:\s*string\)/
-      );
+      expect(sourceCode).toMatch(/const handleExportClick\s*=\s*\(format:\s*string\)/);
     });
 
     it("should call onExport with the format", () => {
@@ -108,9 +102,7 @@ describe("GraphControls Component Enhancements", () => {
     });
 
     it("should bind value to currentLayout with force-directed as default", () => {
-      expect(sourceCode).toMatch(
-        /value=\{currentLayout\s*\|\|\s*["']force-directed["']\}/
-      );
+      expect(sourceCode).toMatch(/value=\{currentLayout\s*\|\|\s*["']force-directed["']\}/);
     });
 
     it("should bind onChange to handleLayoutSelect", () => {
@@ -130,9 +122,7 @@ describe("GraphControls Component Enhancements", () => {
     });
 
     it("should have Circular layout option", () => {
-      expect(sourceCode).toMatch(
-        /<option\s+value=["']circular["'][^>]*>.*Circular.*<\/option>/s
-      );
+      expect(sourceCode).toMatch(/<option\s+value=["']circular["'][^>]*>.*Circular.*<\/option>/s);
     });
   });
 
@@ -150,15 +140,11 @@ describe("GraphControls Component Enhancements", () => {
     });
 
     it("should call handleExportClick with json on JSON button click", () => {
-      expect(sourceCode).toMatch(
-        /onClick=\{\(\)\s*=>\s*handleExportClick\(["']json["']\)\}/
-      );
+      expect(sourceCode).toMatch(/onClick=\{\(\)\s*=>\s*handleExportClick\(["']json["']\)\}/);
     });
 
     it("should call handleExportClick with dot on DOT button click", () => {
-      expect(sourceCode).toMatch(
-        /onClick=\{\(\)\s*=>\s*handleExportClick\(["']dot["']\)\}/
-      );
+      expect(sourceCode).toMatch(/onClick=\{\(\)\s*=>\s*handleExportClick\(["']dot["']\)\}/);
     });
   });
 

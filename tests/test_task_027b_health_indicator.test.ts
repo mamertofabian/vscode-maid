@@ -75,9 +75,7 @@ describe("HealthIndicator Component", () => {
     });
 
     it("should return yellow/warning color for scores 50-80", () => {
-      expect(sourceCode).toMatch(
-        /score\s*>=?\s*50.*yellow|warning|var\(--warning\)/
-      );
+      expect(sourceCode).toMatch(/score\s*>=?\s*50.*yellow|warning|var\(--warning\)/);
     });
 
     it("should return red/error color for scores below 50", () => {

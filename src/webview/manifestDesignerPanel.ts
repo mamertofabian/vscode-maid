@@ -411,10 +411,7 @@ export class ManifestDesignerPanel {
       return [];
     }
 
-    const manifests = await vscode.workspace.findFiles(
-      "**/*.manifest.json",
-      "**/node_modules/**"
-    );
+    const manifests = await vscode.workspace.findFiles("**/*.manifest.json", "**/node_modules/**");
 
     return manifests
       .map((f) => vscode.workspace.asRelativePath(f))

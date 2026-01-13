@@ -66,9 +66,7 @@ describe("HierarchicalView Component", () => {
 
   describe("getViewModeOptions Function", () => {
     it("should define getViewModeOptions function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+getViewModeOptions|const\s+getViewModeOptions\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+getViewModeOptions|const\s+getViewModeOptions\s*=/);
     });
 
     it("should export getViewModeOptions", () => {
@@ -96,9 +94,7 @@ describe("HierarchicalView Component", () => {
 
   describe("filterNodesByLevel Function", () => {
     it("should define filterNodesByLevel function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+filterNodesByLevel|const\s+filterNodesByLevel\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+filterNodesByLevel|const\s+filterNodesByLevel\s*=/);
     });
 
     it("should export filterNodesByLevel", () => {
@@ -126,9 +122,7 @@ describe("HierarchicalView Component", () => {
 
   describe("ViewModeOption Type/Interface", () => {
     it("should define ViewModeOption type or interface", () => {
-      expect(sourceCode).toMatch(
-        /interface\s+ViewModeOption\s*\{|type\s+ViewModeOption\s*=/
-      );
+      expect(sourceCode).toMatch(/interface\s+ViewModeOption\s*\{|type\s+ViewModeOption\s*=/);
     });
 
     it("should have value property in ViewModeOption", () => {
@@ -168,9 +162,7 @@ describe("HierarchicalView Component", () => {
     });
 
     it("should track current navigation state", () => {
-      expect(sourceCode).toMatch(
-        /currentNode|selectedNode|focusedNode|currentLevel|breadcrumb/i
-      );
+      expect(sourceCode).toMatch(/currentNode|selectedNode|focusedNode|currentLevel|breadcrumb/i);
     });
 
     it("should have navigation state management", () => {
@@ -200,9 +192,7 @@ describe("HierarchicalView Component", () => {
 
   describe("Type Imports", () => {
     it("should import HierarchicalNode from types", () => {
-      expect(sourceCode).toMatch(
-        /import.*HierarchicalNode|from\s+["'][^"']*types["']/
-      );
+      expect(sourceCode).toMatch(/import.*HierarchicalNode|from\s+["'][^"']*types["']/);
     });
   });
 

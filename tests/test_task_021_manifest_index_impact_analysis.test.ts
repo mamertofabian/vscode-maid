@@ -13,11 +13,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import "./vscode-mock";
 import * as vscode from "vscode";
 import { ManifestIndex } from "../src/manifestIndex";
-import type {
-  DependencyImpact,
-  HierarchicalNode,
-  SystemMetrics,
-} from "../src/types";
+import type { DependencyImpact, HierarchicalNode, SystemMetrics } from "../src/types";
 
 const mockContext = {
   subscriptions: [],
@@ -103,9 +99,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
         },
       });
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => mockManifestContent),
@@ -205,9 +199,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
         },
       });
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => mockManifestContent),
@@ -260,10 +252,9 @@ describe("ManifestIndex Impact Analysis Methods", () => {
         },
       });
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifest1Path },
-        { fsPath: manifest2Path },
-      ]);
+      (vscode.workspace.findFiles as any) = vi
+        .fn()
+        .mockResolvedValue([{ fsPath: manifest1Path }, { fsPath: manifest2Path }]);
 
       let callCount = 0;
       (vscode.workspace.openTextDocument as any) = vi.fn().mockImplementation((path: string) => {
@@ -295,9 +286,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should return nodes with required properties", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Test hierarchy" })),
@@ -322,9 +311,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should have nodes with metrics containing manifestCount, fileCount, artifactCount, errorCount", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Test metrics" })),
@@ -350,9 +337,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should have level property as number starting from 0 for root nodes", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Test levels" })),
@@ -407,9 +392,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should have module names (directory paths) as keys", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Test module" })),
@@ -428,9 +411,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should have arrays of manifest paths as values", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Test values" })),
@@ -454,11 +435,9 @@ describe("ManifestIndex Impact Analysis Methods", () => {
       const manifest2 = "/workspace/manifests/module-a/task-002.manifest.json";
       const manifest3 = "/workspace/manifests/module-b/task-003.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifest1 },
-        { fsPath: manifest2 },
-        { fsPath: manifest3 },
-      ]);
+      (vscode.workspace.findFiles as any) = vi
+        .fn()
+        .mockResolvedValue([{ fsPath: manifest1 }, { fsPath: manifest2 }, { fsPath: manifest3 }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockImplementation((path: string) => {
         return Promise.resolve({
@@ -512,9 +491,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("should return validManifests as number less than or equal to totalManifests", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Valid manifest" })),
@@ -569,11 +546,9 @@ describe("ManifestIndex Impact Analysis Methods", () => {
       const manifest2 = "/workspace/manifests/task-002.manifest.json";
       const manifest3 = "/workspace/manifests/task-003.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifest1 },
-        { fsPath: manifest2 },
-        { fsPath: manifest3 },
-      ]);
+      (vscode.workspace.findFiles as any) = vi
+        .fn()
+        .mockResolvedValue([{ fsPath: manifest1 }, { fsPath: manifest2 }, { fsPath: manifest3 }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockImplementation((path: string) => {
         return Promise.resolve({
@@ -623,9 +598,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
         },
       });
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => mockManifestContent),
@@ -645,9 +618,7 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     it("getHierarchicalView should be consistent with getModuleHierarchy", async () => {
       const manifestPath = "/workspace/manifests/task-001.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifestPath },
-      ]);
+      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([{ fsPath: manifestPath }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockResolvedValue({
         getText: vi.fn(() => createMockManifest({ goal: "Consistency test" })),
@@ -668,10 +639,9 @@ describe("ManifestIndex Impact Analysis Methods", () => {
       const manifest1 = "/workspace/manifests/task-001.manifest.json";
       const manifest2 = "/workspace/manifests/task-002.manifest.json";
 
-      (vscode.workspace.findFiles as any) = vi.fn().mockResolvedValue([
-        { fsPath: manifest1 },
-        { fsPath: manifest2 },
-      ]);
+      (vscode.workspace.findFiles as any) = vi
+        .fn()
+        .mockResolvedValue([{ fsPath: manifest1 }, { fsPath: manifest2 }]);
 
       (vscode.workspace.openTextDocument as any) = vi.fn().mockImplementation((path: string) => {
         return Promise.resolve({

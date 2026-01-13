@@ -2,14 +2,9 @@
   "goal": "Create the ImpactAnalysis React component for displaying dependency impact analysis results. The component displays the target file being analyzed, shows loading state, error state, impact severity indicator, affected files list, affected manifests list, affected artifacts list, and a recommendations panel.",
   "taskType": "create",
   "supersedes": [],
-  "creatableFiles": [
-    "webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx"
-  ],
+  "creatableFiles": ["webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/types.ts",
-    "webview-ui/src/types.ts"
-  ],
+  "readonlyFiles": ["src/types.ts", "webview-ui/src/types.ts"],
   "expectedArtifacts": {
     "file": "webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx",
     "contains": [

@@ -312,11 +312,5 @@
       }
     ]
   },
-  "validationCommand": [
-    "pnpm",
-    "exec",
-    "vitest",
-    "run",
-    "tests/test_task_018_extension.test.ts"
-  ]
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_018_extension.test.ts"]
 }

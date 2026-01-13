@@ -4,11 +4,7 @@
   "supersedes": [],
   "creatableFiles": ["src/webview/manifestDesignerPanel.ts"],
   "editableFiles": [],
-  "readonlyFiles": [
-    "src/webview/messages.ts",
-    "src/webview/dashboardPanel.ts",
-    "src/types.ts"
-  ],
+  "readonlyFiles": ["src/webview/messages.ts", "src/webview/dashboardPanel.ts", "src/types.ts"],
   "expectedArtifacts": {
     "file": "src/webview/manifestDesignerPanel.ts",
     "contains": [

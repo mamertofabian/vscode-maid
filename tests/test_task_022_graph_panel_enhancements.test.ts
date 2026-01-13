@@ -83,7 +83,10 @@ describe("KnowledgeGraphPanel Enhancements", () => {
       // Check that a loading message was posted
       const calls = postMessage.mock.calls;
       const hasLoadingMessage = calls.some(
-        (call: any[]) => call[0]?.type === "loading" || call[0]?.type === "hierarchicalData" || call[0]?.type === "error"
+        (call: any[]) =>
+          call[0]?.type === "loading" ||
+          call[0]?.type === "hierarchicalData" ||
+          call[0]?.type === "error"
       );
       expect(hasLoadingMessage).toBe(true);
     });
@@ -140,9 +143,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
           { id: "2", type: "file", attributes: {} },
           { id: "3", type: "artifact", attributes: {} },
         ],
-        edges: [
-          { source: "1", target: "2", relation: "declares" },
-        ],
+        edges: [{ source: "1", target: "2", relation: "declares" }],
       };
 
       const method = getPrivateMethod<() => void>(panel, "_computeMetrics");
@@ -394,9 +395,7 @@ describe("KnowledgeGraphPanel Enhancements", () => {
           { id: "1", type: "manifest", attributes: {}, path: "test.manifest.json" },
           { id: "2", type: "file", attributes: {}, path: "src/test.ts" },
         ],
-        edges: [
-          { source: "1", target: "2", relation: "declares" },
-        ],
+        edges: [{ source: "1", target: "2", relation: "declares" }],
       };
 
       const method = getPrivateMethod<(format: string, filename: string | null) => Promise<void>>(
@@ -416,7 +415,10 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     });
 
     it("should handle changeLayout message type", async () => {
-      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(panel, "_handleMessage");
+      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(
+        panel,
+        "_handleMessage"
+      );
       const message = {
         type: "changeLayout",
         payload: {
@@ -430,7 +432,10 @@ describe("KnowledgeGraphPanel Enhancements", () => {
     });
 
     it("should handle exportGraph message type", async () => {
-      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(panel, "_handleMessage");
+      const handleMessage = getPrivateMethod<(message: any) => Promise<void>>(
+        panel,
+        "_handleMessage"
+      );
       const message = {
         type: "exportGraph",
         payload: {

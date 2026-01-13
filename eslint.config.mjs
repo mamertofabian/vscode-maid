@@ -4,11 +4,25 @@ import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 
 export default tseslint.config(
+  {
+    // Global ignores - must be first
+    ignores: [
+      "out/**",
+      "node_modules/**",
+      "webview-ui/**",
+      "*.vsix",
+      ".vscode-test/**",
+      "esbuild.js", // JavaScript build file - no TypeScript linting
+      "eslint.config.mjs", // ESLint config itself
+    ],
+  },
+  // Base ESLint and Prettier configs
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
   prettierConfig,
+  // Apply TypeScript type-checking to source files
   {
     files: ["src/**/*.ts", "src/**/*.tsx"],
+    extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.json",
@@ -22,16 +36,16 @@ export default tseslint.config(
       "prettier/prettier": "error",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unsafe-assignment": "warn",
-      "@typescript-eslint/no-unsafe-member-access": "warn",
-      "@typescript-eslint/no-unsafe-argument": "warn",
-      "@typescript-eslint/no-unsafe-call": "warn",
-      "@typescript-eslint/no-unsafe-enum-comparison": "warn",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unsafe-assignment": "error",
+      "@typescript-eslint/no-unsafe-member-access": "error",
+      "@typescript-eslint/no-unsafe-argument": "error",
+      "@typescript-eslint/no-unsafe-call": "error",
+      "@typescript-eslint/no-unsafe-enum-comparison": "error",
       "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-floating-promises": "warn",
-      "@typescript-eslint/require-await": "warn",
-      "@typescript-eslint/restrict-template-expressions": "warn",
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/require-await": "error",
+      "@typescript-eslint/restrict-template-expressions": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -41,8 +55,10 @@ export default tseslint.config(
       ],
     },
   },
+  // Apply TypeScript type-checking to test files
   {
-    files: ["tests/**/*.ts"],
+    files: ["tests/**/*.ts", "tests/**/*.tsx"],
+    extends: [...tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.test.json",
@@ -56,16 +72,16 @@ export default tseslint.config(
       "prettier/prettier": "error",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unsafe-assignment": "warn",
-      "@typescript-eslint/no-unsafe-member-access": "warn",
-      "@typescript-eslint/no-unsafe-argument": "warn",
-      "@typescript-eslint/no-unsafe-call": "warn",
-      "@typescript-eslint/no-unsafe-enum-comparison": "warn",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unsafe-assignment": "error",
+      "@typescript-eslint/no-unsafe-member-access": "error",
+      "@typescript-eslint/no-unsafe-argument": "error",
+      "@typescript-eslint/no-unsafe-call": "error",
+      "@typescript-eslint/no-unsafe-enum-comparison": "error",
       "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-floating-promises": "warn",
-      "@typescript-eslint/require-await": "warn",
-      "@typescript-eslint/restrict-template-expressions": "warn",
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/require-await": "error",
+      "@typescript-eslint/restrict-template-expressions": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -76,6 +92,13 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["out/**", "node_modules/**", "webview-ui/**", "*.vsix", ".vscode-test/**", "*.js", "*.mjs"],
+    // Config files - basic linting only, no type-checking
+    files: ["*.config.ts", "*.config.mjs"],
+    plugins: {
+      prettier,
+    },
+    rules: {
+      "prettier/prettier": "error",
+    },
   }
 );

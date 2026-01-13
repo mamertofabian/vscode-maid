@@ -202,11 +202,5 @@
       }
     ]
   },
-  "validationCommand": [
-    "pnpm",
-    "exec",
-    "vitest",
-    "run",
-    "tests/test_task_005_gitHistory.test.ts"
-  ]
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_005_gitHistory.test.ts"]
 }

@@ -79,9 +79,7 @@ describe("TreemapRenderer Component", () => {
 
   describe("buildTreemapData Function", () => {
     it("should define buildTreemapData function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+buildTreemapData|const\s+buildTreemapData\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+buildTreemapData|const\s+buildTreemapData\s*=/);
     });
 
     it("should export buildTreemapData", () => {
@@ -101,9 +99,7 @@ describe("TreemapRenderer Component", () => {
 
   describe("getNodeColor Function", () => {
     it("should define getNodeColor function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+getNodeColor|const\s+getNodeColor\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+getNodeColor|const\s+getNodeColor\s*=/);
     });
 
     it("should export getNodeColor", () => {
@@ -127,9 +123,7 @@ describe("TreemapRenderer Component", () => {
 
   describe("calculateNodeSize Function", () => {
     it("should define calculateNodeSize function", () => {
-      expect(sourceCode).toMatch(
-        /function\s+calculateNodeSize|const\s+calculateNodeSize\s*=/
-      );
+      expect(sourceCode).toMatch(/function\s+calculateNodeSize|const\s+calculateNodeSize\s*=/);
     });
 
     it("should export calculateNodeSize", () => {
@@ -205,9 +199,7 @@ describe("TreemapRenderer Component", () => {
 
   describe("Color Scales", () => {
     it("should use D3 color scale", () => {
-      expect(sourceCode).toMatch(
-        /scaleOrdinal|scaleSequential|scaleLinear|interpolate|d3\.scale/
-      );
+      expect(sourceCode).toMatch(/scaleOrdinal|scaleSequential|scaleLinear|interpolate|d3\.scale/);
     });
 
     it("should apply colors based on node properties", () => {
@@ -255,9 +247,7 @@ describe("TreemapRenderer Component", () => {
 
   describe("Type Imports", () => {
     it("should import HierarchicalNode from types", () => {
-      expect(sourceCode).toMatch(
-        /import.*HierarchicalNode|from\s+["'][^"']*types["']/
-      );
+      expect(sourceCode).toMatch(/import.*HierarchicalNode|from\s+["'][^"']*types["']/);
     });
   });
 
