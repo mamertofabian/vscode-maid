@@ -221,6 +221,12 @@
         "icon": "$(search)"
       },
       {
+        "command": "vscode-maid.analyzeFileImpact",
+        "title": "Analyze Impact for File",
+        "category": "MAID",
+        "icon": "$(graph-scatter)"
+      },
+      {
         "command": "vscode-maid.validateCoherence",
         "title": "Validate Coherence",
         "category": "MAID",
@@ -439,6 +445,18 @@
         },
         {
           "command": "vscode-maid.findManifestsForFile"
+        },
+        {
+          "command": "vscode-maid.showImpactAnalysis",
+          "when": "false"
+        },
+        {
+          "command": "vscode-maid.showHierarchicalView",
+          "when": "false"
+        },
+        {
+          "command": "vscode-maid.analyzeFileImpact",
+          "when": "false"
         }
       ]
     },

@@ -105,6 +105,13 @@ export class ImpactAnalysisPanel {
   }
 
   /**
+   * Public method to trigger file analysis from external commands.
+   */
+  public analyzeFile(filePath: string): void {
+    this._analyzeFile(filePath);
+  }
+
+  /**
    * Post a message to the webview.
    */
   private _postMessage(message: ExtensionToWebviewMessage): void {
@@ -130,7 +137,7 @@ export class ImpactAnalysisPanel {
 
       case "analyzeImpact":
         log(`[ImpactAnalysisPanel] Analyzing impact for: ${message.payload.filePath}`);
-        this._analyzeFile(message.payload.filePath);
+        await this._handleAnalyzeRequest(message.payload.filePath);
         break;
 
       case "openFile":
@@ -160,6 +167,55 @@ export class ImpactAnalysisPanel {
       type: "impactData",
       payload: data,
     });
+  }
+
+  /**
+   * Handle an analyze request - either use the provided path, current editor, or prompt for selection.
+   */
+  private async _handleAnalyzeRequest(filePath: string): Promise<void> {
+    let targetPath = filePath;
+
+    // If no file path provided, try to get from current editor
+    if (!targetPath) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor) {
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (workspaceRoot) {
+          const path = await import("path");
+          targetPath = path.relative(workspaceRoot, activeEditor.document.uri.fsPath);
+        } else {
+          targetPath = activeEditor.document.uri.fsPath;
+        }
+      }
+    }
+
+    // If still no file, prompt user to select one
+    if (!targetPath) {
+      const files = await vscode.window.showOpenDialog({
+        canSelectFiles: true,
+        canSelectFolders: false,
+        canSelectMany: false,
+        title: "Select a file to analyze",
+        openLabel: "Analyze Impact",
+      });
+
+      if (files && files.length > 0) {
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (workspaceRoot) {
+          const path = await import("path");
+          targetPath = path.relative(workspaceRoot, files[0].fsPath);
+        } else {
+          targetPath = files[0].fsPath;
+        }
+      }
+    }
+
+    // Now analyze if we have a target
+    if (targetPath) {
+      this._analyzeFile(targetPath);
+    } else {
+      log("[ImpactAnalysisPanel] No file selected for analysis");
+    }
   }
 
   /**

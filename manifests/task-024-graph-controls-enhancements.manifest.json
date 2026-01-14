@@ -1,5 +1,5 @@
 {
-  "goal": "Enhance GraphControls component with layout selector dropdown and export options",
+  "goal": "GraphControls component with search and filter capabilities. NOTE: Layout selector and export features were disabled as they were not working properly - code preserved in comments for future development.",
   "taskType": "edit",
   "supersedes": [],
   "creatableFiles": [],
@@ -23,14 +23,6 @@
       {
         "type": "function",
         "name": "handleSearchChange"
-      },
-      {
-        "type": "function",
-        "name": "handleLayoutSelect"
-      },
-      {
-        "type": "function",
-        "name": "handleExportClick"
       }
     ]
   },

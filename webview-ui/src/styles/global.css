@@ -164,3 +164,559 @@ input[type="checkbox"] {
 .text-muted {
   color: var(--foreground-secondary);
 }
+
+/* ===== Impact Analysis Styles ===== */
+.impact-analysis {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+}
+
+.impact-analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.impact-analysis-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.impact-analysis--loading,
+.impact-analysis--error,
+.impact-analysis--empty {
+  justify-content: flex-start;
+}
+
+.impact-analysis-error,
+.impact-analysis-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--foreground-secondary);
+}
+
+.impact-analysis-error .error-message {
+  color: var(--error);
+}
+
+.impact-analysis-target {
+  margin-bottom: var(--spacing-lg);
+}
+
+.impact-analysis-target h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.target-file-path {
+  font-family: monospace;
+  font-size: 0.875rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+}
+
+.impact-analysis-severity {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border-radius: var(--radius-md);
+}
+
+.impact-analysis-severity h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.severity-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.total-impact {
+  margin-top: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--foreground-secondary);
+}
+
+.impact-analysis-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.impact-analysis-section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground-secondary);
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.affected-files-list,
+.affected-manifests-list,
+.affected-artifacts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.affected-file-item,
+.affected-manifest-item,
+.affected-artifact-item {
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.affected-file-item:last-child,
+.affected-manifest-item:last-child,
+.affected-artifact-item:last-child {
+  border-bottom: none;
+}
+
+.file-link,
+.manifest-link {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--link);
+  font-family: monospace;
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.file-link:hover,
+.manifest-link:hover {
+  background: var(--background-tertiary);
+  color: var(--link-hover);
+}
+
+.artifact-name {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: var(--node-artifact);
+}
+
+.no-items {
+  color: var(--foreground-muted);
+  font-style: italic;
+  font-size: 0.875rem;
+  padding: var(--spacing-sm) 0;
+}
+
+/* Button styles for impact analysis */
+.impact-analysis .btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.impact-analysis .btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+}
+
+.impact-analysis .btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.impact-analysis .btn-secondary {
+  background: var(--background-tertiary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.impact-analysis .btn-secondary:hover {
+  background: var(--background-secondary);
+}
+
+/* ===== Hierarchical View Styles ===== */
+.hierarchical-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--spacing-lg);
+  overflow: hidden;
+}
+
+.hierarchical-view--loading,
+.hierarchical-view--error {
+  justify-content: flex-start;
+}
+
+.hierarchical-view-loading,
+.hierarchical-view-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.hierarchical-view-error .error-message {
+  color: var(--error);
+}
+
+.hierarchical-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.hierarchical-view-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.hierarchical-view-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.view-mode-selector,
+.level-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.view-mode-selector label,
+.level-filter label {
+  font-size: 0.8125rem;
+  color: var(--foreground-secondary);
+}
+
+.view-mode-selector select,
+.level-filter input {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.8125rem;
+}
+
+.level-filter input[type="number"] {
+  width: 60px;
+}
+
+.hierarchical-view-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.breadcrumb-root,
+.breadcrumb-link {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--link);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.breadcrumb-root:hover,
+.breadcrumb-link:hover {
+  background: var(--background-tertiary);
+  color: var(--link-hover);
+}
+
+.breadcrumb-separator {
+  color: var(--foreground-muted);
+  font-size: 0.75rem;
+}
+
+.drill-up-btn {
+  margin-left: auto;
+  background: var(--background-tertiary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+}
+
+.drill-up-btn:hover {
+  background: var(--background-secondary);
+}
+
+.hierarchical-view-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.hierarchical-view-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--foreground-secondary);
+}
+
+.hierarchical-view-footer {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.node-count {
+  font-size: 0.8125rem;
+  color: var(--foreground-secondary);
+}
+
+/* Nested Tree View */
+.hierarchical-view-nested {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hierarchical-view-node {
+  margin: 0;
+}
+
+.hierarchical-view-node .node-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+}
+
+.hierarchical-view-node .node-content:hover {
+  background: var(--background-secondary);
+}
+
+.hierarchical-view-node .node-name {
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.hierarchical-view-node .node-type {
+  font-size: 0.75rem;
+  color: var(--foreground-muted);
+  padding: 2px 6px;
+  background: var(--background-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.hierarchical-view-metrics {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-left: auto;
+  font-size: 0.75rem;
+}
+
+.hierarchical-view-metrics .metric {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.hierarchical-view-metrics .metric-label {
+  color: var(--foreground-muted);
+}
+
+.hierarchical-view-metrics .metric-value {
+  color: var(--foreground-secondary);
+  font-weight: 500;
+}
+
+.hierarchical-view-metrics .error-count {
+  color: var(--error);
+}
+
+.drill-down-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.6875rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.drill-down-btn:hover {
+  background: var(--primary-hover);
+}
+
+.node-children {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 1px solid var(--border-secondary);
+  margin-left: var(--spacing-lg);
+}
+
+/* Treemap View */
+.hierarchical-view-treemap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+}
+
+.treemap-node {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.treemap-node:hover {
+  border-color: var(--primary);
+  background: var(--background-tertiary);
+}
+
+.treemap-node .node-name {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+}
+
+.treemap-node .hierarchical-view-metrics {
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-left: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.treemap-node .drill-down-btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* Sunburst View */
+.hierarchical-view-sunburst {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg);
+}
+
+.sunburst-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--background-secondary);
+  border: 2px solid var(--border);
+  margin-bottom: var(--spacing-lg);
+}
+
+.sunburst-center .current-node-info {
+  text-align: center;
+  padding: var(--spacing-sm);
+}
+
+.sunburst-center .node-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.root-label {
+  color: var(--foreground-secondary);
+  font-weight: 500;
+}
+
+.sunburst-ring {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  max-width: 600px;
+}
+
+.sunburst-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 120px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sunburst-segment:hover {
+  border-color: var(--primary);
+  background: var(--background-tertiary);
+}
+
+.sunburst-segment .node-name {
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  text-align: center;
+}
+
+.sunburst-segment .hierarchical-view-metrics {
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-size: 0.6875rem;
+}
+
+.sunburst-segment .drill-down-btn {
+  margin-top: var(--spacing-sm);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+}

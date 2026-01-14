@@ -73,6 +73,10 @@ describe("ImpactAnalysisPanel", () => {
       expect(sourceCode).toMatch(/dispose\s*\(\s*\)/);
     });
 
+    it("should have public analyzeFile method", () => {
+      expect(sourceCode).toMatch(/public\s+analyzeFile\s*\(\s*filePath\s*:\s*string\s*\)/);
+    });
+
     it("should have _postMessage method", () => {
       expect(sourceCode).toMatch(/_postMessage\s*\(/);
     });

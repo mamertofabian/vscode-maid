@@ -40,6 +40,10 @@
           {
             "name": "level",
             "type": "number"
+          },
+          {
+            "name": "sourcePath",
+            "type": "string"
           }
         ]
       },
@@ -54,6 +58,10 @@
           {
             "name": "level",
             "type": "number"
+          },
+          {
+            "name": "targetPath",
+            "type": "string"
           }
         ]
       },
@@ -205,6 +213,12 @@
         "class": "ManifestChainPanel",
         "description": "Mark conflicting manifests in the chain",
         "returns": "void"
+      },
+      {
+        "type": "function",
+        "name": "_autoSelectFirstManifest",
+        "class": "ManifestChainPanel",
+        "description": "Auto-select the first manifest from the index when none is provided"
       }
     ]
   },

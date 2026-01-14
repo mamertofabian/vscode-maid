@@ -442,4 +442,49 @@ describe("ManifestChainPanel Enhancements", () => {
       expect((panel as unknown as { _chainData: unknown })._chainData || true).toBeTruthy();
     });
   });
+
+  describe("Auto-select manifest when none provided", () => {
+    it("should have _autoSelectFirstManifest method", () => {
+      const method = getPrivateMethod<() => void>(panel, "_autoSelectFirstManifest");
+      expect(method).toBeDefined();
+      expect(typeof method).toBe("function");
+    });
+
+    it("should select first manifest from index when available", () => {
+      // Set up mock to return some manifests
+      const mockIndex = createMockManifestIndex();
+      (mockIndex.getAllManifests as ReturnType<typeof vi.fn>).mockReturnValue([
+        "/workspace/manifests/task-001.manifest.json",
+        "/workspace/manifests/task-002.manifest.json",
+      ]);
+
+      // Reset panel and create with mock index
+      if (ManifestChainPanel.currentPanel) {
+        ManifestChainPanel.currentPanel.dispose();
+      }
+      const newPanel = ManifestChainPanel.createOrShow(mockUri, undefined, mockIndex);
+
+      // Call _autoSelectFirstManifest
+      const method = getPrivateMethod<() => void>(newPanel, "_autoSelectFirstManifest");
+      method.call(newPanel);
+
+      // Check that _currentManifestPath was set
+      const currentPath = (newPanel as unknown as { _currentManifestPath: string | undefined })
+        ._currentManifestPath;
+      expect(currentPath).toBe("/workspace/manifests/task-001.manifest.json");
+    });
+
+    it("should not throw when no manifests available", () => {
+      const mockIndex = createMockManifestIndex();
+      (mockIndex.getAllManifests as ReturnType<typeof vi.fn>).mockReturnValue([]);
+
+      if (ManifestChainPanel.currentPanel) {
+        ManifestChainPanel.currentPanel.dispose();
+      }
+      const newPanel = ManifestChainPanel.createOrShow(mockUri, undefined, mockIndex);
+
+      const method = getPrivateMethod<() => void>(newPanel, "_autoSelectFirstManifest");
+      expect(() => method.call(newPanel)).not.toThrow();
+    });
+  });
 });

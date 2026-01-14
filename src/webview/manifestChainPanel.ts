@@ -164,6 +164,34 @@ export class ManifestChainPanel {
   }
 
   /**
+   * Auto-select the first manifest from the index when no manifest is provided.
+   * This allows the panel to open from Command Palette without requiring a manifest to be open.
+   */
+  private _autoSelectFirstManifest(): void {
+    if (this._currentManifestPath) {
+      return; // Already have a manifest selected
+    }
+
+    if (!this._manifestIndex) {
+      log("[ManifestChainPanel] Cannot auto-select: no manifest index available");
+      return;
+    }
+
+    const allManifests = this._manifestIndex.getAllManifests();
+    if (allManifests.length > 0) {
+      this._currentManifestPath = allManifests[0];
+      log(`[ManifestChainPanel] Auto-selected first manifest: ${allManifests[0]}`);
+      void this._loadAndSendChainData();
+    } else {
+      log("[ManifestChainPanel] No manifests available to auto-select");
+      this._postMessage({
+        type: "error",
+        payload: { message: "No manifests found in workspace. Create a manifest first." },
+      });
+    }
+  }
+
+  /**
    * Post a message to the webview.
    */
   private _postMessage(message: ExtensionToWebviewMessage): void {
@@ -177,7 +205,12 @@ export class ManifestChainPanel {
     switch (message.type) {
       case "ready":
         log("[ManifestChainPanel] Webview ready, loading data...");
-        this._loadAndSendChainData();
+        // If no manifest is set, try to auto-select one
+        if (!this._currentManifestPath) {
+          this._autoSelectFirstManifest();
+        } else {
+          this._loadAndSendChainData();
+        }
         break;
 
       case "refresh":
@@ -260,67 +293,77 @@ export class ManifestChainPanel {
       });
 
       // Parent manifests (level -1, -2, etc.)
-      const addParents = (parentPaths: string[], level: number): void => {
+      // targetPath is the manifest that the parent supersedes
+      const addParents = (parentPaths: string[], level: number, targetPath: string): void => {
         for (const parentPath of parentPaths) {
           const parentEntry = this._manifestIndex!.getManifestEntry(parentPath);
           const parentLabel = path.basename(parentPath, ".manifest.json");
-          nodes.push({
-            id: parentPath,
-            label: parentLabel,
-            path: parentPath,
-            goal: parentEntry?.goal,
-            level: level,
-          });
 
-          // Add edge from parent to current
+          // Avoid duplicate nodes
+          if (!nodes.find((n) => n.id === parentPath)) {
+            nodes.push({
+              id: parentPath,
+              label: parentLabel,
+              path: parentPath,
+              goal: parentEntry?.goal,
+              level: level,
+            });
+          }
+
+          // Add edge from parent to target (the manifest it supersedes)
           edges.push({
             from: parentPath,
-            to: currentManifestPath,
+            to: targetPath,
             arrows: "to",
             label: "supersedes",
           });
 
-          // Recursively add grandparents
+          // Recursively add grandparents, pointing to this parent
           if (parentEntry && parentEntry.supersededBy.length > 0) {
-            addParents(parentEntry.supersededBy, level - 1);
+            addParents(parentEntry.supersededBy, level - 1, parentPath);
           }
         }
       };
 
       // Child manifests (level 1, 2, etc.)
-      const addChildren = (childPaths: string[], level: number): void => {
+      // sourcePath is the manifest that supersedes the child
+      const addChildren = (childPaths: string[], level: number, sourcePath: string): void => {
         for (const childPath of childPaths) {
           const childEntry = this._manifestIndex!.getManifestEntry(childPath);
           const childLabel = path.basename(childPath, ".manifest.json");
-          nodes.push({
-            id: childPath,
-            label: childLabel,
-            path: childPath,
-            goal: childEntry?.goal,
-            level: level,
-          });
 
-          // Add edge from current to child
+          // Avoid duplicate nodes
+          if (!nodes.find((n) => n.id === childPath)) {
+            nodes.push({
+              id: childPath,
+              label: childLabel,
+              path: childPath,
+              goal: childEntry?.goal,
+              level: level,
+            });
+          }
+
+          // Add edge from source to child (source supersedes child)
           edges.push({
-            from: currentManifestPath,
+            from: sourcePath,
             to: childPath,
             arrows: "to",
             label: "supersedes",
           });
 
-          // Recursively add grandchildren
+          // Recursively add grandchildren, with this child as the source
           if (childEntry && childEntry.supersedes.length > 0) {
-            addChildren(childEntry.supersedes, level + 1);
+            addChildren(childEntry.supersedes, level + 1, childPath);
           }
         }
       };
 
       // Add parents and children
       if (chain.parents.length > 0) {
-        addParents(chain.parents, -1);
+        addParents(chain.parents, -1, currentManifestPath);
       }
       if (chain.children.length > 0) {
-        addChildren(chain.children, 1);
+        addChildren(chain.children, 1, currentManifestPath);
       }
 
       const chainData: ManifestChainData = {

@@ -38,8 +38,16 @@ import { DashboardPanel } from "./webview/dashboardPanel";
 import { HistoryPanel } from "./webview/historyPanel";
 import { ManifestChainPanel } from "./webview/manifestChainPanel";
 import { FileManifestsTreeDataProvider } from "./fileManifestsProvider";
-import { ImpactAnalysisPanel } from "./webview/impactAnalysisPanel";
-import { HierarchicalViewPanel } from "./webview/hierarchicalViewPanel";
+// DISABLED: Impact Analysis and Hierarchical View features need further development
+// Imports kept for future re-enablement
+import {
+  // ImpactAnalysisPanel, // Uncomment when re-enabling feature
+  setSharedManifestIndex as setImpactAnalysisManifestIndex,
+} from "./webview/impactAnalysisPanel";
+import {
+  // HierarchicalViewPanel, // Uncomment when re-enabling feature
+  setSharedManifestIndex as setHierarchicalViewManifestIndex,
+} from "./webview/hierarchicalViewPanel";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -810,6 +818,11 @@ async function registerNavigationProviders(context: vscode.ExtensionContext): Pr
   manifestIndex = new ManifestIndex(context);
   await manifestIndex.initialize(getOutputChannel());
 
+  // Share ManifestIndex with webview panels
+  setImpactAnalysisManifestIndex(manifestIndex);
+  setHierarchicalViewManifestIndex(manifestIndex);
+  log("ManifestIndex shared with Impact Analysis and Hierarchical View panels");
+
   // Update file manifests provider with manifest index
   if (fileManifestsProvider) {
     fileManifestsProvider.setManifestIndex(manifestIndex);
@@ -1171,27 +1184,103 @@ function findArtifactPosition(
 }
 
 /**
- * Register the Impact Analysis command.
- * Creates and registers the vscode-maid.showImpactAnalysis command.
+ * Register the Impact Analysis commands.
+ * Creates and registers the vscode-maid.showImpactAnalysis and vscode-maid.analyzeFileImpact commands.
+ *
+ * TODO: Impact Analysis feature is not working properly and needs further development.
+ * Issues:
+ * - ManifestIndex integration not properly sending data to webview
+ * - File analysis results not displaying correctly
+ * - Needs proper testing with real manifest data
+ *
+ * The code is preserved but commands are disabled until the feature is complete.
  */
 export function registerImpactAnalysisCommand(context: vscode.ExtensionContext): void {
-  const disposable = vscode.commands.registerCommand("vscode-maid.showImpactAnalysis", () => {
+  // DISABLED: Impact Analysis feature needs further development
+  // See TODO above for details on what needs to be fixed
+
+  void context; // Intentionally unused - code commented out below
+  log("Impact Analysis commands DISABLED - feature needs further development");
+
+  /*
+  // Command to show empty Impact Analysis panel
+  const showCommand = vscode.commands.registerCommand("vscode-maid.showImpactAnalysis", () => {
     ImpactAnalysisPanel.createOrShow(context.extensionUri);
   });
-  context.subscriptions.push(disposable);
-  log("Impact Analysis command registered");
+  context.subscriptions.push(showCommand);
+
+  // Command to analyze a specific file (from context menu or with URI argument)
+  const analyzeCommand = vscode.commands.registerCommand(
+    "vscode-maid.analyzeFileImpact",
+    async (uri?: vscode.Uri) => {
+      let filePath: string | undefined;
+
+      if (uri) {
+        // Called from context menu with file URI
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (workspaceRoot) {
+          filePath = path.relative(workspaceRoot, uri.fsPath);
+        } else {
+          filePath = uri.fsPath;
+        }
+      } else {
+        // Called from command palette - use active editor
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+          if (workspaceRoot) {
+            filePath = path.relative(workspaceRoot, editor.document.uri.fsPath);
+          } else {
+            filePath = editor.document.uri.fsPath;
+          }
+        }
+      }
+
+      if (!filePath) {
+        vscode.window.showWarningMessage("No file selected for impact analysis");
+        return;
+      }
+
+      // Create panel and trigger analysis
+      const panel = ImpactAnalysisPanel.createOrShow(context.extensionUri);
+      // Small delay to ensure panel is ready, then trigger analysis via internal method
+      setTimeout(() => {
+        panel.analyzeFile(filePath!);
+      }, 100);
+    }
+  );
+  context.subscriptions.push(analyzeCommand);
+
+  log("Impact Analysis commands registered");
+  */
 }
 
 /**
  * Register the Hierarchical View command.
  * Creates and registers the vscode-maid.showHierarchicalView command.
+ *
+ * TODO: Hierarchical View feature is not working properly and needs further development.
+ * Issues:
+ * - Mode selector (treemap/sunburst/nested) not switching visualization correctly
+ * - Data from ManifestIndex.getHierarchicalView() may not be structured properly
+ * - Needs proper styling and interaction testing
+ *
+ * The code is preserved but commands are disabled until the feature is complete.
  */
 export function registerHierarchicalViewCommand(context: vscode.ExtensionContext): void {
+  // DISABLED: Hierarchical View feature needs further development
+  // See TODO above for details on what needs to be fixed
+
+  void context; // Intentionally unused - code commented out below
+  log("Hierarchical View command DISABLED - feature needs further development");
+
+  /*
   const disposable = vscode.commands.registerCommand("vscode-maid.showHierarchicalView", () => {
     HierarchicalViewPanel.createOrShow(context.extensionUri);
   });
   context.subscriptions.push(disposable);
   log("Hierarchical View command registered");
+  */
 }
 
 /**

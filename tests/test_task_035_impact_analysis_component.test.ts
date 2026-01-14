@@ -135,15 +135,8 @@ describe("ImpactAnalysis Component", () => {
     });
   });
 
-  describe("Recommendations Panel", () => {
-    it("should have recommendations section", () => {
-      expect(sourceCode).toMatch(/recommendation|Recommendation/);
-    });
-
-    it("should display recommendations list or panel", () => {
-      expect(sourceCode).toMatch(/recommendations.*map|Recommendations|recommendations-panel/i);
-    });
-  });
+  // Note: Recommendations panel removed - component now uses DependencyImpact type
+  // which doesn't include recommendations
 
   describe("Impact Count Display", () => {
     it("should use formatImpactCount for displaying counts", () => {

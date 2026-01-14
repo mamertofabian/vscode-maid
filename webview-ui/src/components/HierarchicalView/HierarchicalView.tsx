@@ -2,10 +2,15 @@
  * HierarchicalView component for displaying hierarchical system visualization.
  * Supports multiple visualization modes (treemap, sunburst, nested),
  * handles drill-down/drill-up navigation, and filters nodes by level.
+ *
+ * When used standalone (no props), handles VS Code messaging to load data.
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { useVsCodeMessages, useSendMessage } from "../../hooks/useVsCodeApi";
 import type { HierarchicalNode } from "../../../../src/types";
+import type { ExtensionToWebviewMessage, HierarchicalViewData } from "../../types";
+import Spinner from "../shared/Spinner";
 
 /**
  * ViewModeOption interface for the mode selector.
@@ -81,8 +86,8 @@ export function filterNodesByLevel(
  * @property viewMode: string - Current visualization mode
  */
 export interface HierarchicalViewProps {
-  /** Hierarchical node data to display */
-  nodes: HierarchicalNode[];
+  /** Hierarchical node data to display (optional - fetches from VS Code when not provided) */
+  nodes?: HierarchicalNode[];
   /** Callback when a node is clicked - onNodeClick: handler */
   onNodeClick?: (node: HierarchicalNode) => void;
   /** Current visualization mode */
@@ -106,16 +111,59 @@ export interface HierarchicalViewProps {
  * Supports treemap, sunburst, and nested view modes with drill-down navigation.
  */
 export const HierarchicalView: React.FC<HierarchicalViewProps> = ({
-  nodes,
+  nodes: propNodes,
   onNodeClick,
-  viewMode = "nested",
+  viewMode: propViewMode = "nested",
   onViewModeChange,
   onDrillDown,
   onDrillUp,
   className = "",
-  isLoading = false,
-  error = null,
+  isLoading: propIsLoading = false,
+  error: propError = null,
 }) => {
+  // VS Code messaging for standalone mode
+  const message = useVsCodeMessages();
+  const sendMessage = useSendMessage();
+
+  // Internal state for standalone mode
+  const [internalNodes, setInternalNodes] = useState<HierarchicalNode[]>([]);
+  const [internalLoading, setInternalLoading] = useState(!propNodes);
+  const [internalError, setInternalError] = useState<string | null>(null);
+  const [internalViewMode, setInternalViewMode] = useState<"treemap" | "sunburst" | "nested">("nested");
+
+  // Use props if provided, otherwise use internal state
+  const nodes = propNodes ?? internalNodes;
+  const isLoading = propNodes ? propIsLoading : internalLoading;
+  const error = propNodes ? propError : internalError;
+  const viewMode = propNodes ? propViewMode : internalViewMode;
+
+  // Handle VS Code messages for standalone mode
+  useEffect(() => {
+    if (!message) return;
+
+    const msg = message as ExtensionToWebviewMessage;
+    switch (msg.type) {
+      case "hierarchicalData":
+        setInternalNodes(msg.payload.nodes);
+        setInternalLoading(false);
+        break;
+      case "loading":
+        setInternalLoading(msg.payload.isLoading);
+        break;
+      case "error":
+        setInternalError(msg.payload.message);
+        setInternalLoading(false);
+        break;
+    }
+  }, [message]);
+
+  // Signal ready to extension on mount (only in standalone mode)
+  useEffect(() => {
+    if (!propNodes) {
+      sendMessage({ type: "ready" });
+    }
+  }, [propNodes, sendMessage]);
+
   // Navigation state for drill-down/drill-up
   const [currentNode, setCurrentNode] = useState<HierarchicalNode | null>(null);
   const [breadcrumb, setBreadcrumb] = useState<HierarchicalNode[]>([]);
@@ -158,9 +206,13 @@ export const HierarchicalView: React.FC<HierarchicalViewProps> = ({
   // Handle view mode change
   const handleViewModeChange = useCallback(
     (mode: "treemap" | "sunburst" | "nested") => {
+      // Update internal state for standalone mode
+      if (!propNodes) {
+        setInternalViewMode(mode);
+      }
       onViewModeChange?.(mode);
     },
-    [onViewModeChange]
+    [propNodes, onViewModeChange]
   );
 
   // Get display nodes based on current navigation state

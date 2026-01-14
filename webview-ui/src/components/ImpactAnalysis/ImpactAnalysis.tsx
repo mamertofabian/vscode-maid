@@ -1,63 +1,20 @@
 /**
- * ImpactAnalysis component for displaying dependency impact analysis results.
+ * ImpactAnalysis component - standalone page that handles VS Code messaging.
  * Shows target file, loading/error states, impact severity, and affected items.
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useVsCodeMessages, useSendMessage } from "../../hooks/useVsCodeApi";
+import type { ExtensionToWebviewMessage, ImpactAnalysisData } from "../../types";
+import Spinner from "../shared/Spinner";
 
 /**
- * Affected file entry with impact details.
- */
-interface _AffectedFile {
-  path: string;
-  impactLevel?: string;
-}
-
-/**
- * Affected manifest entry.
- */
-interface _AffectedManifest {
-  path: string;
-  name?: string;
-}
-
-/**
- * Affected artifact entry.
- */
-interface _AffectedArtifact {
-  name: string;
-  type: string;
-  file?: string;
-}
-
-/**
- * Recommendation entry.
- */
-interface _Recommendation {
-  id: string;
-  message: string;
-  priority?: "high" | "medium" | "low";
-}
-
-/**
- * Impact analysis result data.
- */
-interface _ImpactData {
-  targetFile: string;
-  severity: "critical" | "high" | "medium" | "low" | "warning";
-  affectedFiles: _AffectedFile[];
-  affectedManifests: _AffectedManifest[];
-  affectedArtifacts: _AffectedArtifact[];
-  recommendations: _Recommendation[];
-  totalImpact: number;
-}
-
-/**
- * Props for the ImpactAnalysis component.
+ * Props for the ImpactAnalysis component (optional - for standalone use).
  */
 export interface ImpactAnalysisProps {
-  targetFile: string;
-  impact: _ImpactData | null;
+  // Optional props - component manages its own state when used standalone
+  targetFile?: string;
+  impact?: ImpactAnalysisData["impact"];
   isLoading?: boolean;
   error?: string | null;
   onFileClick?: (filePath: string) => void;
@@ -69,7 +26,7 @@ export interface ImpactAnalysisProps {
  * Get the color associated with a severity level.
  */
 export const getSeverityColor = (severity: string): string => {
-  switch (severity.toLowerCase()) {
+  switch (severity?.toLowerCase()) {
     case "critical":
       return "#dc2626"; // Red 600
     case "high":
@@ -99,19 +56,62 @@ export const formatImpactCount = (count: number): string => {
 };
 
 /**
- * ImpactAnalysis component displays dependency impact analysis results.
- * Shows the target file being analyzed, impact severity, affected files/manifests/artifacts,
- * and provides recommendations.
+ * ImpactAnalysis component - standalone page for impact analysis.
  */
-export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
-  targetFile,
-  impact,
-  isLoading = false,
-  error = null,
-  onFileClick,
-  onManifestClick,
-  onRefresh,
-}) => {
+export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
+  const message = useVsCodeMessages();
+  const sendMessage = useSendMessage();
+
+  const [targetFile, setTargetFile] = useState<string>("");
+  const [impact, setImpact] = useState<ImpactAnalysisData["impact"]>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle messages from the extension
+  useEffect(() => {
+    if (!message) return;
+
+    const msg = message as ExtensionToWebviewMessage;
+    switch (msg.type) {
+      case "impactData":
+        setTargetFile(msg.payload.targetFile);
+        setImpact(msg.payload.impact);
+        setIsLoading(msg.payload.loading);
+        setError(msg.payload.error);
+        break;
+      case "loading":
+        setIsLoading(msg.payload.isLoading);
+        break;
+      case "error":
+        setError(msg.payload.message);
+        setIsLoading(false);
+        break;
+    }
+  }, [message]);
+
+  // Signal ready to extension on mount
+  useEffect(() => {
+    sendMessage({ type: "ready" });
+  }, [sendMessage]);
+
+  const _handleRefresh = () => {
+    setIsLoading(true);
+    sendMessage({ type: "refresh" });
+  };
+
+  const _handleFileClick = (filePath: string) => {
+    sendMessage({ type: "openFile", payload: { filePath } });
+  };
+
+  const _handleManifestClick = (manifestPath: string) => {
+    sendMessage({ type: "openManifest", payload: { manifestPath } });
+  };
+
+  const _handleAnalyzeFile = () => {
+    // Request file selection and analysis
+    sendMessage({ type: "analyzeImpact", payload: { filePath: "" } });
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -119,10 +119,7 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
         <div className="impact-analysis-header">
           <h2>Impact Analysis</h2>
         </div>
-        <div className="impact-analysis-loading">
-          <div className="spinner"></div>
-          <p>Loading impact analysis for {targetFile}...</p>
-        </div>
+        <Spinner message={targetFile ? `Analyzing ${targetFile}...` : "Loading impact analysis..."} />
       </div>
     );
   }
@@ -136,25 +133,26 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
         </div>
         <div className="impact-analysis-error">
           <p className="error-message">Error: {error}</p>
-          {onRefresh && (
-            <button className="btn btn-secondary" onClick={onRefresh}>
-              Retry
-            </button>
-          )}
+          <button className="btn btn-secondary" onClick={_handleRefresh}>
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
-  // Null impact state
-  if (!impact) {
+  // Empty state - no file selected
+  if (!targetFile || !impact) {
     return (
       <div className="impact-analysis impact-analysis--empty">
         <div className="impact-analysis-header">
           <h2>Impact Analysis</h2>
         </div>
         <div className="impact-analysis-empty">
-          <p>No impact data available for file: {targetFile}</p>
+          <p>Select a file to analyze its dependency impact.</p>
+          <button className="btn btn-primary" onClick={_handleAnalyzeFile}>
+            Analyze File
+          </button>
         </div>
       </div>
     );
@@ -166,17 +164,15 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
     <div className="impact-analysis">
       <div className="impact-analysis-header">
         <h2>Impact Analysis</h2>
-        {onRefresh && (
-          <button className="btn btn-secondary" onClick={onRefresh}>
-            Refresh
-          </button>
-        )}
+        <button className="btn btn-secondary" onClick={_handleRefresh}>
+          Refresh
+        </button>
       </div>
 
       {/* Target File Section */}
       <div className="impact-analysis-target">
         <h3>Target File</h3>
-        <p className="target-file-path">{impact.targetFile}</p>
+        <p className="target-file-path">{targetFile}</p>
       </div>
 
       {/* Severity Indicator */}
@@ -202,13 +198,10 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
               <li key={index} className="affected-file-item">
                 <button
                   className="file-link"
-                  onClick={() => onFileClick?.(file.path)}
+                  onClick={() => _handleFileClick(file)}
                 >
-                  {file.path}
+                  {file}
                 </button>
-                {file.impactLevel && (
-                  <span className="impact-level">{file.impactLevel}</span>
-                )}
               </li>
             ))}
           </ul>
@@ -226,9 +219,9 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
               <li key={index} className="affected-manifest-item">
                 <button
                   className="manifest-link"
-                  onClick={() => onManifestClick?.(manifest.path)}
+                  onClick={() => _handleManifestClick(manifest)}
                 >
-                  {manifest.name || manifest.path}
+                  {manifest}
                 </button>
               </li>
             ))}
@@ -245,43 +238,12 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = ({
           <ul className="affected-artifacts-list">
             {impact.affectedArtifacts.map((artifact, index) => (
               <li key={index} className="affected-artifact-item">
-                <span className="artifact-type">{artifact.type}</span>
-                <span className="artifact-name">{artifact.name}</span>
-                {artifact.file && (
-                  <span className="artifact-file">in {artifact.file}</span>
-                )}
+                <span className="artifact-name">{artifact}</span>
               </li>
             ))}
           </ul>
         ) : (
           <p className="no-items">No affected artifacts</p>
-        )}
-      </div>
-
-      {/* Recommendations Panel */}
-      <div className="impact-analysis-section recommendations-panel">
-        <h3>Recommendations ({formatImpactCount(impact.recommendations.length)})</h3>
-        {impact.recommendations.length > 0 ? (
-          <ul className="recommendations-list">
-            {impact.recommendations.map((recommendation) => (
-              <li
-                key={recommendation.id}
-                className={`recommendation-item ${recommendation.priority ? `priority-${recommendation.priority}` : ""}`}
-              >
-                {recommendation.priority && (
-                  <span
-                    className="recommendation-priority"
-                    style={{ color: getSeverityColor(recommendation.priority) }}
-                  >
-                    [{recommendation.priority.toUpperCase()}]
-                  </span>
-                )}
-                <span className="recommendation-message">{recommendation.message}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="no-items">No recommendations</p>
         )}
       </div>
     </div>
