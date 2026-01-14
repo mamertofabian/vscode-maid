@@ -2,6 +2,24 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.5.0] - 2026-01-14
+
+### Added
+
+- **Knowledge Graph Controls** - Enhanced graph explorer controls
+  - Search input with real-time node filtering
+  - Filter checkboxes for Manifests, Files, Modules, and Artifacts
+  - Node and edge count statistics display
+  - Refresh button with loading state indicator
+
+### Technical (Internal Only)
+
+- Added foundation code for Visual Architecture Studio features (Issue #5)
+  - Type definitions, message protocols, and panel infrastructure
+  - **Note:** These features are disabled/incomplete and not user-accessible
+  - Impact Analysis, Hierarchical View, and Manifest Designer commands are hidden
+  - Code preserved for future development
+
 ## [0.4.2] - 2026-01-10
 
 ### Fixed
