@@ -1,0 +1,70 @@
+{
+  "goal": "Enhance Dashboard component with health score display, file tracking breakdown, and metrics summary section",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["webview-ui/src/components/Dashboard/Dashboard.tsx"],
+  "readonlyFiles": [
+    "webview-ui/src/types.ts",
+    "webview-ui/src/hooks/useVsCodeApi.ts",
+    "webview-ui/src/components/shared/Card.tsx"
+  ],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/Dashboard/Dashboard.tsx",
+    "contains": [
+      {
+        "type": "function",
+        "name": "Dashboard"
+      },
+      {
+        "type": "function",
+        "name": "calculateHealthScore",
+        "args": [
+          {
+            "name": "data",
+            "type": "DashboardData | null"
+          }
+        ],
+        "returns": "number"
+      },
+      {
+        "type": "function",
+        "name": "getFileTrackingBreakdown",
+        "args": [
+          {
+            "name": "data",
+            "type": "DashboardData | null"
+          }
+        ],
+        "returns": "FileTrackingBreakdown"
+      },
+      {
+        "type": "interface",
+        "name": "FileTrackingBreakdown"
+      },
+      {
+        "type": "function",
+        "name": "handleRefresh"
+      },
+      {
+        "type": "function",
+        "name": "handleOpenManifest"
+      },
+      {
+        "type": "function",
+        "name": "handleRunValidation"
+      },
+      {
+        "type": "function",
+        "name": "handleRunTests"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_026_dashboard_enhancements.test.ts"
+  ]
+}

@@ -2,7 +2,7 @@
   "name": "vscode-maid",
   "displayName": "MAID - Manifest-driven AI Development",
   "description": "VS Code extension for MAID (Manifest-driven AI Development) with LSP integration, manifest exploration, test execution, and validation features",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "publisher": "aidrivencoder",
   "engines": {
     "vscode": "^1.75.0"
@@ -203,10 +203,28 @@
         "icon": "$(git-branch)"
       },
       {
+        "command": "vscode-maid.showImpactAnalysis",
+        "title": "Show Impact Analysis",
+        "category": "MAID",
+        "icon": "$(graph-scatter)"
+      },
+      {
+        "command": "vscode-maid.showHierarchicalView",
+        "title": "Show Hierarchical View",
+        "category": "MAID",
+        "icon": "$(type-hierarchy)"
+      },
+      {
         "command": "vscode-maid.findManifestsForFile",
         "title": "Find Manifests for File",
         "category": "MAID",
         "icon": "$(search)"
+      },
+      {
+        "command": "vscode-maid.analyzeFileImpact",
+        "title": "Analyze Impact for File",
+        "category": "MAID",
+        "icon": "$(graph-scatter)"
       },
       {
         "command": "vscode-maid.validateCoherence",
@@ -427,6 +445,18 @@
         },
         {
           "command": "vscode-maid.findManifestsForFile"
+        },
+        {
+          "command": "vscode-maid.showImpactAnalysis",
+          "when": "false"
+        },
+        {
+          "command": "vscode-maid.showHierarchicalView",
+          "when": "false"
+        },
+        {
+          "command": "vscode-maid.analyzeFileImpact",
+          "when": "false"
         }
       ]
     },
@@ -461,15 +491,46 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && node esbuild.js",
-    "check-types": "tsc --noEmit",
+    "check-types": "npm run check-types:src && npm run check-types:tests",
+    "check-types:src": "tsc --noEmit --project tsconfig.src.json",
+    "check-types:tests": "tsc --noEmit --project tsconfig.test.json",
     "watch": "node esbuild.js --watch",
-    "package": "npm run check-types && node esbuild.js --production"
+    "package": "npm run check-types && node esbuild.js --production",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "npm run check-types && npm run lint:eslint",
+    "lint:eslint": "eslint .",
+    "lint:fix": "npm run check-types && eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.74.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "@vitest/ui": "^4.0.17",
     "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
     "typescript": "^5.0.0",
+    "typescript-eslint": "^8.53.0",
+    "vitest": "^4.0.17",
     "vscode-languageclient": "^9.0.0"
   },
   "dependencies": {

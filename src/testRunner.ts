@@ -83,7 +83,7 @@ export class MaidTestRunner {
   /**
    * Run all tests in the workspace.
    */
-  async runAllTests(): Promise<void> {
+  runAllTests(): void {
     const workspaceRoot = getWorkspaceRoot();
     if (!workspaceRoot) {
       vscode.window.showErrorMessage(
@@ -101,7 +101,7 @@ export class MaidTestRunner {
   /**
    * Run tests in watch mode for all manifests.
    */
-  async runTestsWatch(): Promise<void> {
+  runTestsWatch(): void {
     const workspaceRoot = getWorkspaceRoot();
     if (!workspaceRoot) {
       vscode.window.showErrorMessage(
@@ -119,7 +119,7 @@ export class MaidTestRunner {
   /**
    * Run tests for a specific manifest file.
    */
-  async runTestsForManifest(arg?: unknown): Promise<void> {
+  runTestsForManifest(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -142,7 +142,7 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running tests from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running tests for manifest: ${relativeManifestPath}`);
 
@@ -155,7 +155,7 @@ export class MaidTestRunner {
   /**
    * Run coherence validation for a specific manifest.
    */
-  async runCoherenceValidation(arg?: unknown): Promise<void> {
+  runCoherenceValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -178,20 +178,22 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running coherence validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running coherence validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`
+    );
     terminal.show();
   }
 
   /**
    * Run manifest chain validation for a specific manifest.
    */
-  async runChainValidation(arg?: unknown): Promise<void> {
+  runChainValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -214,20 +216,22 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running chain validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running chain validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`
+    );
     terminal.show();
   }
 
   /**
    * Run validation for a specific manifest.
    */
-  async runValidation(arg?: unknown): Promise<void> {
+  runValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this.extractUri(arg);
 
@@ -250,13 +254,15 @@ export class MaidTestRunner {
     const maidRoot = getMaidRoot(manifestPath);
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
-    
+
     log(`[TestRunner] Running validation from MAID root: ${maidRoot}`);
     log(`[TestRunner] Running validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this.getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`
+    );
     terminal.show();
   }
 
@@ -267,7 +273,9 @@ export class MaidTestRunner {
     if (this.terminal) {
       this.terminal.dispose();
     }
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
     log("[TestRunner] Disposed");
   }
 }

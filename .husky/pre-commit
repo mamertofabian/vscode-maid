@@ -1,0 +1,13 @@
+npx lint-staged
+
+# Run MAID validation if maid command is available
+if command -v maid >/dev/null 2>&1; then
+  echo "Running maid validate..."
+  maid validate || exit 1
+  
+  echo "Running maid test..."
+  maid test || exit 1
+else
+  echo "Warning: maid command not found. Skipping MAID validation."
+  echo "Install maid-runner with: pipx install maid-runner"
+fi

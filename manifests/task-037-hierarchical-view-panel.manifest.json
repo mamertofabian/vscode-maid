@@ -1,0 +1,136 @@
+{
+  "goal": "Create the HierarchicalViewPanel class for displaying hierarchical system views with drill-down/drill-up navigation",
+  "taskType": "create",
+  "creatableFiles": ["src/webview/hierarchicalViewPanel.ts"],
+  "readonlyFiles": [
+    "src/types.ts",
+    "src/webview/messages.ts",
+    "src/manifestIndex.ts",
+    "src/webview/impactAnalysisPanel.ts",
+    "src/webview/knowledgeGraphPanel.ts"
+  ],
+  "expectedArtifacts": {
+    "file": "src/webview/hierarchicalViewPanel.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "HierarchicalViewPanel",
+        "description": "WebviewPanel provider for the hierarchical system view"
+      },
+      {
+        "type": "function",
+        "name": "currentPanel",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "viewType",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "_panel",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "_extensionUri",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "_disposables",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "_currentLevel",
+        "class": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "createOrShow",
+        "class": "HierarchicalViewPanel",
+        "description": "Static method to create or show the panel",
+        "args": [{ "name": "extensionUri", "type": "vscode.Uri" }],
+        "returns": "HierarchicalViewPanel"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "HierarchicalViewPanel",
+        "description": "Dispose of the panel and its resources"
+      },
+      {
+        "type": "function",
+        "name": "_postMessage",
+        "class": "HierarchicalViewPanel",
+        "description": "Post a message to the webview",
+        "args": [{ "name": "message", "type": "ExtensionToWebviewMessage" }]
+      },
+      {
+        "type": "function",
+        "name": "_handleMessage",
+        "class": "HierarchicalViewPanel",
+        "description": "Handle messages from the webview",
+        "args": [{ "name": "message", "type": "WebviewToExtensionMessage" }]
+      },
+      {
+        "type": "function",
+        "name": "_update",
+        "class": "HierarchicalViewPanel",
+        "description": "Update the webview HTML content"
+      },
+      {
+        "type": "function",
+        "name": "_getHtmlForWebview",
+        "class": "HierarchicalViewPanel",
+        "description": "Generate the HTML content for the webview",
+        "args": [{ "name": "webview", "type": "vscode.Webview" }],
+        "returns": "string"
+      },
+      {
+        "type": "function",
+        "name": "_buildHierarchy",
+        "class": "HierarchicalViewPanel",
+        "description": "Build hierarchy from ManifestIndex"
+      },
+      {
+        "type": "function",
+        "name": "_computeLevels",
+        "class": "HierarchicalViewPanel",
+        "description": "Compute level data for visualization"
+      },
+      {
+        "type": "function",
+        "name": "_handleDrillDown",
+        "class": "HierarchicalViewPanel",
+        "description": "Handle drill-down navigation",
+        "args": [{ "name": "nodeId", "type": "string" }]
+      },
+      {
+        "type": "function",
+        "name": "_handleDrillUp",
+        "class": "HierarchicalViewPanel",
+        "description": "Handle drill-up navigation"
+      },
+      {
+        "type": "function",
+        "name": "getNonce",
+        "returns": "string"
+      },
+      {
+        "type": "function",
+        "name": "setSharedManifestIndex",
+        "args": [{ "name": "index", "type": "ManifestIndex" }]
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_037_hierarchical_view_panel.test.ts"
+  ]
+}

@@ -16,6 +16,9 @@ import {
   ArtifactReference,
   ManifestIndexEntry,
   FileReferenceCategory,
+  HierarchicalNode,
+  DependencyImpact,
+  SystemMetrics,
 } from "./types";
 import { getMaidRoot } from "./utils";
 
@@ -30,14 +33,12 @@ export class ManifestIndex {
   private debounceTimer: NodeJS.Timeout | undefined;
   private outputChannel: vscode.OutputChannel | undefined;
 
-  constructor(private context: vscode.ExtensionContext) {}
+  constructor(private _context: vscode.ExtensionContext) {}
 
   /**
    * Initialize the index by scanning all manifests in the workspace.
    */
-  async initialize(
-    outputChannel?: vscode.OutputChannel
-  ): Promise<void> {
+  async initialize(outputChannel?: vscode.OutputChannel): Promise<void> {
     this.outputChannel = outputChannel;
     await this.buildIndex();
     this.setupFileWatcher();
@@ -107,8 +108,9 @@ export class ManifestIndex {
       this.indexExpectedArtifacts(content, rootNode, manifestPath, entry);
 
       this.index.set(manifestPath, entry);
-    } catch (error) {
-      this.log(`Error indexing manifest ${manifestPath}: ${error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.log(`Error indexing manifest ${manifestPath}: ${message}`);
     }
   }
 
@@ -132,7 +134,8 @@ export class ManifestIndex {
       if (itemNode.type !== "string") continue;
 
       const filePath = itemNode.value as string;
-      const position = this.offsetToPosition(content, itemNode.offset);
+      const offset = typeof itemNode.offset === "number" ? itemNode.offset : 0;
+      const position = this.offsetToPosition(content, offset);
       const resolvedPath = this.resolveFilePath(filePath, manifestPath);
 
       const ref: FileReference = {
@@ -186,7 +189,8 @@ export class ManifestIndex {
       const resolvedFilePath = this.resolveFilePath(filePath, manifestPath);
 
       // Index the file reference
-      const filePosition = this.offsetToPosition(content, fileNode.offset);
+      const fileOffset = typeof fileNode.offset === "number" ? fileNode.offset : 0;
+      const filePosition = this.offsetToPosition(content, fileOffset);
       const fileRef: FileReference = {
         manifestPath,
         category: "expectedArtifact",
@@ -220,7 +224,8 @@ export class ManifestIndex {
 
         const artifactName = nameNode.value as string;
         const artifactType = (typeNode?.value as string) || "function";
-        const position = this.offsetToPosition(content, nameNode.offset);
+        const nameOffset = typeof nameNode.offset === "number" ? nameNode.offset : 0;
+        const position = this.offsetToPosition(content, nameOffset);
 
         const artifactRef: ArtifactReference = {
           manifestPath,
@@ -264,15 +269,13 @@ export class ManifestIndex {
    * Set up file watcher for manifest changes.
    */
   private setupFileWatcher(): void {
-    this.fileWatcher = vscode.workspace.createFileSystemWatcher(
-      "**/*.manifest.json"
-    );
+    this.fileWatcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
 
     this.fileWatcher.onDidChange((uri) => this.onManifestChanged(uri.fsPath));
     this.fileWatcher.onDidCreate((uri) => this.onManifestChanged(uri.fsPath));
     this.fileWatcher.onDidDelete((uri) => this.onManifestDeleted(uri.fsPath));
 
-    this.context.subscriptions.push(this.fileWatcher);
+    this._context.subscriptions.push(this.fileWatcher);
   }
 
   /**
@@ -283,14 +286,16 @@ export class ManifestIndex {
       clearTimeout(this.debounceTimer);
     }
 
-    this.debounceTimer = setTimeout(async () => {
-      this.log(`Re-indexing manifest: ${manifestPath}`);
-      // Remove old index entry
-      this.removeManifestFromIndex(manifestPath);
-      // Re-index the manifest
-      await this.indexManifest(manifestPath);
-      // Rebuild supersededBy relationships
-      this.buildSupersededByRelationships();
+    this.debounceTimer = setTimeout(() => {
+      void (async () => {
+        this.log(`Re-indexing manifest: ${manifestPath}`);
+        // Remove old index entry
+        this.removeManifestFromIndex(manifestPath);
+        // Re-index the manifest
+        await this.indexManifest(manifestPath);
+        // Rebuild supersededBy relationships
+        this.buildSupersededByRelationships();
+      })();
     }, 500);
   }
 
@@ -310,7 +315,7 @@ export class ManifestIndex {
     if (!entry) return;
 
     // Remove file references
-    for (const [filePath, refs] of entry.referencedFiles) {
+    for (const [filePath] of entry.referencedFiles) {
       const globalRefs = this.fileToManifests.get(filePath);
       if (globalRefs) {
         const filtered = globalRefs.filter((r) => r.manifestPath !== manifestPath);
@@ -323,7 +328,7 @@ export class ManifestIndex {
     }
 
     // Remove artifact references
-    for (const [artifactName, refs] of entry.artifacts) {
+    for (const [artifactName] of entry.artifacts) {
       const globalRefs = this.artifactToManifests.get(artifactName);
       if (globalRefs) {
         const filtered = globalRefs.filter((r) => r.manifestPath !== manifestPath);
@@ -393,6 +398,178 @@ export class ManifestIndex {
    */
   getAllManifests(): string[] {
     return Array.from(this.index.keys());
+  }
+
+  /**
+   * Compute the dependency impact of changes to a file.
+   * Returns information about what would be affected if this file changes.
+   */
+  getDependencyImpact(filePath: string): DependencyImpact {
+    const normalizedPath = this.normalizePath(filePath);
+    const fileRefs = this.fileToManifests.get(normalizedPath) || [];
+
+    // Get all manifests referencing this file
+    const affectedManifests = [...new Set(fileRefs.map((ref) => ref.manifestPath))];
+
+    // Get all artifacts defined in this file
+    const affectedArtifacts: string[] = [];
+    for (const [artifactName, refs] of this.artifactToManifests) {
+      if (refs.some((ref) => this.normalizePath(ref.filePath) === normalizedPath)) {
+        affectedArtifacts.push(artifactName);
+      }
+    }
+
+    // Get all files that might be affected (files in same manifests)
+    const affectedFiles: string[] = [];
+    for (const manifestPath of affectedManifests) {
+      const entry = this.index.get(manifestPath);
+      if (entry) {
+        for (const file of entry.referencedFiles.keys()) {
+          if (file !== normalizedPath && !affectedFiles.includes(file)) {
+            affectedFiles.push(file);
+          }
+        }
+      }
+    }
+
+    const totalImpact = affectedManifests.length + affectedArtifacts.length + affectedFiles.length;
+
+    // Calculate severity based on total impact
+    let severity: "high" | "medium" | "low";
+    if (totalImpact > 10) {
+      severity = "high";
+    } else if (totalImpact >= 5) {
+      severity = "medium";
+    } else {
+      severity = "low";
+    }
+
+    return {
+      artifactId: filePath,
+      affectedFiles,
+      affectedManifests,
+      affectedArtifacts,
+      severity,
+      totalImpact,
+    };
+  }
+
+  /**
+   * Find all manifests that declare a given artifact.
+   */
+  getAffectedManifests(artifactName: string): string[] {
+    const refs = this.artifactToManifests.get(artifactName) || [];
+    return [...new Set(refs.map((ref) => ref.manifestPath))];
+  }
+
+  /**
+   * Generate a hierarchical view of manifests grouped by module.
+   */
+  getHierarchicalView(): HierarchicalNode[] {
+    const moduleHierarchy = this.getModuleHierarchy();
+    const nodes: HierarchicalNode[] = [];
+
+    for (const [moduleName, manifestPaths] of moduleHierarchy) {
+      // Calculate metrics for this module
+      let fileCount = 0;
+      let artifactCount = 0;
+
+      for (const manifestPath of manifestPaths) {
+        const entry = this.index.get(manifestPath);
+        if (entry) {
+          fileCount += entry.referencedFiles.size;
+          artifactCount += entry.artifacts.size;
+        }
+      }
+
+      const moduleNode: HierarchicalNode = {
+        id: moduleName,
+        name: moduleName || "root",
+        type: "module",
+        level: 0,
+        parent: null,
+        children: manifestPaths.map((manifestPath) => {
+          const entry = this.index.get(manifestPath);
+          const manifestName = path.basename(manifestPath);
+          return {
+            id: manifestPath,
+            name: manifestName,
+            type: "manifest" as const,
+            level: 1,
+            parent: moduleName,
+            children: [],
+            metrics: {
+              manifestCount: 1,
+              fileCount: entry?.referencedFiles.size || 0,
+              artifactCount: entry?.artifacts.size || 0,
+              errorCount: 0,
+            },
+          };
+        }),
+        metrics: {
+          manifestCount: manifestPaths.length,
+          fileCount,
+          artifactCount,
+          errorCount: 0,
+        },
+      };
+
+      nodes.push(moduleNode);
+    }
+
+    return nodes;
+  }
+
+  /**
+   * Get module-level grouping of manifests.
+   * Groups manifests by their containing directory.
+   */
+  getModuleHierarchy(): Map<string, string[]> {
+    const hierarchy = new Map<string, string[]>();
+
+    for (const manifestPath of this.index.keys()) {
+      const dir = path.dirname(manifestPath);
+      const moduleName = path.basename(dir);
+
+      if (!hierarchy.has(moduleName)) {
+        hierarchy.set(moduleName, []);
+      }
+      hierarchy.get(moduleName)!.push(manifestPath);
+    }
+
+    return hierarchy;
+  }
+
+  /**
+   * Compute system-wide metrics for the MAID project.
+   */
+  getSystemMetrics(): SystemMetrics {
+    const totalManifests = this.index.size;
+
+    // Count files tracked vs untracked
+    const trackedFiles = this.fileToManifests.size;
+
+    // For basic implementation, assume all manifests are valid
+    // (actual validation would require running maid validate)
+    const validManifests = totalManifests;
+    const errorCount = 0;
+    const warningCount = 0;
+
+    // Calculate coverage (percentage of files that are tracked)
+    const coverage = totalManifests > 0 ? 100 : 0;
+
+    return {
+      totalManifests,
+      validManifests,
+      errorCount,
+      warningCount,
+      fileTracking: {
+        undeclared: 0, // Would need filesystem scan to determine
+        registered: 0,
+        tracked: trackedFiles,
+      },
+      coverage,
+    };
   }
 
   /**

@@ -6,7 +6,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
-import type { KnowledgeGraphResult } from "../types";
+import type { KnowledgeGraphResult, GraphLayout, HierarchicalNode } from "../types";
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from "./messages";
 import { log, getMaidRoot } from "../utils";
 
@@ -21,6 +21,7 @@ export class KnowledgeGraphPanel {
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
   private _graphData: KnowledgeGraphResult | null = null;
+  private _hierarchicalData: HierarchicalNode[] | null = null;
 
   /**
    * Create or show the Knowledge Graph panel.
@@ -82,9 +83,9 @@ export class KnowledgeGraphPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -134,6 +135,14 @@ export class KnowledgeGraphPanel {
       case "filterChange":
         log("[KnowledgeGraphPanel] Filters changed");
         break;
+
+      case "changeLayout":
+        this._handleLayoutChange(message.payload.layout);
+        break;
+
+      case "exportGraph":
+        void this._handleExportGraph(message.payload.format, message.payload.filename);
+        break;
     }
   }
 
@@ -145,15 +154,14 @@ export class KnowledgeGraphPanel {
     if (!workspaceRoot) return;
 
     // filePath is already workspace-relative from _resolveGraphPaths
-    const fullPath = path.isAbsolute(filePath)
-      ? filePath
-      : path.join(workspaceRoot, filePath);
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
 
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
       await vscode.window.showTextDocument(document);
-    } catch (error: any) {
-      log(`[KnowledgeGraphPanel] Error opening file: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[KnowledgeGraphPanel] Error opening file: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open file: ${filePath}`);
     }
   }
@@ -187,8 +195,11 @@ export class KnowledgeGraphPanel {
           cwd = getMaidRoot(manifestPath);
           log(`[KnowledgeGraphPanel] Using MAID root: ${cwd}`);
         }
-      } catch (error) {
-        log(`[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`, "warn");
+      } catch {
+        log(
+          `[KnowledgeGraphPanel] Could not find manifest directory, using workspace root`,
+          "warn"
+        );
       }
 
       const { exec } = await import("child_process");
@@ -206,7 +217,7 @@ export class KnowledgeGraphPanel {
 
       // Read and parse
       const content = await fs.readFile(tempFile, "utf-8");
-      this._graphData = JSON.parse(content);
+      this._graphData = JSON.parse(content) as KnowledgeGraphResult;
 
       // Resolve file paths relative to MAID root
       if (this._graphData && cwd !== workspaceRoot) {
@@ -224,12 +235,13 @@ export class KnowledgeGraphPanel {
         type: "graphData",
         payload: this._graphData || { nodes: [], edges: [] },
       });
-    } catch (error: any) {
-      log(`[KnowledgeGraphPanel] Error loading graph: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[KnowledgeGraphPanel] Error loading graph: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load knowledge graph: ${error.message}. Make sure 'maid' CLI is installed and you have manifest files in your workspace.`,
+          message: `Failed to load knowledge graph: ${message}. Make sure 'maid' CLI is installed and you have manifest files in your workspace.`,
         },
       });
     }
@@ -241,13 +253,11 @@ export class KnowledgeGraphPanel {
   private _resolveGraphPaths(
     graphData: KnowledgeGraphResult,
     maidRoot: string,
-    workspaceRoot: string
+    _workspaceRoot: string
   ): KnowledgeGraphResult {
     const resolvedNodes = graphData.nodes.map((node) => {
       if (node.path) {
-        const fullPath = path.isAbsolute(node.path)
-          ? node.path
-          : path.resolve(maidRoot, node.path);
+        const fullPath = path.isAbsolute(node.path) ? node.path : path.resolve(maidRoot, node.path);
         // Store workspace-relative path for display
         return {
           ...node,
@@ -261,6 +271,157 @@ export class KnowledgeGraphPanel {
       ...graphData,
       nodes: resolvedNodes,
     };
+  }
+
+  /**
+   * Load hierarchical data and send to webview.
+   */
+  private _loadHierarchicalData(): Promise<void> {
+    this._postMessage({ type: "loading", payload: { isLoading: true } });
+
+    try {
+      // For now, create hierarchical view from graph data
+      // In full implementation, would use ManifestIndex.getHierarchicalView()
+      const nodes: HierarchicalNode[] = [];
+
+      if (this._graphData) {
+        // Group manifests by module (directory)
+        const moduleMap = new Map<string, (typeof this._graphData.nodes)[number][]>();
+
+        for (const node of this._graphData.nodes) {
+          if (node.type === "manifest" && node.path) {
+            const dir = node.path.split("/").slice(0, -1).join("/") || "root";
+            if (!moduleMap.has(dir)) {
+              moduleMap.set(dir, []);
+            }
+            moduleMap.get(dir)!.push(node);
+          }
+        }
+
+        // Create hierarchical nodes
+        for (const [moduleName, manifestNodes] of moduleMap) {
+          nodes.push({
+            id: moduleName,
+            name: moduleName || "root",
+            type: "module",
+            level: 0,
+            parent: null,
+            children: manifestNodes.map((m) => ({
+              id: m.id,
+              name: m.path?.split("/").pop() || m.id,
+              type: "manifest" as const,
+              level: 1,
+              parent: moduleName,
+              children: [],
+              metrics: { manifestCount: 1, fileCount: 0, artifactCount: 0, errorCount: 0 },
+            })),
+            metrics: {
+              manifestCount: manifestNodes.length,
+              fileCount: 0,
+              artifactCount: 0,
+              errorCount: 0,
+            },
+          });
+        }
+      }
+
+      this._hierarchicalData = nodes;
+      this._postMessage({
+        type: "hierarchicalData",
+        payload: {
+          nodes,
+          rootId: nodes[0]?.id || "",
+          currentLevel: 0,
+          selectedNodeId: null,
+        },
+      });
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this._postMessage({
+        type: "error",
+        payload: { message: `Failed to load hierarchical data: ${message}` },
+      });
+      return Promise.resolve();
+    }
+  }
+
+  /**
+   * Compute and send graph metrics to webview.
+   */
+  private _computeMetrics(): void {
+    if (!this._graphData) {
+      return;
+    }
+
+    const metrics = {
+      totalNodes: this._graphData.nodes.length,
+      totalEdges: this._graphData.edges?.length || 0,
+      nodesByType: {
+        manifest: 0,
+        file: 0,
+        module: 0,
+        artifact: 0,
+      },
+    };
+
+    for (const node of this._graphData.nodes) {
+      if (node.type in metrics.nodesByType) {
+        metrics.nodesByType[node.type as keyof typeof metrics.nodesByType]++;
+      }
+    }
+
+    // Send metrics as part of graph data or separate message
+    log(`[KnowledgeGraphPanel] Metrics: ${JSON.stringify(metrics)}`);
+  }
+
+  /**
+   * Handle layout change requests from webview.
+   */
+  private _handleLayoutChange(layout: GraphLayout): void {
+    log(`[KnowledgeGraphPanel] Layout changed to: ${layout.type}`);
+    this._postMessage({
+      type: "layoutChanged",
+      payload: { layout },
+    });
+  }
+
+  /**
+   * Handle graph export requests.
+   */
+  private _handleExportGraph(format: string, _filename: string | null): Promise<void> {
+    log(`[KnowledgeGraphPanel] Exporting graph as ${format}`);
+
+    try {
+      let data: string;
+
+      if (format === "json") {
+        data = JSON.stringify(this._graphData || { nodes: [], edges: [] }, null, 2);
+      } else if (format === "dot") {
+        // Generate DOT format for Graphviz
+        const nodes = this._graphData?.nodes || [];
+        const edges = this._graphData?.edges || [];
+        const dotNodes = nodes.map((n) => `  "${n.id}" [label="${n.name || n.id}"];`).join("\n");
+        const dotEdges = edges.map((e) => `  "${e.source}" -> "${e.target}";`).join("\n");
+        data = `digraph MAID {\n${dotNodes}\n${dotEdges}\n}`;
+      } else {
+        // For PNG/SVG, would need canvas rendering - return placeholder
+        data = `Export to ${format} requires canvas rendering (not implemented in backend)`;
+      }
+
+      this._postMessage({
+        type: "exportReady",
+        payload: { format, data },
+      });
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this._postMessage({
+        type: "error",
+        payload: { message: `Export failed: ${message}` },
+      });
+      return Promise.resolve();
+    }
   }
 
   /**
@@ -298,11 +459,11 @@ export class KnowledgeGraphPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Knowledge Graph</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="knowledgeGraph"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

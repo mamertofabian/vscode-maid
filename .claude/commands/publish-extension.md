@@ -25,6 +25,7 @@ Complete workflow for publishing a VS Code extension to both the Visual Studio M
 ### 1. Version Update (if version argument provided)
 
 If $1 (version argument) is provided:
+
 - Update version in package.json to $1
 - Update CHANGELOG.md with new version entry and date
 - Commit these changes: `git commit -m "Bump version to $1"`
@@ -44,6 +45,7 @@ If $1 (version argument) is provided:
 ### 4. Test Installation (Optional but Recommended)
 
 Ask user if they want to test the package locally first:
+
 - If yes: `code --install-extension <filename>.vsix --force`
 - Wait for user confirmation before proceeding
 
@@ -102,12 +104,14 @@ Ask user if they want to test the package locally first:
 ### 9. Push to Remote
 
 Ask user if they want to push changes to remote:
+
 - `git push origin main`
 - `git push --tags`
 
 ### 10. Summary
 
 Display final summary with:
+
 - ✅ Published version number
 - 📦 Microsoft Marketplace URL
 - 📦 Open VSX Registry URL

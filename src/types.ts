@@ -36,11 +36,7 @@ export interface ValidationResult {
 /**
  * File tracking status from `maid files --json`
  */
-export type FileTrackingStatus =
-  | "UNDECLARED"
-  | "REGISTERED"
-  | "TRACKED"
-  | "PRIVATE_IMPL";
+export type FileTrackingStatus = "UNDECLARED" | "REGISTERED" | "TRACKED" | "PRIVATE_IMPL";
 
 /**
  * Undeclared/Registered file entry with issues
@@ -137,6 +133,30 @@ export interface ManifestInfo {
  */
 export interface ManifestsResult {
   manifests: ManifestInfo[];
+}
+
+/**
+ * Parsed manifest JSON structure from .manifest.json files
+ */
+export interface ParsedManifestJson {
+  goal?: string;
+  taskType?: string;
+  version?: string;
+  supersedes?: string[];
+  creatableFiles?: string[];
+  editableFiles?: string[];
+  readonlyFiles?: string[];
+  expectedArtifacts?: ExpectedArtifact | ExpectedArtifact[];
+  validationCommand?: string[];
+  tasks?: ManifestTask[];
+}
+
+/**
+ * Chain information for a manifest
+ */
+export interface ChainInfo {
+  parents: number;
+  children: number;
 }
 
 /**
@@ -311,4 +331,96 @@ export interface HistoryPanelData {
     commit1: string;
     commit2: string;
   };
+}
+
+/**
+ * Hierarchical node for Visual Architecture Studio hierarchical system view.
+ * Represents a node in a tree structure with metrics aggregation.
+ * Used for issue #82 - hierarchical system view.
+ */
+export interface HierarchicalNode {
+  id: string;
+  name: string;
+  type: GraphNodeType;
+  level: number;
+  parent: string | null;
+  children: HierarchicalNode[];
+  metrics: {
+    manifestCount: number;
+    fileCount: number;
+    artifactCount: number;
+    errorCount: number;
+  };
+}
+
+/**
+ * Dependency impact analysis result for Visual Architecture Studio.
+ * Tracks which files, manifests, and artifacts are affected by changes.
+ * Used for issue #81 - impact analysis.
+ */
+export interface DependencyImpact {
+  artifactId: string;
+  affectedFiles: string[];
+  affectedManifests: string[];
+  affectedArtifacts: string[];
+  severity: "high" | "medium" | "low";
+  totalImpact: number;
+}
+
+/**
+ * Graph layout configuration for Visual Architecture Studio graph explorer.
+ * Supports multiple layout algorithms with customizable options.
+ * Used for issue #77 - graph explorer layouts.
+ */
+export interface GraphLayout {
+  type: "hierarchical" | "force-directed" | "circular" | "timeline";
+  options: Record<string, unknown>;
+}
+
+/**
+ * Filter configuration for Visual Architecture Studio advanced filtering.
+ * Enables filtering nodes by type, search query, and various criteria.
+ * Used for issue #77 - advanced filtering.
+ */
+export interface FilterConfig {
+  nodeTypes: GraphNodeType[];
+  searchQuery: string;
+  moduleFilter: string | null;
+  taskTypeFilter: string | null;
+  filePatternFilter: string | null;
+}
+
+/**
+ * System-wide metrics for Visual Architecture Studio dashboard.
+ * Aggregates validation results and file tracking statistics.
+ * Used for issue #78 - dashboard metrics.
+ */
+export interface SystemMetrics {
+  totalManifests: number;
+  validManifests: number;
+  errorCount: number;
+  warningCount: number;
+  fileTracking: {
+    undeclared: number;
+    registered: number;
+    tracked: number;
+  };
+  coverage: number;
+}
+
+/**
+ * State for the Visual Architecture Studio manifest designer.
+ * Tracks the current manifest being designed and its validation status.
+ * Used for issue #79 - visual designer.
+ */
+export interface ManifestDesignerState {
+  goal: string;
+  taskType: "create" | "edit" | "refactor" | "snapshot";
+  creatableFiles: string[];
+  editableFiles: string[];
+  readonlyFiles: string[];
+  expectedArtifacts: ExpectedArtifact[];
+  validationCommand: string[];
+  isDirty: boolean;
+  validationErrors: ValidationError[];
 }

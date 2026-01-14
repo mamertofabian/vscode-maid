@@ -1,0 +1,47 @@
+{
+  "goal": "Integrate ImpactAnalysisPanel into extension.ts with command registration and activation. Add imports for ImpactAnalysisPanel and setSharedManifestIndex, create registerImpactAnalysisCommand and registerHierarchicalViewCommand functions for registering new panel commands, and wire setSharedManifestIndex during activation.",
+  "taskType": "edit",
+  "creatableFiles": [],
+  "editableFiles": ["src/extension.ts"],
+  "readonlyFiles": ["src/webview/impactAnalysisPanel.ts"],
+  "expectedArtifacts": {
+    "file": "src/extension.ts",
+    "contains": [
+      {
+        "type": "function",
+        "name": "registerImpactAnalysisCommand",
+        "args": [
+          {
+            "name": "context",
+            "type": "vscode.ExtensionContext"
+          }
+        ],
+        "returns": "void"
+      },
+      {
+        "type": "function",
+        "name": "registerHierarchicalViewCommand",
+        "args": [
+          {
+            "name": "context",
+            "type": "vscode.ExtensionContext"
+          }
+        ],
+        "returns": "void"
+      },
+      {
+        "type": "interface",
+        "name": "PackageJson"
+      },
+      {
+        "type": "interface",
+        "name": "PyPIResponse"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestProviderWithIndex"
+      }
+    ]
+  },
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_040_integration.test.ts"]
+}

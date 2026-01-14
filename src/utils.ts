@@ -23,7 +23,7 @@ let outputChannel: vscode.OutputChannel | undefined;
 /**
  * Set the shared output channel for logging.
  */
-export function setOutputChannel(channel: vscode.OutputChannel): void {
+export function setOutputChannel(channel: vscode.OutputChannel | undefined): void {
   outputChannel = channel;
 }
 
@@ -42,8 +42,7 @@ export function log(message: string, level: LogLevel = "info"): void {
     return;
   }
   const timestamp = new Date().toISOString();
-  const prefix =
-    level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
+  const prefix = level === "error" ? "ERROR" : level === "warn" ? "WARN" : "INFO";
   outputChannel.appendLine(`[${timestamp}] [${prefix}] ${message}`);
 }
 
@@ -69,13 +68,21 @@ export async function executeCommand(
       stderr: stderr.trim(),
       exitCode: 0,
     };
-  } catch (error: any) {
-    log(`Command failed: ${error.message}`, "error");
+  } catch (error: unknown) {
+    interface ExecError {
+      message?: string;
+      stdout?: string;
+      stderr?: string;
+      code?: number;
+    }
+    const execError = error as ExecError;
+    const errorMessage = execError.message || String(error);
+    log(`Command failed: ${errorMessage}`, "error");
     return {
       success: false,
-      stdout: error.stdout?.trim() || "",
-      stderr: error.stderr?.trim() || error.message,
-      exitCode: error.code || 1,
+      stdout: execError.stdout?.trim() || "",
+      stderr: execError.stderr?.trim() || errorMessage,
+      exitCode: execError.code || 1,
     };
   }
 }
@@ -83,10 +90,7 @@ export async function executeCommand(
 /**
  * Execute a MAID CLI command with JSON output.
  */
-export async function executeMaidCommand<T>(
-  args: string,
-  cwd?: string
-): Promise<T | null> {
+export async function executeMaidCommand<T>(args: string, cwd?: string): Promise<T | null> {
   const workspaceFolder = cwd || getWorkspaceRoot();
   if (!workspaceFolder) {
     log("No workspace folder available for MAID command", "warn");
@@ -101,8 +105,9 @@ export async function executeMaidCommand<T>(
 
   try {
     return JSON.parse(result.stdout) as T;
-  } catch (error) {
-    log(`Failed to parse MAID output as JSON: ${error}`, "error");
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`Failed to parse MAID output as JSON: ${errorMessage}`, "error");
     return null;
   }
 }
@@ -110,9 +115,7 @@ export async function executeMaidCommand<T>(
 /**
  * Run maid validate with JSON output.
  */
-export async function runValidation(
-  manifestPath?: string
-): Promise<ValidationResult | null> {
+export async function runValidation(manifestPath?: string): Promise<ValidationResult | null> {
   if (manifestPath) {
     // Use MAID root as working directory
     const maidRoot = getMaidRoot(manifestPath);
@@ -152,8 +155,9 @@ export async function checkMaidLspInstalled(): Promise<boolean> {
       log(`maid-lsp stderr: ${stderr.trim()}`, "warn");
     }
     return true;
-  } catch (error: any) {
-    log(`maid-lsp not found or error occurred: ${error.message}`, "error");
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`maid-lsp not found or error occurred: ${errorMessage}`, "error");
     return false;
   }
 }
@@ -167,8 +171,9 @@ export async function checkMaidCliInstalled(): Promise<boolean> {
     const { stdout } = await execAsync("maid --version");
     log(`maid CLI found! version: ${stdout.trim()}`);
     return true;
-  } catch (error: any) {
-    log(`maid CLI not found: ${error.message}`, "warn");
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`maid CLI not found: ${errorMessage}`, "warn");
     return false;
   }
 }
@@ -185,8 +190,9 @@ export async function getInstalledVersion(): Promise<string | null> {
     const version = match ? match[1] : null;
     log(`Extracted version: ${version}`);
     return version;
-  } catch (error) {
-    log(`Failed to get maid-lsp version: ${error}`, "error");
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`Failed to get maid-lsp version: ${errorMessage}`, "error");
     return null;
   }
 }
@@ -238,7 +244,7 @@ export async function findManifestFiles(): Promise<vscode.Uri[]> {
 /**
  * Debounce a function call.
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {
@@ -254,7 +260,7 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle a function call.
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
   limit: number
 ): (...args: Parameters<T>) => void {

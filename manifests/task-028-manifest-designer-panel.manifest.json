@@ -1,0 +1,52 @@
+{
+  "goal": "Create VS Code webview panel for visual manifest editing with load, save, and validate capabilities",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/webview/manifestDesignerPanel.ts"],
+  "editableFiles": [],
+  "readonlyFiles": ["src/webview/messages.ts", "src/webview/dashboardPanel.ts", "src/types.ts"],
+  "expectedArtifacts": {
+    "file": "src/webview/manifestDesignerPanel.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "ManifestDesignerPanel"
+      },
+      {
+        "type": "function",
+        "name": "currentPanel",
+        "class": "ManifestDesignerPanel"
+      },
+      {
+        "type": "function",
+        "name": "viewType",
+        "class": "ManifestDesignerPanel"
+      },
+      {
+        "type": "function",
+        "name": "createOrShow",
+        "class": "ManifestDesignerPanel"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "ManifestDesignerPanel"
+      },
+      {
+        "type": "function",
+        "name": "getNonce"
+      },
+      {
+        "type": "interface",
+        "name": "ParsedManifest"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_028_manifest_designer_panel.test.ts"
+  ]
+}

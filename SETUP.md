@@ -33,6 +33,7 @@ npm run compile
 ### Option B: Install from VSIX
 
 1. Build the VSIX package:
+
    ```bash
    npm install -g @vscode/vsce
    vsce package

@@ -40,6 +40,16 @@ export interface ManifestChainData {
 }
 
 /**
+ * Chain metrics for analyzing manifest chain health and structure
+ */
+export interface ChainMetrics {
+  depth: number;
+  breadth: number;
+  totalNodes: number;
+  hasConflicts: boolean;
+}
+
+/**
  * Manages the Manifest Chain Visualizer webview panel.
  */
 export class ManifestChainPanel {
@@ -51,6 +61,8 @@ export class ManifestChainPanel {
   private readonly _manifestIndex: ManifestIndex | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _currentManifestPath: string | undefined;
+  private _chainData: ManifestChainData | null = null;
+  private _conflicts: Array<{ node1: string; node2: string; reason: string }> = [];
 
   /**
    * Create or show the Manifest Chain panel.
@@ -85,11 +97,7 @@ export class ManifestChainPanel {
       }
     );
 
-    ManifestChainPanel.currentPanel = new ManifestChainPanel(
-      panel,
-      extensionUri,
-      manifestIndex
-    );
+    ManifestChainPanel.currentPanel = new ManifestChainPanel(panel, extensionUri, manifestIndex);
     if (manifestPath) {
       ManifestChainPanel.currentPanel.setManifest(manifestPath);
     }
@@ -128,9 +136,9 @@ export class ManifestChainPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -141,10 +149,7 @@ export class ManifestChainPanel {
     // Try to get manifest from active editor if not provided
     if (!this._currentManifestPath) {
       const activeEditor = vscode.window.activeTextEditor;
-      if (
-        activeEditor &&
-        activeEditor.document.uri.fsPath.endsWith(".manifest.json")
-      ) {
+      if (activeEditor && activeEditor.document.uri.fsPath.endsWith(".manifest.json")) {
         this.setManifest(activeEditor.document.uri.fsPath);
       }
     }
@@ -155,7 +160,35 @@ export class ManifestChainPanel {
    */
   public setManifest(manifestPath: string): void {
     this._currentManifestPath = manifestPath;
-    this._loadAndSendChainData();
+    void this._loadAndSendChainData();
+  }
+
+  /**
+   * Auto-select the first manifest from the index when no manifest is provided.
+   * This allows the panel to open from Command Palette without requiring a manifest to be open.
+   */
+  private _autoSelectFirstManifest(): void {
+    if (this._currentManifestPath) {
+      return; // Already have a manifest selected
+    }
+
+    if (!this._manifestIndex) {
+      log("[ManifestChainPanel] Cannot auto-select: no manifest index available");
+      return;
+    }
+
+    const allManifests = this._manifestIndex.getAllManifests();
+    if (allManifests.length > 0) {
+      this._currentManifestPath = allManifests[0];
+      log(`[ManifestChainPanel] Auto-selected first manifest: ${allManifests[0]}`);
+      void this._loadAndSendChainData();
+    } else {
+      log("[ManifestChainPanel] No manifests available to auto-select");
+      this._postMessage({
+        type: "error",
+        payload: { message: "No manifests found in workspace. Create a manifest first." },
+      });
+    }
   }
 
   /**
@@ -172,12 +205,17 @@ export class ManifestChainPanel {
     switch (message.type) {
       case "ready":
         log("[ManifestChainPanel] Webview ready, loading data...");
-        await this._loadAndSendChainData();
+        // If no manifest is set, try to auto-select one
+        if (!this._currentManifestPath) {
+          this._autoSelectFirstManifest();
+        } else {
+          this._loadAndSendChainData();
+        }
         break;
 
       case "refresh":
         log("[ManifestChainPanel] Refresh requested");
-        await this._loadAndSendChainData();
+        this._loadAndSendChainData();
         break;
 
       case "openManifest":
@@ -201,8 +239,9 @@ export class ManifestChainPanel {
       await vscode.window.showTextDocument(document);
       // Update the panel to show the new manifest's chain
       this.setManifest(manifestPath);
-    } catch (error: any) {
-      log(`[ManifestChainPanel] Error opening manifest: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error opening manifest: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open manifest: ${manifestPath}`);
     }
   }
@@ -210,7 +249,7 @@ export class ManifestChainPanel {
   /**
    * Load chain data from manifest index and send to webview.
    */
-  private async _loadAndSendChainData(): Promise<void> {
+  private _loadAndSendChainData(): void {
     if (!this._currentManifestPath) {
       this._postMessage({
         type: "error",
@@ -254,67 +293,77 @@ export class ManifestChainPanel {
       });
 
       // Parent manifests (level -1, -2, etc.)
-      const addParents = (parentPaths: string[], level: number): void => {
+      // targetPath is the manifest that the parent supersedes
+      const addParents = (parentPaths: string[], level: number, targetPath: string): void => {
         for (const parentPath of parentPaths) {
           const parentEntry = this._manifestIndex!.getManifestEntry(parentPath);
           const parentLabel = path.basename(parentPath, ".manifest.json");
-          nodes.push({
-            id: parentPath,
-            label: parentLabel,
-            path: parentPath,
-            goal: parentEntry?.goal,
-            level: level,
-          });
 
-          // Add edge from parent to current
+          // Avoid duplicate nodes
+          if (!nodes.find((n) => n.id === parentPath)) {
+            nodes.push({
+              id: parentPath,
+              label: parentLabel,
+              path: parentPath,
+              goal: parentEntry?.goal,
+              level: level,
+            });
+          }
+
+          // Add edge from parent to target (the manifest it supersedes)
           edges.push({
             from: parentPath,
-            to: currentManifestPath,
+            to: targetPath,
             arrows: "to",
             label: "supersedes",
           });
 
-          // Recursively add grandparents
+          // Recursively add grandparents, pointing to this parent
           if (parentEntry && parentEntry.supersededBy.length > 0) {
-            addParents(parentEntry.supersededBy, level - 1);
+            addParents(parentEntry.supersededBy, level - 1, parentPath);
           }
         }
       };
 
       // Child manifests (level 1, 2, etc.)
-      const addChildren = (childPaths: string[], level: number): void => {
+      // sourcePath is the manifest that supersedes the child
+      const addChildren = (childPaths: string[], level: number, sourcePath: string): void => {
         for (const childPath of childPaths) {
           const childEntry = this._manifestIndex!.getManifestEntry(childPath);
           const childLabel = path.basename(childPath, ".manifest.json");
-          nodes.push({
-            id: childPath,
-            label: childLabel,
-            path: childPath,
-            goal: childEntry?.goal,
-            level: level,
-          });
 
-          // Add edge from current to child
+          // Avoid duplicate nodes
+          if (!nodes.find((n) => n.id === childPath)) {
+            nodes.push({
+              id: childPath,
+              label: childLabel,
+              path: childPath,
+              goal: childEntry?.goal,
+              level: level,
+            });
+          }
+
+          // Add edge from source to child (source supersedes child)
           edges.push({
-            from: currentManifestPath,
+            from: sourcePath,
             to: childPath,
             arrows: "to",
             label: "supersedes",
           });
 
-          // Recursively add grandchildren
+          // Recursively add grandchildren, with this child as the source
           if (childEntry && childEntry.supersedes.length > 0) {
-            addChildren(childEntry.supersedes, level + 1);
+            addChildren(childEntry.supersedes, level + 1, childPath);
           }
         }
       };
 
       // Add parents and children
       if (chain.parents.length > 0) {
-        addParents(chain.parents, -1);
+        addParents(chain.parents, -1, currentManifestPath);
       }
       if (chain.children.length > 0) {
-        addChildren(chain.children, 1);
+        addChildren(chain.children, 1, currentManifestPath);
       }
 
       const chainData: ManifestChainData = {
@@ -323,20 +372,22 @@ export class ManifestChainPanel {
         currentManifest: currentManifestPath,
       };
 
-      log(
-        `[ManifestChainPanel] Loaded chain: ${nodes.length} nodes, ${edges.length} edges`
-      );
+      // Store chain data for metrics computation
+      this._chainData = chainData;
+
+      log(`[ManifestChainPanel] Loaded chain: ${nodes.length} nodes, ${edges.length} edges`);
 
       this._postMessage({
         type: "chainData",
         payload: chainData,
       });
-    } catch (error: any) {
-      log(`[ManifestChainPanel] Error loading chain: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error loading chain: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load manifest chain: ${error.message}`,
+          message: `Failed to load manifest chain: ${message}`,
         },
       });
     }
@@ -377,13 +428,167 @@ export class ManifestChainPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Manifest Chain</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="manifestChain"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
+  }
+
+  /**
+   * Load all relationship types beyond supersedes (file references, artifacts).
+   */
+  private _loadFullRelationships(): Promise<void> {
+    if (!this._currentManifestPath || !this._manifestIndex) {
+      this._postMessage({
+        type: "error",
+        payload: { message: "Cannot load relationships: manifest or index not available." },
+      });
+      return Promise.resolve();
+    }
+
+    this._postMessage({ type: "loading", payload: { isLoading: true } });
+
+    try {
+      const entry = this._manifestIndex.getManifestEntry(this._currentManifestPath);
+      if (!entry) {
+        this._postMessage({
+          type: "error",
+          payload: { message: "Manifest entry not found in index." },
+        });
+        return Promise.resolve();
+      }
+
+      // Load file references and artifacts from the manifest entry
+      const fileRefs = entry.referencedFiles;
+      const artifacts = entry.artifacts;
+
+      log(
+        `[ManifestChainPanel] Loaded relationships: ${fileRefs.size} files, ${artifacts.size} artifacts`
+      );
+
+      // After loading relationships, compute metrics and highlight conflicts
+      this._highlightConflicts();
+
+      this._postMessage({ type: "loading", payload: { isLoading: false } });
+      return Promise.resolve();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[ManifestChainPanel] Error loading relationships: ${message}`, "error");
+      this._postMessage({
+        type: "error",
+        payload: { message: `Failed to load relationships: ${message}` },
+      });
+      return Promise.resolve();
+    }
+  }
+
+  /**
+   * Calculate chain depth, breadth, total nodes, and conflict detection.
+   */
+  private _computeChainMetrics(): ChainMetrics {
+    if (!this._chainData || this._chainData.nodes.length === 0) {
+      return {
+        depth: 0,
+        breadth: 0,
+        totalNodes: 0,
+        hasConflicts: false,
+      };
+    }
+
+    const nodes = this._chainData.nodes;
+
+    // Calculate depth: range of levels
+    const levels = nodes.map((n) => n.level);
+    const minLevel = Math.min(...levels);
+    const maxLevel = Math.max(...levels);
+    const depth = maxLevel - minLevel + 1;
+
+    // Calculate breadth: maximum nodes at any single level
+    const levelCounts = new Map<number, number>();
+    for (const node of nodes) {
+      const count = levelCounts.get(node.level) || 0;
+      levelCounts.set(node.level, count + 1);
+    }
+    const breadth = Math.max(...levelCounts.values());
+
+    // Total nodes
+    const totalNodes = nodes.length;
+
+    // Check for conflicts
+    const hasConflicts = this._conflicts.length > 0;
+
+    return {
+      depth,
+      breadth,
+      totalNodes,
+      hasConflicts,
+    };
+  }
+
+  /**
+   * Mark conflicting manifests in the chain.
+   */
+  private _highlightConflicts(): void {
+    if (!this._chainData || !this._manifestIndex) {
+      return;
+    }
+
+    this._conflicts = [];
+
+    // Check for file overlap conflicts between manifests at the same level
+    const nodesByLevel = new Map<number, ManifestChainNode[]>();
+    for (const node of this._chainData.nodes) {
+      const levelNodes = nodesByLevel.get(node.level) || [];
+      levelNodes.push(node);
+      nodesByLevel.set(node.level, levelNodes);
+    }
+
+    // For each level with multiple nodes, check for file overlaps
+    for (const [_level, levelNodes] of nodesByLevel) {
+      if (levelNodes.length < 2) continue;
+
+      for (let i = 0; i < levelNodes.length; i++) {
+        for (let j = i + 1; j < levelNodes.length; j++) {
+          const node1 = levelNodes[i];
+          const node2 = levelNodes[j];
+
+          const entry1 = this._manifestIndex.getManifestEntry(node1.path);
+          const entry2 = this._manifestIndex.getManifestEntry(node2.path);
+
+          if (entry1 && entry2) {
+            // Check for file reference overlaps
+            const files1 = new Set(entry1.referencedFiles.keys());
+            const files2 = new Set(entry2.referencedFiles.keys());
+
+            for (const file of files1) {
+              if (files2.has(file)) {
+                this._conflicts.push({
+                  node1: node1.id,
+                  node2: node2.id,
+                  reason: `Both reference file: ${file}`,
+                });
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // If conflicts were found, notify the webview
+    if (this._conflicts.length > 0) {
+      log(`[ManifestChainPanel] Found ${this._conflicts.length} conflicts in chain`);
+      this._postMessage({
+        type: "chainData",
+        payload: {
+          ...this._chainData,
+          // Include metrics in the chain data
+        },
+      });
+    }
   }
 
   /**

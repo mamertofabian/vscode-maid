@@ -1,0 +1,273 @@
+{
+  "goal": "Snapshot of existing code in src/definitionProvider.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/definitionProvider.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/definitionProvider.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "ManifestDefinitionProvider"
+      },
+      {
+        "type": "function",
+        "name": "escapeRegex",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "str",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "str",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "findArtifactInFile",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "artifactName",
+            "type": "string"
+          },
+          {
+            "name": "artifactType",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "artifactName",
+            "type": "string"
+          },
+          {
+            "name": "artifactType",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getSearchPatterns",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "name": "ext",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "name": "ext",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isArtifactName",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isFilePath",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "provideArtifactDefinition",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          },
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          },
+          {
+            "name": "jsonPath",
+            "type": "jsonc.Segment[]"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "provideDefinition",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "position",
+            "type": "vscode.Position"
+          },
+          {
+            "name": "_token",
+            "type": "vscode.CancellationToken"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "provideFileDefinition",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document",
+            "type": "vscode.TextDocument"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "resolveFilePath",
+        "class": "ManifestDefinitionProvider",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "manifestPath",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_011_definitionProvider.test.ts"
+  ]
+}

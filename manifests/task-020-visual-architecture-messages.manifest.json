@@ -1,0 +1,72 @@
+{
+  "goal": "Add Visual Architecture Studio message types for communication between extension and webview panels",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["src/webview/messages.ts"],
+  "readonlyFiles": ["src/types.ts"],
+  "expectedArtifacts": {
+    "file": "src/webview/messages.ts",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "GraphFilters"
+      },
+      {
+        "type": "interface",
+        "name": "DashboardData"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestSummary"
+      },
+      {
+        "type": "interface",
+        "name": "TestCoverageSummary"
+      },
+      {
+        "type": "interface",
+        "name": "ActivityItem"
+      },
+      {
+        "type": "interface",
+        "name": "ThemeInfo"
+      },
+      {
+        "type": "interface",
+        "name": "HierarchicalViewData"
+      },
+      {
+        "type": "interface",
+        "name": "ImpactAnalysisData"
+      },
+      {
+        "type": "interface",
+        "name": "ManifestDesignerData"
+      },
+      {
+        "type": "interface",
+        "name": "LayoutChangePayload"
+      },
+      {
+        "type": "interface",
+        "name": "ExportPayload"
+      },
+      {
+        "type": "type",
+        "name": "ExtensionToWebviewMessage"
+      },
+      {
+        "type": "type",
+        "name": "WebviewToExtensionMessage"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_020_visual_messages.test.ts"
+  ]
+}

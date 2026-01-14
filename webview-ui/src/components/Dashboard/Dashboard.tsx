@@ -8,8 +8,43 @@ import type { DashboardData, ExtensionToWebviewMessage } from "../../types";
 import ValidationCard from "./ValidationCard";
 import TestCoverageCard from "./TestCoverageCard";
 import ActivityFeed from "./ActivityFeed";
+import HealthIndicator from "./HealthIndicator";
+import MetricsCard from "./MetricsCard";
 import Spinner from "../shared/Spinner";
 import "./styles.css";
+
+interface FileTrackingBreakdown {
+  tracked: number;
+  untracked: number;
+  total: number;
+}
+
+const calculateHealthScore = (data: DashboardData | null): number => {
+  if (!data) return 0;
+  if (data.manifests.length === 0) return 0;
+
+  const validManifests = data.manifests.filter((m) => m.isValid).length;
+  const totalManifests = data.manifests.length;
+  const validRatio = totalManifests > 0 ? validManifests / totalManifests : 0;
+
+  // Factor in errors: more errors = lower score
+  const errorPenalty = Math.min(data.totalErrors * 5, 30);
+  const warningPenalty = Math.min(data.totalWarnings * 2, 10);
+
+  const score = Math.round(validRatio * 100 - errorPenalty - warningPenalty);
+  return Math.max(0, Math.min(100, score));
+};
+
+const getFileTrackingBreakdown = (data: DashboardData | null): FileTrackingBreakdown => {
+  if (!data) return { tracked: 0, untracked: 0, total: 0 };
+
+  // Calculate tracked files based on valid manifests
+  const tracked = data.manifests.filter((m) => m.isValid).length;
+  const untracked = data.manifests.filter((m) => !m.isValid).length;
+  const total = data.manifests.length;
+
+  return { tracked, untracked, total };
+};
 
 const Dashboard: React.FC = () => {
   const message = useVsCodeMessages();
@@ -126,6 +161,32 @@ const Dashboard: React.FC = () => {
       </header>
 
       <div className="dashboard-content">
+        <div className="health-section">
+          <div className="health-indicator-container">
+            <HealthIndicator score={calculateHealthScore(data)} size="large" />
+            <div className="health-label">Project Health</div>
+          </div>
+          <div className="metrics-summary">
+            <MetricsCard
+              title="Tracked"
+              value={getFileTrackingBreakdown(data).tracked}
+              subtitle="Valid manifests"
+              color="var(--success)"
+            />
+            <MetricsCard
+              title="Untracked"
+              value={getFileTrackingBreakdown(data).untracked}
+              subtitle="Invalid manifests"
+              color="var(--error)"
+            />
+            <MetricsCard
+              title="Total"
+              value={getFileTrackingBreakdown(data).total}
+              subtitle="All manifests"
+            />
+          </div>
+        </div>
+
         <div className="stats-row">
           <div className="stat-card">
             <span className="stat-value">{data?.manifests.length || 0}</span>

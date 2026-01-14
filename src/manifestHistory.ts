@@ -99,15 +99,11 @@ export class HistoryTreeItem extends vscode.TreeItem {
 /**
  * TreeDataProvider for manifest history.
  */
-export class ManifestHistoryTreeDataProvider
-  implements vscode.TreeDataProvider<HistoryTreeItem>
-{
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    HistoryTreeItem | undefined | null | void
-  > = new vscode.EventEmitter<HistoryTreeItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    HistoryTreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+export class ManifestHistoryTreeDataProvider implements vscode.TreeDataProvider<HistoryTreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<HistoryTreeItem | undefined | null | void> =
+    new vscode.EventEmitter<HistoryTreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<HistoryTreeItem | undefined | null | void> =
+    this._onDidChangeTreeData.event;
 
   private selectedManifest: string | undefined;
   private commitHistory: CommitHistory[] = [];
@@ -132,15 +128,19 @@ export class ManifestHistoryTreeDataProvider
 
     // Watch for manifest file changes
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
-    watcher.onDidChange(() => this.debouncedRefresh());
-    watcher.onDidCreate(() => this.debouncedRefresh());
+    watcher.onDidChange(() => {
+      void this.debouncedRefresh();
+    });
+    watcher.onDidCreate(() => {
+      void this.debouncedRefresh();
+    });
     this.disposables.push(watcher);
 
     // Check initial selection
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor && isManifestPath(activeEditor.document.uri.fsPath)) {
       this.selectedManifest = activeEditor.document.uri.fsPath;
-      this.checkGitAndRefresh();
+      void this.checkGitAndRefresh();
     }
   }
 
@@ -149,7 +149,7 @@ export class ManifestHistoryTreeDataProvider
    */
   refresh(): void {
     log("[ManifestHistory] Manual refresh triggered");
-    this.checkGitAndRefresh();
+    void this.checkGitAndRefresh();
   }
 
   /**
@@ -164,7 +164,7 @@ export class ManifestHistoryTreeDataProvider
     }
 
     this.isGitRepo = await isGitRepository(workspaceRoot);
-    await this.loadHistory();
+    void this.loadHistory();
   }
 
   /**
@@ -190,13 +190,11 @@ export class ManifestHistoryTreeDataProvider
     try {
       const config = vscode.workspace.getConfiguration("maid");
       const maxCommits = config.get<number>("history.maxCommits", 50);
-      this.commitHistory = await getManifestHistory(
-        this.selectedManifest,
-        maxCommits
-      );
+      this.commitHistory = await getManifestHistory(this.selectedManifest, maxCommits);
       log(`[ManifestHistory] Loaded ${this.commitHistory.length} commits`);
-    } catch (error) {
-      log(`[ManifestHistory] Error loading history: ${error}`, "error");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log(`[ManifestHistory] Error loading history: ${errorMessage}`, "error");
       this.commitHistory = [];
     } finally {
       this.isLoading = false;
@@ -210,7 +208,7 @@ export class ManifestHistoryTreeDataProvider
   setSelectedManifest(manifestPath: string | undefined): void {
     if (this.selectedManifest !== manifestPath) {
       this.selectedManifest = manifestPath;
-      this.loadHistory();
+      void this.loadHistory();
     }
   }
 
@@ -224,7 +222,7 @@ export class ManifestHistoryTreeDataProvider
   /**
    * Get children of a tree item.
    */
-  async getChildren(element?: HistoryTreeItem): Promise<HistoryTreeItem[]> {
+  getChildren(element?: HistoryTreeItem): HistoryTreeItem[] {
     // Root level: show selected manifest or empty state
     if (!element) {
       if (!this.selectedManifest) {
@@ -262,31 +260,17 @@ export class ManifestHistoryTreeDataProvider
     if (element.itemType === "manifest") {
       if (this.isLoading) {
         return [
-          new HistoryTreeItem(
-            "Loading history...",
-            "empty",
-            vscode.TreeItemCollapsibleState.None
-          ),
+          new HistoryTreeItem("Loading history...", "empty", vscode.TreeItemCollapsibleState.None),
         ];
       }
 
       if (this.commitHistory.length === 0) {
         return [
-          new HistoryTreeItem(
-            "No history found",
-            "empty",
-            vscode.TreeItemCollapsibleState.None
-          ),
+          new HistoryTreeItem("No history found", "empty", vscode.TreeItemCollapsibleState.None),
         ];
       }
 
-      return [
-        new HistoryTreeItem(
-          "History",
-          "category",
-          vscode.TreeItemCollapsibleState.Expanded
-        ),
-      ];
+      return [new HistoryTreeItem("History", "category", vscode.TreeItemCollapsibleState.Expanded)];
     }
 
     // Category level: show commits
@@ -310,6 +294,8 @@ export class ManifestHistoryTreeDataProvider
    * Dispose of resources.
    */
   dispose(): void {
-    this.disposables.forEach((d) => d.dispose());
+    this.disposables.forEach((d: vscode.Disposable) => {
+      d.dispose();
+    });
   }
 }

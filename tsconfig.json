@@ -5,11 +5,12 @@
     "outDir": "out",
     "lib": ["ES2020"],
     "sourceMap": true,
-    "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "exclude": ["node_modules", ".vscode-test", "webview-ui"]
+  "exclude": ["node_modules", ".vscode-test", "webview-ui", "out"],
+  "references": [{ "path": "./tsconfig.src.json" }, { "path": "./tsconfig.test.json" }],
+  "files": []
 }

@@ -5,7 +5,7 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import type { CommitHistory, HistoryPanelData } from "../types";
+import type { HistoryPanelData } from "../types";
 import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from "./messages";
 import { log } from "../utils";
 import {
@@ -45,7 +45,7 @@ export class HistoryPanel {
       HistoryPanel.currentPanel._panel.reveal(column);
       if (manifestPath) {
         HistoryPanel.currentPanel._manifestPath = manifestPath;
-        HistoryPanel.currentPanel._loadHistory(manifestPath, commitHash);
+        void HistoryPanel.currentPanel._loadHistory(manifestPath, commitHash);
       }
       return HistoryPanel.currentPanel;
     }
@@ -99,9 +99,9 @@ export class HistoryPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -111,7 +111,7 @@ export class HistoryPanel {
 
     // Load history if manifest path provided
     if (manifestPath) {
-      this._loadHistory(manifestPath, commitHash);
+      void this._loadHistory(manifestPath, commitHash);
     }
   }
 
@@ -166,9 +166,7 @@ export class HistoryPanel {
         break;
 
       case "openAtCommit":
-        log(
-          `[HistoryPanel] Opening file at commit: ${message.payload.commitHash}`
-        );
+        log(`[HistoryPanel] Opening file at commit: ${message.payload.commitHash}`);
         await this._openAtCommit(message.payload.manifestPath, message.payload.commitHash);
         break;
     }
@@ -203,12 +201,13 @@ export class HistoryPanel {
       });
 
       log(`[HistoryPanel] Loaded ${commits.length} commits`);
-    } catch (error: any) {
-      log(`[HistoryPanel] Error loading history: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[HistoryPanel] Error loading history: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load history: ${error.message}`,
+          message: `Failed to load history: ${message}`,
         },
       });
     }
@@ -236,12 +235,13 @@ export class HistoryPanel {
           },
         });
       }
-    } catch (error: any) {
-      log(`[HistoryPanel] Error loading commit: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[HistoryPanel] Error loading commit: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load commit: ${error.message}`,
+          message: `Failed to load commit: ${message}`,
         },
       });
     }
@@ -268,12 +268,13 @@ export class HistoryPanel {
           },
         });
       }
-    } catch (error: any) {
-      log(`[HistoryPanel] Error comparing commits: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[HistoryPanel] Error comparing commits: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to compare commits: ${error.message}`,
+          message: `Failed to compare commits: ${message}`,
         },
       });
     }
@@ -287,11 +288,12 @@ export class HistoryPanel {
       const content = await getFileAtCommit(manifestPath, commitHash);
       if (content) {
         // Create a temporary document with the content
-        const uri = vscode.Uri.parse(
-          `maid-history:${manifestPath}?commit=${commitHash}`
-        );
+        const uri = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash}`);
         const document = await vscode.workspace.openTextDocument(
-          uri.with({ scheme: "untitled", path: `${path.basename(manifestPath)} (${commitHash.substring(0, 7)})` })
+          uri.with({
+            scheme: "untitled",
+            path: `${path.basename(manifestPath)} (${commitHash.substring(0, 7)})`,
+          })
         );
         const edit = new vscode.WorkspaceEdit();
         edit.insert(document.uri, new vscode.Position(0, 0), content);
@@ -302,9 +304,10 @@ export class HistoryPanel {
           `Could not load file at commit ${commitHash.substring(0, 7)}`
         );
       }
-    } catch (error: any) {
-      log(`[HistoryPanel] Error opening at commit: ${error.message}`, "error");
-      vscode.window.showErrorMessage(`Failed to open file at commit: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[HistoryPanel] Error opening at commit: ${message}`, "error");
+      vscode.window.showErrorMessage(`Failed to open file at commit: ${message}`);
     }
   }
 
@@ -315,7 +318,7 @@ export class HistoryPanel {
     manifestPath: string,
     commitHash1: string,
     commitHash2: string,
-    diff: string
+    _diff: string
   ): Promise<void> {
     try {
       // Get file content at both commits
@@ -328,12 +331,8 @@ export class HistoryPanel {
       }
 
       // Create temporary URIs for the diff
-      const uri1 = vscode.Uri.parse(
-        `maid-history:${manifestPath}?commit=${commitHash1}`
-      );
-      const uri2 = vscode.Uri.parse(
-        `maid-history:${manifestPath}?commit=${commitHash2}`
-      );
+      const uri1 = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash1}`);
+      const uri2 = vscode.Uri.parse(`maid-history:${manifestPath}?commit=${commitHash2}`);
 
       // Use untitled scheme for temporary documents
       const doc1 = await vscode.workspace.openTextDocument(
@@ -360,9 +359,10 @@ export class HistoryPanel {
 
       // Show diff
       await vscode.commands.executeCommand("vscode.diff", doc1.uri, doc2.uri);
-    } catch (error: any) {
-      log(`[HistoryPanel] Error showing diff: ${error.message}`, "error");
-      vscode.window.showErrorMessage(`Failed to show diff: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[HistoryPanel] Error showing diff: ${message}`, "error");
+      vscode.window.showErrorMessage(`Failed to show diff: ${message}`);
     }
   }
 
@@ -401,11 +401,11 @@ export class HistoryPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Manifest History</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="history"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

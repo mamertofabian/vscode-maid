@@ -1,0 +1,54 @@
+{
+  "goal": "Create the ImpactAnalysis React component for displaying dependency impact analysis results. The component displays the target file being analyzed, shows loading state, error state, impact severity indicator, affected files list, affected manifests list, and affected artifacts list.",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": ["src/types.ts", "webview-ui/src/types.ts"],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "ImpactAnalysisProps"
+      },
+      {
+        "type": "function",
+        "name": "ImpactAnalysis"
+      },
+      {
+        "type": "function",
+        "name": "getSeverityColor",
+        "args": [
+          {
+            "name": "severity",
+            "type": "string"
+          }
+        ],
+        "returns": {
+          "type": "string"
+        }
+      },
+      {
+        "type": "function",
+        "name": "formatImpactCount",
+        "args": [
+          {
+            "name": "count",
+            "type": "number"
+          }
+        ],
+        "returns": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_035_impact_analysis_component.test.ts"
+  ]
+}

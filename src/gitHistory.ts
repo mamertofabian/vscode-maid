@@ -3,28 +3,20 @@
  * Retrieves commit history for manifest files using Git commands.
  */
 
-import * as vscode from "vscode";
 import * as path from "path";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { log, getWorkspaceRoot, executeCommand } from "./utils";
 import type { CommitHistory } from "./types";
-
-const execAsync = promisify(exec);
 
 /**
  * Check if a workspace is a Git repository.
  */
 export async function isGitRepository(workspacePath: string): Promise<boolean> {
   try {
-    const result = await executeCommand(
-      "git rev-parse --show-toplevel",
-      workspacePath,
-      5000
-    );
+    const result = await executeCommand("git rev-parse --show-toplevel", workspacePath, 5000);
     return result.success;
-  } catch (error) {
-    log(`Error checking Git repository: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error checking Git repository: ${message}`, "error");
     return false;
   }
 }
@@ -34,17 +26,14 @@ export async function isGitRepository(workspacePath: string): Promise<boolean> {
  */
 export async function getGitRoot(workspacePath: string): Promise<string | null> {
   try {
-    const result = await executeCommand(
-      "git rev-parse --show-toplevel",
-      workspacePath,
-      5000
-    );
+    const result = await executeCommand("git rev-parse --show-toplevel", workspacePath, 5000);
     if (result.success && result.stdout.trim()) {
       return result.stdout.trim();
     }
     return null;
-  } catch (error) {
-    log(`Error getting Git root: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting Git root: ${message}`, "error");
     return null;
   }
 }
@@ -52,14 +41,16 @@ export async function getGitRoot(workspacePath: string): Promise<string | null> 
 /**
  * Get the relative path of a file from the Git root.
  */
-async function getGitRelativePath(
-  filePath: string,
-  gitRoot: string
-): Promise<string> {
+function getGitRelativePath(filePath: string, gitRoot: string): string {
   // Ensure both arguments are strings
   if (typeof filePath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments: filePath=${typeof filePath} (${String(filePath)}), gitRoot=${typeof gitRoot} (${String(gitRoot)})`, "error");
-    throw new Error(`Invalid path arguments: expected strings, got ${typeof filePath} and ${typeof gitRoot}`);
+    log(
+      `Invalid path arguments: filePath=${typeof filePath} (${String(filePath)}), gitRoot=${typeof gitRoot} (${String(gitRoot)})`,
+      "error"
+    );
+    throw new Error(
+      `Invalid path arguments: expected strings, got ${typeof filePath} and ${typeof gitRoot}`
+    );
   }
 
   // Ensure paths are not empty
@@ -72,25 +63,31 @@ async function getGitRelativePath(
     // Convert to strings explicitly and normalize
     const normalizedGitRoot = String(path.normalize(String(gitRoot)));
     const normalizedFilePath = String(path.normalize(String(filePath)));
-    
+
     log(`Computing relative path: from="${normalizedGitRoot}", to="${normalizedFilePath}"`);
-    
+
     // Ensure both are still strings before calling path.relative
     if (typeof normalizedGitRoot !== "string" || typeof normalizedFilePath !== "string") {
-      log(`Path normalization failed: gitRoot type=${typeof normalizedGitRoot}, filePath type=${typeof normalizedFilePath}`, "error");
+      log(
+        `Path normalization failed: gitRoot type=${typeof normalizedGitRoot}, filePath type=${typeof normalizedFilePath}`,
+        "error"
+      );
       throw new Error(`Path normalization failed`);
     }
-    
+
     const relativePath = path.relative(normalizedGitRoot, normalizedFilePath);
-    
+
     // Normalize path separators for Git (use forward slashes)
     const gitPath = String(relativePath).replace(/\\/g, "/");
     log(`Computed relative path: "${gitPath}"`);
     return gitPath;
-  } catch (error: any) {
-    log(`Error computing relative path: ${error.message || error}`, "error");
-    log(`  filePath: ${filePath} (type: ${typeof filePath}, length: ${filePath?.length})`);
-    log(`  gitRoot: ${gitRoot} (type: ${typeof gitRoot}, length: ${gitRoot?.length})`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error computing relative path: ${message}`, "error");
+    const filePathStr = String(filePath);
+    const gitRootStr = String(gitRoot);
+    log(`  filePath: ${filePathStr} (type: ${typeof filePath}, length: ${filePathStr.length})`);
+    log(`  gitRoot: ${gitRootStr} (type: ${typeof gitRoot}, length: ${gitRootStr.length})`);
     throw error;
   }
 }
@@ -116,16 +113,16 @@ export async function getManifestHistory(
 
   // Validate paths
   if (typeof manifestPath !== "string") {
-    log(`Invalid manifest path: ${typeof manifestPath}`, "error");
+    log(`Invalid manifest path: ${String(typeof manifestPath)}`, "error");
     return [];
   }
   if (typeof gitRoot !== "string") {
-    log(`Invalid git root: ${typeof gitRoot}`, "error");
+    log(`Invalid git root: ${String(typeof gitRoot)}`, "error");
     return [];
   }
 
   try {
-    const relativePath = await getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = getGitRelativePath(manifestPath, gitRoot);
     log(`Getting Git history for: ${relativePath}`);
 
     // Git log format: hash|author|email|date|message
@@ -170,15 +167,17 @@ export async function getManifestHistory(
           message,
           changes: stats,
         });
-      } catch (error) {
-        log(`Error parsing commit ${hash}: ${error}`, "warn");
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        log(`Error parsing commit ${hash}: ${message}`, "warn");
       }
     }
 
     log(`Retrieved ${commits.length} commits for ${relativePath}`);
     return commits;
-  } catch (error) {
-    log(`Error getting manifest history: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting manifest history: ${message}`, "error");
     return [];
   }
 }
@@ -193,11 +192,7 @@ async function getCommitStats(
 ): Promise<{ added: number; removed: number; modified: number }> {
   try {
     // Get the parent commit hash
-    const parentResult = await executeCommand(
-      `git rev-parse ${commitHash}^`,
-      gitRoot,
-      5000
-    );
+    const parentResult = await executeCommand(`git rev-parse ${commitHash}^`, gitRoot, 5000);
 
     if (!parentResult.success) {
       // This might be the first commit, no parent
@@ -235,8 +230,9 @@ async function getCommitStats(
       removed,
       modified: added + removed > 0 ? 1 : 0,
     };
-  } catch (error) {
-    log(`Error getting commit stats: ${error}`, "warn");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting commit stats: ${message}`, "warn");
     return { added: 0, removed: 0, modified: 0 };
   }
 }
@@ -260,19 +256,18 @@ export async function getCommitDiff(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getCommitDiff: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getCommitDiff: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 
   try {
-    const relativePath = await getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = getGitRelativePath(manifestPath, gitRoot);
 
     // Get parent commit
-    const parentResult = await executeCommand(
-      `git rev-parse ${commitHash}^`,
-      gitRoot,
-      5000
-    );
+    const parentResult = await executeCommand(`git rev-parse ${commitHash}^`, gitRoot, 5000);
 
     if (!parentResult.success) {
       // First commit, show full file
@@ -292,8 +287,9 @@ export async function getCommitDiff(
     );
 
     return diffResult.success ? diffResult.stdout : null;
-  } catch (error) {
-    log(`Error getting commit diff: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting commit diff: ${message}`, "error");
     return null;
   }
 }
@@ -317,22 +313,22 @@ export async function getFileAtCommit(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getFileAtCommit: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getFileAtCommit: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 
   try {
-    const relativePath = await getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = getGitRelativePath(manifestPath, gitRoot);
 
-    const result = await executeCommand(
-      `git show ${commitHash}:${relativePath}`,
-      gitRoot,
-      10000
-    );
+    const result = await executeCommand(`git show ${commitHash}:${relativePath}`, gitRoot, 10000);
 
     return result.success ? result.stdout : null;
-  } catch (error) {
-    log(`Error getting file at commit: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting file at commit: ${message}`, "error");
     return null;
   }
 }
@@ -357,12 +353,15 @@ export async function getDiffBetweenCommits(
 
   // Validate paths
   if (typeof manifestPath !== "string" || typeof gitRoot !== "string") {
-    log(`Invalid path arguments in getDiffBetweenCommits: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`, "error");
+    log(
+      `Invalid path arguments in getDiffBetweenCommits: manifestPath=${typeof manifestPath}, gitRoot=${typeof gitRoot}`,
+      "error"
+    );
     return null;
   }
 
   try {
-    const relativePath = await getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = getGitRelativePath(manifestPath, gitRoot);
 
     const result = await executeCommand(
       `git diff ${commitHash1} ${commitHash2} -- "${relativePath}"`,
@@ -371,8 +370,9 @@ export async function getDiffBetweenCommits(
     );
 
     return result.success ? result.stdout : null;
-  } catch (error) {
-    log(`Error getting diff between commits: ${error}`, "error");
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error getting diff between commits: ${message}`, "error");
     return null;
   }
 }

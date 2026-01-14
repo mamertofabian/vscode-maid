@@ -1,0 +1,206 @@
+{
+  "goal": "Snapshot of existing code in src/gitHistory.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/gitHistory.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/gitHistory.ts",
+    "contains": [
+      {
+        "type": "function",
+        "name": "getCommitDiff",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getCommitStats",
+        "args": [
+          {
+            "name": "gitRoot",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          },
+          {
+            "name": "relativePath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "gitRoot",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          },
+          {
+            "name": "relativePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getDiffBetweenCommits",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash1",
+            "type": "string"
+          },
+          {
+            "name": "commitHash2",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash1",
+            "type": "string"
+          },
+          {
+            "name": "commitHash2",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getFileAtCommit",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "commitHash",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getGitRelativePath",
+        "args": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "gitRoot",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "filePath",
+            "type": "string"
+          },
+          {
+            "name": "gitRoot",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getGitRoot",
+        "args": [
+          {
+            "name": "workspacePath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspacePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getManifestHistory",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "maxCommits",
+            "type": "number"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string"
+          },
+          {
+            "name": "maxCommits",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isGitRepository",
+        "args": [
+          {
+            "name": "workspacePath",
+            "type": "string"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspacePath",
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_005_gitHistory.test.ts"]
+}

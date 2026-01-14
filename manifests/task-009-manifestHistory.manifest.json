@@ -1,0 +1,159 @@
+{
+  "goal": "Snapshot of existing code in src/manifestHistory.ts",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/manifestHistory.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/manifestHistory.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "HistoryTreeItem"
+      },
+      {
+        "type": "class",
+        "name": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getContextValue",
+        "class": "HistoryTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getDescription",
+        "class": "HistoryTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getIcon",
+        "class": "HistoryTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "getTooltip",
+        "class": "HistoryTreeItem"
+      },
+      {
+        "type": "function",
+        "name": "_onDidChangeTreeData",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "checkGitAndRefresh",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "commitHistory",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "debouncedRefresh",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "disposables",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "getChildren",
+        "class": "ManifestHistoryTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "HistoryTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "HistoryTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "getTreeItem",
+        "class": "ManifestHistoryTreeDataProvider",
+        "args": [
+          {
+            "name": "element",
+            "type": "HistoryTreeItem"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "element",
+            "type": "HistoryTreeItem"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "isGitRepo",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "isLoading",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "loadHistory",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "onDidChangeTreeData",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "refresh",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "selectedManifest",
+        "class": "ManifestHistoryTreeDataProvider"
+      },
+      {
+        "type": "function",
+        "name": "setSelectedManifest",
+        "class": "ManifestHistoryTreeDataProvider",
+        "args": [
+          {
+            "name": "manifestPath",
+            "type": "string | undefined"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "manifestPath",
+            "type": "string | undefined"
+          }
+        ]
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_009_manifestHistory.test.ts"
+  ]
+}

@@ -31,6 +31,7 @@ const KnowledgeGraph: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = usePersistedState<GraphFilters>("graphFilters", defaultFilters);
+  const [currentLayout, setCurrentLayout] = useState<string>("force-directed");
 
   // Handle messages from the extension
   useEffect(() => {
@@ -304,6 +305,51 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
+  // Get layout options for vis.js based on layout type
+  const _getLayoutOptions = (layoutType: string) => {
+    switch (layoutType) {
+      case "hierarchical":
+        return {
+          hierarchical: {
+            enabled: true,
+            direction: "UD",
+            sortMethod: "directed",
+          },
+        };
+      case "circular":
+        return {
+          hierarchical: false,
+          // vis.js doesn't have native circular, use physics
+        };
+      default:
+        return { hierarchical: false };
+    }
+  };
+
+  const handleLayoutChange = (layoutType: string) => {
+    setCurrentLayout(layoutType);
+    sendMessage({
+      type: "changeLayout",
+      payload: {
+        layout: { type: layoutType as any, options: {} },
+        animate: true,
+      },
+    });
+
+    // Update vis.js network layout
+    if (networkRef.current) {
+      const layoutOptions = _getLayoutOptions(layoutType);
+      networkRef.current.setOptions({ layout: layoutOptions });
+    }
+  };
+
+  const handleExport = (format: string) => {
+    sendMessage({
+      type: "exportGraph",
+      payload: { format: format as any, filename: null },
+    });
+  };
+
   if (error) {
     return (
       <div className="knowledge-graph-error">
@@ -323,6 +369,9 @@ const KnowledgeGraph: React.FC = () => {
         isLoading={isLoading}
         nodeCount={graphData?.nodes.length || 0}
         edgeCount={graphData?.edges.length || 0}
+        currentLayout={currentLayout}
+        onLayoutChange={handleLayoutChange}
+        onExport={handleExport}
       />
       <div className="knowledge-graph-main">
         <div className="network-container">

@@ -1,0 +1,28 @@
+{
+  "goal": "Create MetricsCard component for displaying individual metrics with optional trend indicator",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/Dashboard/MetricsCard.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": ["webview-ui/src/components/shared/Card.tsx"],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/Dashboard/MetricsCard.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "MetricsCardProps"
+      },
+      {
+        "type": "function",
+        "name": "MetricsCard"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_027a_metrics_card.test.ts"
+  ]
+}

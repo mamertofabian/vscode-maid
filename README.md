@@ -9,16 +9,19 @@ VS Code extension for [MAID (Manifest-driven AI Development)](https://github.com
 ## Features
 
 ### Manifest Explorer & Navigation
+
 - ✅ **Manifest Explorer Sidebar** - Browse all manifests in your workspace with expandable sections
 - ✅ **Tracked Files View** - See all files tracked by the selected manifest
 - ✅ **Knowledge Graph View** - Visualize entity relationships defined in manifests
 
 ### Test Execution
+
 - ✅ **Run Tests** - Execute tests directly from the manifest explorer
 - ✅ **Per-Manifest Testing** - Run tests for specific manifests via context menu
 - ✅ **Watch Mode** - Continuous test execution during development
 
 ### Validation & Diagnostics
+
 - ✅ **Real-time Validation** - Instant feedback as you edit `.manifest.json` files via LSP
 - ✅ **Auto-install Detection** - Automatically detects if `maid-lsp` is installed and guides you through installation
 - ✅ **Code Actions** - Quick fixes for common validation errors
@@ -90,6 +93,7 @@ If `maid-lsp` is not in your PATH, specify the full path:
 ```
 
 On Windows:
+
 ```json
 {
   "maid-lsp.path": "C:\\Users\\YourName\\AppData\\Local\\Programs\\Python\\Python310\\Scripts\\maid-lsp.exe"

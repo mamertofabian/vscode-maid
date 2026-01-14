@@ -13,6 +13,7 @@ import type {
   ExtensionToWebviewMessage,
   WebviewToExtensionMessage,
 } from "./messages";
+import type { SystemMetrics } from "../types";
 import { log } from "../utils";
 
 /**
@@ -81,14 +82,14 @@ export class DashboardPanel {
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.manifest.json");
     watcher.onDidCreate((uri) => {
       this._addActivity("created", `Created ${path.basename(uri.fsPath)}`, uri.fsPath);
-      this._loadAndSendDashboardData();
+      void this._loadAndSendDashboardData();
     });
     watcher.onDidChange((uri) => {
       this._addActivity("modified", `Modified ${path.basename(uri.fsPath)}`, uri.fsPath);
     });
     watcher.onDidDelete((uri) => {
       this._addActivity("modified", `Deleted ${path.basename(uri.fsPath)}`);
-      this._loadAndSendDashboardData();
+      void this._loadAndSendDashboardData();
     });
     this._disposables.push(watcher);
 
@@ -102,9 +103,9 @@ export class DashboardPanel {
               theme.kind === vscode.ColorThemeKind.Light
                 ? "light"
                 : theme.kind === vscode.ColorThemeKind.HighContrast ||
-                  theme.kind === vscode.ColorThemeKind.HighContrastLight
-                ? "high-contrast"
-                : "dark",
+                    theme.kind === vscode.ColorThemeKind.HighContrastLight
+                  ? "high-contrast"
+                  : "dark",
           },
         });
       },
@@ -123,11 +124,7 @@ export class DashboardPanel {
   /**
    * Add an activity item to the history.
    */
-  private _addActivity(
-    type: ActivityItem["type"],
-    message: string,
-    manifestPath?: string
-  ): void {
+  private _addActivity(type: ActivityItem["type"], message: string, manifestPath?: string): void {
     this._activityHistory.unshift({
       type,
       message,
@@ -179,15 +176,14 @@ export class DashboardPanel {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) return;
 
-    const fullPath = path.isAbsolute(filePath)
-      ? filePath
-      : path.join(workspaceRoot, filePath);
+    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceRoot, filePath);
 
     try {
       const document = await vscode.workspace.openTextDocument(fullPath);
       await vscode.window.showTextDocument(document);
-    } catch (error: any) {
-      log(`[DashboardPanel] Error opening file: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Error opening file: ${message}`, "error");
       vscode.window.showErrorMessage(`Could not open file: ${filePath}`);
     }
   }
@@ -208,9 +204,10 @@ export class DashboardPanel {
         await this._loadAndSendDashboardData();
         this._addActivity("validated", "Validated all manifests");
       }
-    } catch (error: any) {
-      log(`[DashboardPanel] Validation error: ${error.message}`, "error");
-      this._addActivity("error", `Validation failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Validation error: ${message}`, "error");
+      this._addActivity("error", `Validation failed: ${message}`);
     }
 
     // Reload dashboard data
@@ -224,18 +221,25 @@ export class DashboardPanel {
     try {
       if (manifestPath) {
         await vscode.commands.executeCommand("vscode-maid.runTestsForManifest", manifestPath);
-        this._addActivity("validated", `Ran tests for ${path.basename(manifestPath)}`, manifestPath);
+        this._addActivity(
+          "validated",
+          `Ran tests for ${path.basename(manifestPath)}`,
+          manifestPath
+        );
       } else {
         await vscode.commands.executeCommand("vscode-maid.runTests");
         this._addActivity("validated", "Ran all tests");
       }
-    } catch (error: any) {
-      log(`[DashboardPanel] Test error: ${error.message}`, "error");
-      this._addActivity("error", `Tests failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Test error: ${message}`, "error");
+      this._addActivity("error", `Tests failed: ${message}`);
     }
 
     // Reload dashboard data
-    setTimeout(() => this._loadAndSendDashboardData(), 1000);
+    setTimeout(() => {
+      void this._loadAndSendDashboardData();
+    }, 1000);
   }
 
   /**
@@ -278,12 +282,13 @@ export class DashboardPanel {
       });
 
       log(`[DashboardPanel] Loaded ${manifests.length} manifests`);
-    } catch (error: any) {
-      log(`[DashboardPanel] Error loading data: ${error.message}`, "error");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[DashboardPanel] Error loading data: ${message}`, "error");
       this._postMessage({
         type: "error",
         payload: {
-          message: `Failed to load dashboard data: ${error.message}`,
+          message: `Failed to load dashboard data: ${message}`,
         },
       });
     }
@@ -292,7 +297,7 @@ export class DashboardPanel {
   /**
    * Get manifest data by scanning workspace and optionally validating.
    */
-  private async _getManifestData(workspaceRoot: string): Promise<ManifestSummary[]> {
+  private async _getManifestData(_workspaceRoot: string): Promise<ManifestSummary[]> {
     // Find all manifest files in the workspace
     const manifestFiles = await vscode.workspace.findFiles(
       "**/*.manifest.json",
@@ -309,7 +314,7 @@ export class DashboardPanel {
       let goal: string | undefined;
       try {
         const content = await vscode.workspace.fs.readFile(uri);
-        const json = JSON.parse(content.toString());
+        const json = JSON.parse(content.toString()) as { goal?: string };
         goal = json.goal;
       } catch {
         // Ignore parse errors
@@ -354,6 +359,147 @@ export class DashboardPanel {
   }
 
   /**
+   * Collect system-wide metrics for the MAID project.
+   * Gathers manifest counts, validation status, and file tracking statistics.
+   */
+  private async _collectSystemMetrics(): Promise<SystemMetrics> {
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      return {
+        totalManifests: 0,
+        validManifests: 0,
+        errorCount: 0,
+        warningCount: 0,
+        fileTracking: {
+          undeclared: 0,
+          registered: 0,
+          tracked: 0,
+        },
+        coverage: 0,
+      };
+    }
+
+    // Find all manifest files
+    const manifestFiles = await vscode.workspace.findFiles(
+      "**/*.manifest.json",
+      "**/node_modules/**"
+    );
+
+    let totalErrors = 0;
+    let totalWarnings = 0;
+    let validCount = 0;
+    const trackedFiles = new Set<string>();
+
+    for (const uri of manifestFiles) {
+      // Get diagnostics for this manifest
+      const diagnostics = vscode.languages.getDiagnostics(uri);
+      const errors = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Error
+      ).length;
+      const warnings = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Warning
+      ).length;
+
+      totalErrors += errors;
+      totalWarnings += warnings;
+
+      if (errors === 0) {
+        validCount++;
+      }
+
+      // Try to read the manifest to count tracked files
+      try {
+        const content = await vscode.workspace.fs.readFile(uri);
+        const json = JSON.parse(content.toString()) as {
+          creatableFiles?: string[];
+          editableFiles?: string[];
+          readonlyFiles?: string[];
+        };
+        const files = [
+          ...(json.creatableFiles || []),
+          ...(json.editableFiles || []),
+          ...(json.readonlyFiles || []),
+        ];
+        files.forEach((f: string) => trackedFiles.add(f));
+      } catch {
+        // Ignore parse errors
+      }
+    }
+
+    const totalManifests = manifestFiles.length;
+    const coverage = totalManifests > 0 ? (validCount / totalManifests) * 100 : 0;
+
+    return {
+      totalManifests,
+      validManifests: validCount,
+      errorCount: totalErrors,
+      warningCount: totalWarnings,
+      fileTracking: {
+        undeclared: 0, // Would require filesystem scan to determine
+        registered: 0,
+        tracked: trackedFiles.size,
+      },
+      coverage,
+    };
+  }
+
+  /**
+   * Compute project health score based on system metrics.
+   * Returns a value between 0 and 100.
+   */
+  private _computeHealth(metrics: SystemMetrics): number {
+    if (metrics.totalManifests === 0) {
+      return 0;
+    }
+
+    // Calculate health based on multiple factors:
+    // 1. Valid manifests ratio (50% weight)
+    const validRatio = metrics.validManifests / metrics.totalManifests;
+
+    // 2. Error penalty (30% weight) - more errors = lower health
+    // Cap penalty at 100% (10+ errors = maximum penalty)
+    const errorPenalty = Math.min(metrics.errorCount / 10, 1);
+
+    // 3. Warning penalty (20% weight) - warnings have less impact
+    // Cap penalty at 100% (20+ warnings = maximum penalty)
+    const warningPenalty = Math.min(metrics.warningCount / 20, 1);
+
+    // Calculate weighted health score
+    const validScore = validRatio * 50;
+    const errorScore = (1 - errorPenalty) * 30;
+    const warningScore = (1 - warningPenalty) * 20;
+
+    const health = Math.round(validScore + errorScore + warningScore);
+
+    return Math.max(0, Math.min(100, health));
+  }
+
+  /**
+   * Get dependency statistics for the project.
+   * Counts file dependencies and supersession chains.
+   */
+  private _getDependencyStats(): {
+    totalFiles: number;
+    supersessionChains: number;
+    averageFilesPerManifest: number;
+  } {
+    // This is a simplified implementation that works with available data
+    // A full implementation would use ManifestIndex for deeper analysis
+
+    const _manifests = this._activityHistory.filter(
+      (a) => a.type === "created" || a.type === "modified"
+    );
+
+    // For now, return basic stats
+    // These would be computed from actual manifest data in a full implementation
+    return {
+      totalFiles: 0,
+      supersessionChains: 0,
+      averageFilesPerManifest: 0,
+    };
+  }
+
+  /**
    * Update the webview HTML content.
    */
   private _update(): void {
@@ -386,11 +532,11 @@ export class DashboardPanel {
         font-src ${webview.cspSource};
     ">
     <title>MAID Dashboard</title>
-    <link href="${styleUri}" rel="stylesheet">
+    <link href="${styleUri.toString()}" rel="stylesheet">
 </head>
 <body>
     <div id="root" data-view="dashboard"></div>
-    <script nonce="${nonce}" src="${scriptUri}"></script>
+    <script nonce="${nonce}" src="${scriptUri.toString()}"></script>
 </body>
 </html>`;
   }

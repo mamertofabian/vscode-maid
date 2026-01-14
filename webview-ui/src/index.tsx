@@ -4,7 +4,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import App, { ViewType } from "./App";
 import "./styles/global.css";
 
 const container = document.getElementById("root");
@@ -13,7 +13,7 @@ if (!container) {
 }
 
 // Get the view type from the data attribute set by the extension
-const viewType = container.dataset.view as "knowledgeGraph" | "dashboard" | "history" | "manifestChain" | undefined;
+const viewType = container.dataset.view as ViewType | undefined;
 
 const root = createRoot(container);
 root.render(

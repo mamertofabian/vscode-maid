@@ -6,15 +6,15 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import {
-  LanguageClient,
-  LanguageClientOptions,
-  ServerOptions,
-} from "vscode-languageclient/node";
+import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import * as https from "https";
 
 // Read version from package.json
-const packageJson = require("../package.json");
+interface PackageJson {
+  version: string;
+}
+
+const packageJson = require("../package.json") as PackageJson;
 const extensionVersion = packageJson.version;
 
 import {
@@ -26,10 +26,7 @@ import {
   isManifestPath,
 } from "./utils";
 import { MaidStatusBar } from "./statusBar";
-import {
-  ManifestTreeDataProvider,
-  TrackedFilesTreeDataProvider,
-} from "./manifestExplorer";
+import { ManifestTreeDataProvider, TrackedFilesTreeDataProvider } from "./manifestExplorer";
 import { KnowledgeGraphTreeDataProvider } from "./knowledgeGraph";
 import { ManifestHistoryTreeDataProvider } from "./manifestHistory";
 import { MaidTestRunner } from "./testRunner";
@@ -41,6 +38,16 @@ import { DashboardPanel } from "./webview/dashboardPanel";
 import { HistoryPanel } from "./webview/historyPanel";
 import { ManifestChainPanel } from "./webview/manifestChainPanel";
 import { FileManifestsTreeDataProvider } from "./fileManifestsProvider";
+// DISABLED: Impact Analysis and Hierarchical View features need further development
+// Imports kept for future re-enablement
+import {
+  // ImpactAnalysisPanel, // Uncomment when re-enabling feature
+  setSharedManifestIndex as setImpactAnalysisManifestIndex,
+} from "./webview/impactAnalysisPanel";
+import {
+  // HierarchicalViewPanel, // Uncomment when re-enabling feature
+  setSharedManifestIndex as setHierarchicalViewManifestIndex,
+} from "./webview/hierarchicalViewPanel";
 
 // Module-level state
 let client: LanguageClient | undefined;
@@ -71,12 +78,16 @@ async function getLatestVersion(): Promise<string | null> {
         res.on("data", (chunk) => (data += chunk));
         res.on("end", () => {
           try {
-            const json = JSON.parse(data);
+            interface PyPIResponse {
+              info?: { version?: string };
+            }
+            const json = JSON.parse(data) as PyPIResponse;
             const version = json.info?.version || null;
-            log(`Latest version from PyPI: ${version}`);
+            log(`Latest version from PyPI: ${version ?? "unknown"}`);
             resolve(version);
-          } catch (error) {
-            log(`Failed to parse PyPI response: ${error}`, "error");
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            log(`Failed to parse PyPI response: ${message}`, "error");
             resolve(null);
           }
         });
@@ -125,8 +136,9 @@ async function detectInstallationMethod(): Promise<string> {
       log("Detected installation via uv tool");
       return "uv tool upgrade maid-lsp";
     }
-  } catch (error) {
-    log(`uv tool check failed: ${error}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`uv tool check failed: ${message}`);
   }
 
   // Check for pipx
@@ -136,8 +148,9 @@ async function detectInstallationMethod(): Promise<string> {
       log("Detected installation via pipx");
       return "pipx upgrade maid-lsp";
     }
-  } catch (error) {
-    log(`pipx check failed: ${error}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`pipx check failed: ${message}`);
   }
 
   // Fallback to pip
@@ -148,10 +161,7 @@ async function detectInstallationMethod(): Promise<string> {
 /**
  * Check for updates and show notification if available.
  */
-async function checkForUpdates(
-  context: vscode.ExtensionContext,
-  force = false
-): Promise<void> {
+async function checkForUpdates(context: vscode.ExtensionContext, force = false): Promise<void> {
   // Check if we should skip (unless forced)
   if (!force) {
     const lastCheck = context.globalState.get<number>(LAST_VERSION_CHECK_KEY);
@@ -180,9 +190,7 @@ async function checkForUpdates(
   await context.globalState.update(LAST_VERSION_CHECK_KEY, Date.now());
 
   // Check if user dismissed this version
-  const dismissedVersion = context.globalState.get<string>(
-    DISMISSED_VERSION_KEY
-  );
+  const dismissedVersion = context.globalState.get<string>(DISMISSED_VERSION_KEY);
   if (!force && dismissedVersion === latestVersion) {
     return; // User already dismissed this version
   }
@@ -209,9 +217,7 @@ async function checkForUpdates(
       await context.globalState.update(DISMISSED_VERSION_KEY, latestVersion);
     }
   } else if (force) {
-    vscode.window.showInformationMessage(
-      `maid-lsp is up to date (${installedVersion})`
-    );
+    vscode.window.showInformationMessage(`maid-lsp is up to date (${installedVersion})`);
   }
 }
 
@@ -270,9 +276,7 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
   log(`Server args: ${JSON.stringify(serverArgs)}`);
 
   // Only activate for .manifest.json files
-  const documentSelector = [
-    { scheme: "file", pattern: "**/*.manifest.json" },
-  ];
+  const documentSelector = [{ scheme: "file", pattern: "**/*.manifest.json" }];
 
   log(`Document selector: ${JSON.stringify(documentSelector)}`);
 
@@ -319,22 +323,23 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
         if (client) {
           try {
             log(`[LSP Middleware] Sending close notification for re-validation`);
-            await client.sendNotification('textDocument/didClose', {
-              textDocument: { uri: document.uri.toString() }
+            await client.sendNotification("textDocument/didClose", {
+              textDocument: { uri: document.uri.toString() },
             });
 
             log(`[LSP Middleware] Sending open notification with updated content`);
-            await client.sendNotification('textDocument/didOpen', {
+            await client.sendNotification("textDocument/didOpen", {
               textDocument: {
                 uri: document.uri.toString(),
                 languageId: document.languageId,
                 version: document.version,
-                text: document.getText()
-              }
+                text: document.getText(),
+              },
             });
             log(`[LSP Middleware] Re-validation triggered successfully`);
-          } catch (error) {
-            log(`[LSP Middleware] Failed to trigger re-validation: ${error}`, "error");
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            log(`[LSP Middleware] Failed to trigger re-validation: ${message}`, "error");
           }
         } else {
           log(`[LSP Middleware] No client available for re-validation`, "warn");
@@ -343,21 +348,37 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
         return result;
       },
       handleDiagnostics: (uri, diagnostics, next) => {
-        log(`[LSP Middleware] Received diagnostics for ${uri.toString()}: ${diagnostics.length} issue(s)`);
+        log(
+          `[LSP Middleware] Received diagnostics for ${uri.toString()}: ${diagnostics.length} issue(s)`
+        );
 
         // Update status bar with diagnostics
         if (statusBar) {
           const activeEditor = vscode.window.activeTextEditor;
           if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
-            const errors = diagnostics.filter(d => d.severity === 1).length;
-            const warnings = diagnostics.filter(d => d.severity === 2).length;
+            const errors = diagnostics.filter(
+              (d) => d.severity === vscode.DiagnosticSeverity.Error
+            ).length;
+            const warnings = diagnostics.filter(
+              (d) => d.severity === vscode.DiagnosticSeverity.Warning
+            ).length;
             statusBar.updateStatus(errors, warnings);
           }
         }
 
         if (diagnostics.length > 0) {
           diagnostics.forEach((diag, index) => {
-            log(`  [${index + 1}] Line ${diag.range.start.line + 1}, Col ${diag.range.start.character}: ${diag.severity === 1 ? 'ERROR' : diag.severity === 2 ? 'WARNING' : diag.severity === 3 ? 'INFO' : 'HINT'} - ${diag.message}`);
+            const severityText =
+              diag.severity === vscode.DiagnosticSeverity.Error
+                ? "ERROR"
+                : diag.severity === vscode.DiagnosticSeverity.Warning
+                  ? "WARNING"
+                  : diag.severity === vscode.DiagnosticSeverity.Information
+                    ? "INFO"
+                    : "HINT";
+            log(
+              `  [${index + 1}] Line ${diag.range.start.line + 1}, Col ${diag.range.start.character}: ${severityText} - ${diag.message}`
+            );
           });
         } else {
           log(`  No issues found by LSP server`);
@@ -368,12 +389,7 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
   };
 
   // Create and start the client
-  client = new LanguageClient(
-    "maid-lsp",
-    "MAID",
-    serverOptions,
-    clientOptions
-  );
+  client = new LanguageClient("maid-lsp", "MAID", serverOptions, clientOptions);
 
   // Add error handlers
   client.onDidChangeState((event) => {
@@ -394,8 +410,9 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
           log(`[LSP Server] Text Document Sync: ${JSON.stringify(caps?.textDocumentSync)}`);
           log(`[LSP Server] Diagnostic Provider: ${JSON.stringify(caps?.diagnosticProvider)}`);
           log(`[LSP Server] Full capabilities: ${JSON.stringify(caps, null, 2)}`);
-        } catch (error) {
-          log(`Failed to log server capabilities: ${error}`, "warn");
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          log(`Failed to log server capabilities: ${message}`, "warn");
         }
       } else {
         log(`[LSP Server] No initialize result available yet`, "warn");
@@ -420,15 +437,21 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
               if (statusBar) {
                 const activeEditor = vscode.window.activeTextEditor;
                 if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
-                  const errors = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length;
-                  const warnings = diagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Warning).length;
+                  const errors = diagnostics.filter(
+                    (d) => d.severity === vscode.DiagnosticSeverity.Error
+                  ).length;
+                  const warnings = diagnostics.filter(
+                    (d) => d.severity === vscode.DiagnosticSeverity.Warning
+                  ).length;
                   statusBar.updateStatus(errors, warnings);
                 }
               }
 
               if (diagnostics.length > 0) {
                 diagnostics.forEach((diag, index) => {
-                  log(`  [${index + 1}] Line ${diag.range.start.line + 1}: ${diag.severity === vscode.DiagnosticSeverity.Error ? 'ERROR' : diag.severity === vscode.DiagnosticSeverity.Warning ? 'WARNING' : 'INFO'} - ${diag.message}`);
+                  log(
+                    `  [${index + 1}] Line ${diag.range.start.line + 1}: ${diag.severity === vscode.DiagnosticSeverity.Error ? "ERROR" : diag.severity === vscode.DiagnosticSeverity.Warning ? "WARNING" : "INFO"} - ${diag.message}`
+                  );
                 });
               }
             }
@@ -436,11 +459,10 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
         })
       );
     })
-    .catch((error) => {
-      log(`Failed to start LSP client: ${error}`, "error");
-      vscode.window.showErrorMessage(
-        `Failed to start MAID LSP: ${error.message || error}`
-      );
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`Failed to start LSP client: ${message}`, "error");
+      vscode.window.showErrorMessage(`Failed to start MAID LSP: ${message}`);
     });
 
   context.subscriptions.push(client);
@@ -454,9 +476,7 @@ async function checkInstallationStatus(): Promise<void> {
   if (isInstalled) {
     const version = await getInstalledVersion();
     if (version) {
-      vscode.window.showInformationMessage(
-        `MAID LSP is installed: maid-lsp ${version}`
-      );
+      vscode.window.showInformationMessage(`MAID LSP is installed: maid-lsp ${version}`);
     } else {
       vscode.window.showInformationMessage("MAID LSP is installed");
     }
@@ -477,7 +497,7 @@ function registerTreeViews(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider("maidManifests", manifestProvider)
   );
   context.subscriptions.push(manifestProvider);
-  
+
   // Update manifest provider with manifest index after it's initialized
   // (will be done in registerNavigationProviders)
 
@@ -520,10 +540,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 
   // Installation check
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-maid.checkInstallation",
-      checkInstallationStatus
-    )
+    vscode.commands.registerCommand("vscode-maid.checkInstallation", checkInstallationStatus)
   );
 
   // Update check
@@ -594,37 +611,37 @@ function registerCommands(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.runTests", () => {
-      testRunner?.runAllTests();
+      void testRunner?.runAllTests();
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.runTestsWatch", () => {
-      testRunner?.runTestsWatch();
+      void testRunner?.runTestsWatch();
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.runTestsForManifest", (arg?: unknown) => {
-      testRunner?.runTestsForManifest(arg);
+      void testRunner?.runTestsForManifest(arg);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateManifest", (arg?: unknown) => {
-      testRunner?.runValidation(arg);
+      void testRunner?.runValidation(arg);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateCoherence", (arg?: unknown) => {
-      testRunner?.runCoherenceValidation(arg);
+      void testRunner?.runCoherenceValidation(arg);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateManifestChain", (arg?: unknown) => {
-      testRunner?.runChainValidation(arg);
+      void testRunner?.runChainValidation(arg);
     })
   );
 
@@ -667,9 +684,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
         if (pathToUse) {
           HistoryPanel.createOrShow(context.extensionUri, pathToUse, commitHash);
         } else {
-          vscode.window.showWarningMessage(
-            "Please open a manifest file to view its history"
-          );
+          vscode.window.showWarningMessage("Please open a manifest file to view its history");
         }
       }
     )
@@ -678,12 +693,10 @@ function registerCommands(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-maid.compareManifestVersions",
-      async (commitHash1?: string, commitHash2?: string) => {
+      (commitHash1?: string, commitHash2?: string) => {
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor || !isManifestPath(activeEditor.document.uri.fsPath)) {
-          vscode.window.showWarningMessage(
-            "Please open a manifest file to compare versions"
-          );
+          vscode.window.showWarningMessage("Please open a manifest file to compare versions");
           return;
         }
 
@@ -704,6 +717,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(
       "vscode-maid.openManifestAtCommit",
       async (commitHash?: string) => {
+        await Promise.resolve(); // Satisfy require-await
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor || !isManifestPath(activeEditor.document.uri.fsPath)) {
           vscode.window.showWarningMessage(
@@ -766,22 +780,23 @@ function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
           try {
             log(`[Save Handler] Triggering re-validation for saved file`);
 
-            await client.sendNotification('textDocument/didClose', {
-              textDocument: { uri: document.uri.toString() }
+            await client.sendNotification("textDocument/didClose", {
+              textDocument: { uri: document.uri.toString() },
             });
 
-            await client.sendNotification('textDocument/didOpen', {
+            await client.sendNotification("textDocument/didOpen", {
               textDocument: {
                 uri: document.uri.toString(),
                 languageId: document.languageId,
                 version: document.version,
-                text: document.getText()
-              }
+                text: document.getText(),
+              },
             });
 
             log(`[Save Handler] Re-validation completed`);
-          } catch (error) {
-            log(`[Save Handler] Failed to trigger re-validation: ${error}`, "error");
+          } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            log(`[Save Handler] Failed to trigger re-validation: ${message}`, "error");
           }
         } else {
           log(`[Save Handler] No LSP client available`, "warn");
@@ -796,14 +811,17 @@ function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
 /**
  * Register definition and reference providers for navigation.
  */
-async function registerNavigationProviders(
-  context: vscode.ExtensionContext
-): Promise<void> {
+async function registerNavigationProviders(context: vscode.ExtensionContext): Promise<void> {
   log("Registering navigation providers...");
 
   // Create and initialize the manifest index
   manifestIndex = new ManifestIndex(context);
   await manifestIndex.initialize(getOutputChannel());
+
+  // Share ManifestIndex with webview panels
+  setImpactAnalysisManifestIndex(manifestIndex);
+  setHierarchicalViewManifestIndex(manifestIndex);
+  log("ManifestIndex shared with Impact Analysis and Hierarchical View panels");
 
   // Update file manifests provider with manifest index
   if (fileManifestsProvider) {
@@ -811,8 +829,11 @@ async function registerNavigationProviders(
   }
 
   // Update manifest provider with manifest index
-  if (manifestProvider && (manifestProvider as any).setManifestIndex) {
-    (manifestProvider as any).setManifestIndex(manifestIndex);
+  interface ManifestProviderWithIndex {
+    setManifestIndex(index: ManifestIndex): void;
+  }
+  if (manifestProvider && "setManifestIndex" in manifestProvider) {
+    (manifestProvider as ManifestProviderWithIndex).setManifestIndex(manifestIndex);
   }
 
   // Register definition provider for manifest files
@@ -853,7 +874,9 @@ async function registerNavigationProviders(
 
       const chain = manifestIndex?.getSupersessionChain(editor.document.uri.fsPath);
       if (!chain || chain.parents.length === 0) {
-        vscode.window.showInformationMessage("No parent manifest found (this manifest is not superseded by any other)");
+        vscode.window.showInformationMessage(
+          "No parent manifest found (this manifest is not superseded by any other)"
+        );
         return;
       }
 
@@ -889,7 +912,9 @@ async function registerNavigationProviders(
 
       const chain = manifestIndex?.getSupersessionChain(editor.document.uri.fsPath);
       if (!chain || chain.children.length === 0) {
-        vscode.window.showInformationMessage("No child manifests found (this manifest does not supersede any other)");
+        vscode.window.showInformationMessage(
+          "No child manifests found (this manifest does not supersede any other)"
+        );
         return;
       }
 
@@ -929,9 +954,7 @@ async function registerNavigationProviders(
       const references = manifestIndex?.getManifestsReferencingFile(normalizedPath) || [];
 
       if (references.length === 0) {
-        vscode.window.showInformationMessage(
-          `No manifests reference "${path.basename(filePath)}"`
-        );
+        vscode.window.showInformationMessage(`No manifests reference "${path.basename(filePath)}"`);
         return;
       }
 
@@ -947,12 +970,19 @@ async function registerNavigationProviders(
       // Create quick pick items
       const items: vscode.QuickPickItem[] = [];
       for (const [category, refs] of byCategory) {
-        const categoryLabel = category === "creatable" ? "Creatable" :
-                             category === "editable" ? "Editable" :
-                             category === "readonly" ? "Read-only" :
-                             category === "supersedes" ? "Supersedes" :
-                             category === "expectedArtifact" ? "Expected Artifact" : category;
-        
+        const categoryLabel =
+          category === "creatable"
+            ? "Creatable"
+            : category === "editable"
+              ? "Editable"
+              : category === "readonly"
+                ? "Read-only"
+                : category === "supersedes"
+                  ? "Supersedes"
+                  : category === "expectedArtifact"
+                    ? "Expected Artifact"
+                    : category;
+
         for (const ref of refs) {
           const relativePath = vscode.workspace.asRelativePath(ref.manifestPath);
           items.push({
@@ -1020,8 +1050,9 @@ async function registerNavigationProviders(
               `Could not find ${artifactType} "${artifactName}" in file, opened file instead`
             );
           }
-        } catch (error: any) {
-          vscode.window.showErrorMessage(`Failed to open file: ${error.message}`);
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : String(error);
+          vscode.window.showErrorMessage(`Failed to open file: ${message}`);
         }
       }
     )
@@ -1069,16 +1100,30 @@ function findArtifactPosition(
         patterns.push(new RegExp(`^\\s*(?:export\\s+)?class\\s+${escapedName}\\s*[{<]`, "m"));
         break;
       case "function":
-        patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:async\\s+)?function\\s+${escapedName}\\s*[<(]`, "m"));
-        patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*(?:async\\s+)?(?:\\([^)]*\\)|[^=])\\s*=>`, "m"));
-        patterns.push(new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*function`, "m"));
+        patterns.push(
+          new RegExp(`^\\s*(?:export\\s+)?(?:async\\s+)?function\\s+${escapedName}\\s*[<(]`, "m")
+        );
+        patterns.push(
+          new RegExp(
+            `^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*(?:async\\s+)?(?:\\([^)]*\\)|[^=])\\s*=>`,
+            "m"
+          )
+        );
+        patterns.push(
+          new RegExp(`^\\s*(?:export\\s+)?const\\s+${escapedName}\\s*=\\s*function`, "m")
+        );
         break;
       case "method":
         patterns.push(new RegExp(`^\\s+(?:async\\s+)?${escapedName}\\s*\\(`, "m"));
         break;
       case "attribute":
       case "interface":
-        patterns.push(new RegExp(`^\\s*(?:export\\s+)?(?:const|let|var|interface|type)\\s+${escapedName}\\s*[:=<{]`, "m"));
+        patterns.push(
+          new RegExp(
+            `^\\s*(?:export\\s+)?(?:const|let|var|interface|type)\\s+${escapedName}\\s*[:=<{]`,
+            "m"
+          )
+        );
         break;
     }
   }
@@ -1105,7 +1150,9 @@ function findArtifactPosition(
   if (ext === ".rs") {
     switch (type) {
       case "function":
-        patterns.push(new RegExp(`^\\s*(?:pub\\s+)?(?:async\\s+)?fn\\s+${escapedName}\\s*[<(]`, "m"));
+        patterns.push(
+          new RegExp(`^\\s*(?:pub\\s+)?(?:async\\s+)?fn\\s+${escapedName}\\s*[<(]`, "m")
+        );
         break;
       case "class":
         patterns.push(new RegExp(`^\\s*(?:pub\\s+)?struct\\s+${escapedName}\\s*[{<]`, "m"));
@@ -1137,11 +1184,109 @@ function findArtifactPosition(
 }
 
 /**
+ * Register the Impact Analysis commands.
+ * Creates and registers the vscode-maid.showImpactAnalysis and vscode-maid.analyzeFileImpact commands.
+ *
+ * TODO: Impact Analysis feature is not working properly and needs further development.
+ * Issues:
+ * - ManifestIndex integration not properly sending data to webview
+ * - File analysis results not displaying correctly
+ * - Needs proper testing with real manifest data
+ *
+ * The code is preserved but commands are disabled until the feature is complete.
+ */
+export function registerImpactAnalysisCommand(context: vscode.ExtensionContext): void {
+  // DISABLED: Impact Analysis feature needs further development
+  // See TODO above for details on what needs to be fixed
+
+  void context; // Intentionally unused - code commented out below
+  log("Impact Analysis commands DISABLED - feature needs further development");
+
+  /*
+  // Command to show empty Impact Analysis panel
+  const showCommand = vscode.commands.registerCommand("vscode-maid.showImpactAnalysis", () => {
+    ImpactAnalysisPanel.createOrShow(context.extensionUri);
+  });
+  context.subscriptions.push(showCommand);
+
+  // Command to analyze a specific file (from context menu or with URI argument)
+  const analyzeCommand = vscode.commands.registerCommand(
+    "vscode-maid.analyzeFileImpact",
+    async (uri?: vscode.Uri) => {
+      let filePath: string | undefined;
+
+      if (uri) {
+        // Called from context menu with file URI
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (workspaceRoot) {
+          filePath = path.relative(workspaceRoot, uri.fsPath);
+        } else {
+          filePath = uri.fsPath;
+        }
+      } else {
+        // Called from command palette - use active editor
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+          if (workspaceRoot) {
+            filePath = path.relative(workspaceRoot, editor.document.uri.fsPath);
+          } else {
+            filePath = editor.document.uri.fsPath;
+          }
+        }
+      }
+
+      if (!filePath) {
+        vscode.window.showWarningMessage("No file selected for impact analysis");
+        return;
+      }
+
+      // Create panel and trigger analysis
+      const panel = ImpactAnalysisPanel.createOrShow(context.extensionUri);
+      // Small delay to ensure panel is ready, then trigger analysis via internal method
+      setTimeout(() => {
+        panel.analyzeFile(filePath!);
+      }, 100);
+    }
+  );
+  context.subscriptions.push(analyzeCommand);
+
+  log("Impact Analysis commands registered");
+  */
+}
+
+/**
+ * Register the Hierarchical View command.
+ * Creates and registers the vscode-maid.showHierarchicalView command.
+ *
+ * TODO: Hierarchical View feature is not working properly and needs further development.
+ * Issues:
+ * - Mode selector (treemap/sunburst/nested) not switching visualization correctly
+ * - Data from ManifestIndex.getHierarchicalView() may not be structured properly
+ * - Needs proper styling and interaction testing
+ *
+ * The code is preserved but commands are disabled until the feature is complete.
+ */
+export function registerHierarchicalViewCommand(context: vscode.ExtensionContext): void {
+  // DISABLED: Hierarchical View feature needs further development
+  // See TODO above for details on what needs to be fixed
+
+  void context; // Intentionally unused - code commented out below
+  log("Hierarchical View command DISABLED - feature needs further development");
+
+  /*
+  const disposable = vscode.commands.registerCommand("vscode-maid.showHierarchicalView", () => {
+    HierarchicalViewPanel.createOrShow(context.extensionUri);
+  });
+  context.subscriptions.push(disposable);
+  log("Hierarchical View command registered");
+  */
+}
+
+/**
  * Extension activation.
  */
-export async function activate(
-  context: vscode.ExtensionContext
-): Promise<void> {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
   // Create output channel first
   const outputChannel = vscode.window.createOutputChannel("MAID");
   context.subscriptions.push(outputChannel);
@@ -1166,6 +1311,8 @@ export async function activate(
 
   // Register commands (always available)
   registerCommands(context);
+  registerImpactAnalysisCommand(context);
+  registerHierarchicalViewCommand(context);
 
   // Check if maid-lsp is installed
   const isInstalled = await checkMaidLspInstalled();
@@ -1187,11 +1334,11 @@ export async function activate(
   await registerNavigationProviders(context);
 
   // Start the language client
-  startLanguageClient(context);
+  void startLanguageClient(context);
 
   // Check for updates automatically (throttled to once per day)
   log("Checking for maid-lsp updates...");
-  checkForUpdates(context, false);
+  void checkForUpdates(context, false);
 
   log("MAID Extension activation complete");
 }

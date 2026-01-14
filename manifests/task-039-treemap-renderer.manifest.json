@@ -1,0 +1,76 @@
+{
+  "goal": "Create the TreemapRenderer component using D3.js with Canvas rendering for performance. The component visualizes hierarchical data as a treemap with configurable size metrics (files, artifacts, errors, manifests), custom color scales, and click interaction for node selection.",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["webview-ui/src/components/HierarchicalView/TreemapRenderer.tsx"],
+  "editableFiles": [],
+  "readonlyFiles": ["src/types.ts"],
+  "expectedArtifacts": {
+    "file": "webview-ui/src/components/HierarchicalView/TreemapRenderer.tsx",
+    "contains": [
+      {
+        "type": "interface",
+        "name": "TreemapRendererProps"
+      },
+      {
+        "type": "function",
+        "name": "TreemapRenderer",
+        "description": "React component for Canvas-based treemap rendering using D3.js"
+      },
+      {
+        "type": "function",
+        "name": "buildTreemapData",
+        "args": [
+          {
+            "name": "nodes",
+            "type": "HierarchicalNode[]"
+          }
+        ],
+        "description": "Converts HierarchicalNode array to D3 hierarchy format"
+      },
+      {
+        "type": "function",
+        "name": "getNodeColor",
+        "args": [
+          {
+            "name": "node",
+            "type": "HierarchicalNode"
+          },
+          {
+            "name": "colorScale",
+            "type": "Function"
+          }
+        ],
+        "returns": {
+          "type": "string"
+        },
+        "description": "Returns the color for a node using the provided color scale function"
+      },
+      {
+        "type": "function",
+        "name": "calculateNodeSize",
+        "args": [
+          {
+            "name": "node",
+            "type": "HierarchicalNode"
+          },
+          {
+            "name": "metric",
+            "type": "string"
+          }
+        ],
+        "returns": {
+          "type": "number"
+        },
+        "description": "Calculates the size value for a node based on the selected metric"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_039_treemap_renderer.test.ts"
+  ]
+}
