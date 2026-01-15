@@ -17,7 +17,7 @@ import type { HierarchicalNode } from "../../../../src/types";
  * @property onNodeClick: (node) => void - Callback when a node is clicked
  * @property metric: string - Metric used for sizing nodes
  */
-export interface TreemapRendererProps {
+export interface _TreemapRendererProps {
   /** Hierarchical node data to display */
   nodes: HierarchicalNode[];
   /** Width of the canvas in pixels */
@@ -51,7 +51,7 @@ interface _TreemapDataNode {
  * @param nodes Array of HierarchicalNode to convert
  * @returns D3 hierarchy compatible data structure
  */
-export function buildTreemapData(nodes: HierarchicalNode[]): _TreemapDataNode {
+export function __buildTreemapData(nodes: HierarchicalNode[]): _TreemapDataNode {
   // Build children recursively
   function _buildChildren(nodeList: HierarchicalNode[]): _TreemapDataNode[] {
     return nodeList.map((node) => ({
@@ -92,7 +92,7 @@ export function buildTreemapData(nodes: HierarchicalNode[]): _TreemapDataNode {
  * @param colorScale The D3 color scale function
  * @returns CSS color string
  */
-export function getNodeColor(node: HierarchicalNode, colorScale: (value: number) => string): string {
+export function __getNodeColor(node: HierarchicalNode, colorScale: (value: number) => string): string {
   // Use error count for color intensity (more errors = more red)
   const value = node.metrics.errorCount;
   return colorScale(value);
@@ -104,7 +104,7 @@ export function getNodeColor(node: HierarchicalNode, colorScale: (value: number)
  * @param metric The metric to use for sizing ('files', 'artifacts', 'errors', 'manifests')
  * @returns Numeric size value
  */
-export function calculateNodeSize(node: HierarchicalNode, metric: string): number {
+export function __calculateNodeSize(node: HierarchicalNode, metric: string): number {
   switch (metric) {
     case "files":
     case "fileCount":
@@ -134,7 +134,7 @@ export function calculateNodeSize(node: HierarchicalNode, metric: string): numbe
  * Renders hierarchical data as a treemap with configurable size metrics,
  * custom color scales, and click interaction for node selection.
  */
-export const TreemapRenderer: React.FC<TreemapRendererProps> = ({
+export const TreemapRenderer: React.FC<_TreemapRendererProps> = ({
   nodes,
   width,
   height,
@@ -178,14 +178,14 @@ export const TreemapRenderer: React.FC<TreemapRendererProps> = ({
     ctx.clearRect(0, 0, width, height);
 
     // Build treemap data
-    const data = buildTreemapData(nodes);
+    const data = _buildTreemapData(nodes);
 
     // Create D3 hierarchy
     const root = d3
       .hierarchy(data)
       .sum((d) => {
         if (d.originalNode) {
-          return calculateNodeSize(d.originalNode, metric);
+          return _calculateNodeSize(d.originalNode, metric);
         }
         return d.value || 1;
       })
@@ -224,7 +224,7 @@ export const TreemapRenderer: React.FC<TreemapRendererProps> = ({
       }
 
       // Get fill color
-      const fillColor = getNodeColor(originalNode, colorScaleToUse);
+      const fillColor = _getNodeColor(originalNode, colorScaleToUse);
       ctx.fillStyle = fillColor;
       ctx.fillRect(x0, y0, nodeWidth, nodeHeight);
 
@@ -265,7 +265,7 @@ export const TreemapRenderer: React.FC<TreemapRendererProps> = ({
 
         // Draw metric value if there's room
         if (nodeHeight > 35) {
-          const metricValue = calculateNodeSize(originalNode, metric);
+          const metricValue = _calculateNodeSize(originalNode, metric);
           ctx.fillStyle = "#666";
           ctx.font = "10px sans-serif";
           ctx.fillText(`${metric}: ${metricValue}`, x0 + 2, y0 + 16);

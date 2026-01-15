@@ -19,7 +19,7 @@ let _sharedManifestIndex: ManifestIndex | undefined;
 /**
  * Set the shared ManifestIndex instance for all HierarchicalViewPanel instances.
  */
-export function setSharedManifestIndex(index: ManifestIndex): void {
+export function _setSharedManifestIndex(index: ManifestIndex): void {
   _sharedManifestIndex = index;
 }
 
@@ -27,8 +27,8 @@ export function setSharedManifestIndex(index: ManifestIndex): void {
  * Manages the Hierarchical System View webview panel.
  */
 export class HierarchicalViewPanel {
-  public static currentPanel: HierarchicalViewPanel | undefined;
-  public static readonly viewType = "maidHierarchicalView";
+  public static _currentPanel: HierarchicalViewPanel | undefined;
+  public static readonly _viewType = "maidHierarchicalView";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -47,14 +47,14 @@ export class HierarchicalViewPanel {
       : undefined;
 
     // If we already have a panel, show it
-    if (HierarchicalViewPanel.currentPanel) {
-      HierarchicalViewPanel.currentPanel._panel.reveal(column);
-      return HierarchicalViewPanel.currentPanel;
+    if (HierarchicalViewPanel._currentPanel) {
+      HierarchicalViewPanel._currentPanel._panel.reveal(column);
+      return HierarchicalViewPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      HierarchicalViewPanel.viewType,
+      HierarchicalViewPanel._viewType,
       "MAID Hierarchical View",
       column || vscode.ViewColumn.One,
       {
@@ -64,8 +64,8 @@ export class HierarchicalViewPanel {
       }
     );
 
-    HierarchicalViewPanel.currentPanel = new HierarchicalViewPanel(panel, extensionUri);
-    return HierarchicalViewPanel.currentPanel;
+    HierarchicalViewPanel._currentPanel = new HierarchicalViewPanel(panel, extensionUri);
+    return HierarchicalViewPanel._currentPanel;
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -337,7 +337,7 @@ export class HierarchicalViewPanel {
     );
 
     // Use a nonce to only allow specific scripts to be run
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -365,7 +365,7 @@ export class HierarchicalViewPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    HierarchicalViewPanel.currentPanel = undefined;
+    HierarchicalViewPanel._currentPanel = undefined;
 
     // Clean up resources
     this._panel.dispose();
@@ -384,7 +384,7 @@ export class HierarchicalViewPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

@@ -10,195 +10,27 @@
     "contains": [
       {
         "type": "function",
-        "name": "getCommitDiff",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          }
-        ]
+        "name": "getCommitDiff"
       },
       {
         "type": "function",
-        "name": "getCommitStats",
-        "args": [
-          {
-            "name": "gitRoot",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          },
-          {
-            "name": "relativePath",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "gitRoot",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          },
-          {
-            "name": "relativePath",
-            "type": "string"
-          }
-        ]
+        "name": "getDiffBetweenCommits"
       },
       {
         "type": "function",
-        "name": "getDiffBetweenCommits",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash1",
-            "type": "string"
-          },
-          {
-            "name": "commitHash2",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash1",
-            "type": "string"
-          },
-          {
-            "name": "commitHash2",
-            "type": "string"
-          }
-        ]
+        "name": "getFileAtCommit"
       },
       {
         "type": "function",
-        "name": "getFileAtCommit",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "commitHash",
-            "type": "string"
-          }
-        ]
+        "name": "getGitRoot"
       },
       {
         "type": "function",
-        "name": "getGitRelativePath",
-        "args": [
-          {
-            "name": "filePath",
-            "type": "string"
-          },
-          {
-            "name": "gitRoot",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "filePath",
-            "type": "string"
-          },
-          {
-            "name": "gitRoot",
-            "type": "string"
-          }
-        ]
+        "name": "getManifestHistory"
       },
       {
         "type": "function",
-        "name": "getGitRoot",
-        "args": [
-          {
-            "name": "workspacePath",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "workspacePath",
-            "type": "string"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "getManifestHistory",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "maxCommits",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          },
-          {
-            "name": "maxCommits",
-            "type": "number"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "isGitRepository",
-        "args": [
-          {
-            "name": "workspacePath",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "workspacePath",
-            "type": "string"
-          }
-        ]
+        "name": "isGitRepository"
       }
     ]
   },

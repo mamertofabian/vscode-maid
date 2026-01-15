@@ -20,8 +20,8 @@ import { log } from "../utils";
  * Manages the Dashboard webview panel.
  */
 export class DashboardPanel {
-  public static currentPanel: DashboardPanel | undefined;
-  public static readonly viewType = "maidDashboard";
+  public static _currentPanel: DashboardPanel | undefined;
+  public static readonly _viewType = "maidDashboard";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -37,14 +37,14 @@ export class DashboardPanel {
       : undefined;
 
     // If we already have a panel, show it
-    if (DashboardPanel.currentPanel) {
-      DashboardPanel.currentPanel._panel.reveal(column);
-      return DashboardPanel.currentPanel;
+    if (DashboardPanel._currentPanel) {
+      DashboardPanel._currentPanel._panel.reveal(column);
+      return DashboardPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      DashboardPanel.viewType,
+      DashboardPanel._viewType,
       "MAID Dashboard",
       column || vscode.ViewColumn.One,
       {
@@ -54,8 +54,8 @@ export class DashboardPanel {
       }
     );
 
-    DashboardPanel.currentPanel = new DashboardPanel(panel, extensionUri);
-    return DashboardPanel.currentPanel;
+    DashboardPanel._currentPanel = new DashboardPanel(panel, extensionUri);
+    return DashboardPanel._currentPanel;
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -517,7 +517,7 @@ export class DashboardPanel {
       vscode.Uri.joinPath(this._extensionUri, "out", "webview", "main.css")
     );
 
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -545,7 +545,7 @@ export class DashboardPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    DashboardPanel.currentPanel = undefined;
+    DashboardPanel._currentPanel = undefined;
 
     this._panel.dispose();
 
@@ -563,7 +563,7 @@ export class DashboardPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

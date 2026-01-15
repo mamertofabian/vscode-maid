@@ -14,16 +14,6 @@
       },
       {
         "type": "function",
-        "name": "currentState",
-        "class": "MaidStatusBar"
-      },
-      {
-        "type": "function",
-        "name": "disposables",
-        "class": "MaidStatusBar"
-      },
-      {
-        "type": "function",
         "name": "dispose",
         "class": "MaidStatusBar"
       },
@@ -40,19 +30,7 @@
       {
         "type": "function",
         "name": "setErrors",
-        "class": "MaidStatusBar",
-        "args": [
-          {
-            "name": "count",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "count",
-            "type": "number"
-          }
-        ]
+        "class": "MaidStatusBar"
       },
       {
         "type": "function",
@@ -72,19 +50,7 @@
       {
         "type": "function",
         "name": "setWarnings",
-        "class": "MaidStatusBar",
-        "args": [
-          {
-            "name": "count",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "count",
-            "type": "number"
-          }
-        ]
+        "class": "MaidStatusBar"
       },
       {
         "type": "function",
@@ -93,50 +59,8 @@
       },
       {
         "type": "function",
-        "name": "statusBarItem",
-        "class": "MaidStatusBar"
-      },
-      {
-        "type": "function",
         "name": "updateStatus",
-        "class": "MaidStatusBar",
-        "args": [
-          {
-            "name": "errorCount",
-            "type": "number"
-          },
-          {
-            "name": "warningCount",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "errorCount",
-            "type": "number"
-          },
-          {
-            "name": "warningCount",
-            "type": "number"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "updateVisibility",
-        "class": "MaidStatusBar",
-        "args": [
-          {
-            "name": "editor",
-            "type": "vscode.TextEditor | undefined"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "editor",
-            "type": "vscode.TextEditor | undefined"
-          }
-        ]
+        "class": "MaidStatusBar"
       }
     ]
   },

@@ -12,7 +12,7 @@ import { ManifestIndex } from "../manifestIndex";
 /**
  * Manifest chain node data structure
  */
-export interface ManifestChainNode {
+export interface _ManifestChainNode {
   id: string;
   label: string;
   path: string;
@@ -23,7 +23,7 @@ export interface ManifestChainNode {
 /**
  * Manifest chain edge data structure
  */
-export interface ManifestChainEdge {
+export interface _ManifestChainEdge {
   from: string;
   to: string;
   arrows: string;
@@ -33,16 +33,16 @@ export interface ManifestChainEdge {
 /**
  * Manifest chain data structure
  */
-export interface ManifestChainData {
-  nodes: ManifestChainNode[];
-  edges: ManifestChainEdge[];
+export interface _ManifestChainData {
+  nodes: _ManifestChainNode[];
+  edges: _ManifestChainEdge[];
   currentManifest: string;
 }
 
 /**
  * Chain metrics for analyzing manifest chain health and structure
  */
-export interface ChainMetrics {
+export interface _ChainMetrics {
   depth: number;
   breadth: number;
   totalNodes: number;
@@ -53,15 +53,15 @@ export interface ChainMetrics {
  * Manages the Manifest Chain Visualizer webview panel.
  */
 export class ManifestChainPanel {
-  public static currentPanel: ManifestChainPanel | undefined;
-  public static readonly viewType = "maidManifestChain";
+  public static _currentPanel: ManifestChainPanel | undefined;
+  public static readonly _viewType = "maidManifestChain";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private readonly _manifestIndex: ManifestIndex | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _currentManifestPath: string | undefined;
-  private _chainData: ManifestChainData | null = null;
+  private _chainData: _ManifestChainData | null = null;
   private _conflicts: Array<{ node1: string; node2: string; reason: string }> = [];
 
   /**
@@ -77,17 +77,17 @@ export class ManifestChainPanel {
       : undefined;
 
     // If we already have a panel, show it and update manifest if provided
-    if (ManifestChainPanel.currentPanel) {
-      ManifestChainPanel.currentPanel._panel.reveal(column);
+    if (ManifestChainPanel._currentPanel) {
+      ManifestChainPanel._currentPanel._panel.reveal(column);
       if (manifestPath) {
-        ManifestChainPanel.currentPanel.setManifest(manifestPath);
+        ManifestChainPanel._currentPanel.setManifest(manifestPath);
       }
-      return ManifestChainPanel.currentPanel;
+      return ManifestChainPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      ManifestChainPanel.viewType,
+      ManifestChainPanel._viewType,
       "MAID Manifest Chain",
       column || vscode.ViewColumn.One,
       {
@@ -97,11 +97,11 @@ export class ManifestChainPanel {
       }
     );
 
-    ManifestChainPanel.currentPanel = new ManifestChainPanel(panel, extensionUri, manifestIndex);
+    ManifestChainPanel._currentPanel = new ManifestChainPanel(panel, extensionUri, manifestIndex);
     if (manifestPath) {
-      ManifestChainPanel.currentPanel.setManifest(manifestPath);
+      ManifestChainPanel._currentPanel.setManifest(manifestPath);
     }
-    return ManifestChainPanel.currentPanel;
+    return ManifestChainPanel._currentPanel;
   }
 
   private constructor(
@@ -279,8 +279,8 @@ export class ManifestChainPanel {
       const entry = this._manifestIndex.getManifestEntry(currentManifestPath);
 
       // Build nodes
-      const nodes: ManifestChainNode[] = [];
-      const edges: ManifestChainEdge[] = [];
+      const nodes: _ManifestChainNode[] = [];
+      const edges: _ManifestChainEdge[] = [];
 
       // Current manifest (level 0)
       const currentLabel = path.basename(currentManifestPath, ".manifest.json");
@@ -294,7 +294,7 @@ export class ManifestChainPanel {
 
       // Parent manifests (level -1, -2, etc.)
       // targetPath is the manifest that the parent supersedes
-      const addParents = (parentPaths: string[], level: number, targetPath: string): void => {
+      const _addParents = (parentPaths: string[], level: number, targetPath: string): void => {
         for (const parentPath of parentPaths) {
           const parentEntry = this._manifestIndex!.getManifestEntry(parentPath);
           const parentLabel = path.basename(parentPath, ".manifest.json");
@@ -320,14 +320,14 @@ export class ManifestChainPanel {
 
           // Recursively add grandparents, pointing to this parent
           if (parentEntry && parentEntry.supersededBy.length > 0) {
-            addParents(parentEntry.supersededBy, level - 1, parentPath);
+            _addParents(parentEntry.supersededBy, level - 1, parentPath);
           }
         }
       };
 
       // Child manifests (level 1, 2, etc.)
       // sourcePath is the manifest that supersedes the child
-      const addChildren = (childPaths: string[], level: number, sourcePath: string): void => {
+      const _addChildren = (childPaths: string[], level: number, sourcePath: string): void => {
         for (const childPath of childPaths) {
           const childEntry = this._manifestIndex!.getManifestEntry(childPath);
           const childLabel = path.basename(childPath, ".manifest.json");
@@ -353,20 +353,20 @@ export class ManifestChainPanel {
 
           // Recursively add grandchildren, with this child as the source
           if (childEntry && childEntry.supersedes.length > 0) {
-            addChildren(childEntry.supersedes, level + 1, childPath);
+            _addChildren(childEntry.supersedes, level + 1, childPath);
           }
         }
       };
 
       // Add parents and children
       if (chain.parents.length > 0) {
-        addParents(chain.parents, -1, currentManifestPath);
+        _addParents(chain.parents, -1, currentManifestPath);
       }
       if (chain.children.length > 0) {
-        addChildren(chain.children, 1, currentManifestPath);
+        _addChildren(chain.children, 1, currentManifestPath);
       }
 
-      const chainData: ManifestChainData = {
+      const chainData: _ManifestChainData = {
         nodes,
         edges,
         currentManifest: currentManifestPath,
@@ -413,7 +413,7 @@ export class ManifestChainPanel {
     );
 
     // Use a nonce to only allow specific scripts to be run
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -488,7 +488,7 @@ export class ManifestChainPanel {
   /**
    * Calculate chain depth, breadth, total nodes, and conflict detection.
    */
-  private _computeChainMetrics(): ChainMetrics {
+  private _computeChainMetrics(): _ChainMetrics {
     if (!this._chainData || this._chainData.nodes.length === 0) {
       return {
         depth: 0,
@@ -539,7 +539,7 @@ export class ManifestChainPanel {
     this._conflicts = [];
 
     // Check for file overlap conflicts between manifests at the same level
-    const nodesByLevel = new Map<number, ManifestChainNode[]>();
+    const nodesByLevel = new Map<number, _ManifestChainNode[]>();
     for (const node of this._chainData.nodes) {
       const levelNodes = nodesByLevel.get(node.level) || [];
       levelNodes.push(node);
@@ -595,7 +595,7 @@ export class ManifestChainPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    ManifestChainPanel.currentPanel = undefined;
+    ManifestChainPanel._currentPanel = undefined;
 
     // Clean up resources
     this._panel.dispose();
@@ -614,7 +614,7 @@ export class ManifestChainPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

@@ -19,8 +19,8 @@ import {
  * Manages the History webview panel.
  */
 export class HistoryPanel {
-  public static currentPanel: HistoryPanel | undefined;
-  public static readonly viewType = "maidHistory";
+  public static _currentPanel: HistoryPanel | undefined;
+  public static readonly _viewType = "maidHistory";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -41,18 +41,18 @@ export class HistoryPanel {
       : undefined;
 
     // If we already have a panel, show it and update if needed
-    if (HistoryPanel.currentPanel) {
-      HistoryPanel.currentPanel._panel.reveal(column);
+    if (HistoryPanel._currentPanel) {
+      HistoryPanel._currentPanel._panel.reveal(column);
       if (manifestPath) {
-        HistoryPanel.currentPanel._manifestPath = manifestPath;
-        void HistoryPanel.currentPanel._loadHistory(manifestPath, commitHash);
+        HistoryPanel._currentPanel._manifestPath = manifestPath;
+        void HistoryPanel._currentPanel._loadHistory(manifestPath, commitHash);
       }
-      return HistoryPanel.currentPanel;
+      return HistoryPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      HistoryPanel.viewType,
+      HistoryPanel._viewType,
       "MAID Manifest History",
       column || vscode.ViewColumn.One,
       {
@@ -62,8 +62,8 @@ export class HistoryPanel {
       }
     );
 
-    HistoryPanel.currentPanel = new HistoryPanel(panel, extensionUri, manifestPath, commitHash);
-    return HistoryPanel.currentPanel;
+    HistoryPanel._currentPanel = new HistoryPanel(panel, extensionUri, manifestPath, commitHash);
+    return HistoryPanel._currentPanel;
   }
 
   private constructor(
@@ -386,7 +386,7 @@ export class HistoryPanel {
     );
 
     // Use a nonce to only allow specific scripts to be run
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -414,7 +414,7 @@ export class HistoryPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    HistoryPanel.currentPanel = undefined;
+    HistoryPanel._currentPanel = undefined;
 
     // Clean up resources
     this._panel.dispose();
@@ -433,7 +433,7 @@ export class HistoryPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

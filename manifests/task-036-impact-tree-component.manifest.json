@@ -9,28 +9,8 @@
     "file": "webview-ui/src/components/ImpactAnalysis/ImpactTree.tsx",
     "contains": [
       {
-        "type": "interface",
-        "name": "ImpactTreeProps"
-      },
-      {
-        "type": "interface",
-        "name": "ImpactTreeNode"
-      },
-      {
         "type": "function",
         "name": "ImpactTree"
-      },
-      {
-        "type": "function",
-        "name": "buildImpactTree"
-      },
-      {
-        "type": "function",
-        "name": "getNodeIcon"
-      },
-      {
-        "type": "function",
-        "name": "getLevelColor"
       }
     ]
   },

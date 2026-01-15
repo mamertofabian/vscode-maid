@@ -32,14 +32,14 @@ const GraphControls: React.FC<GraphControlsProps> = ({
   nodeCount,
   edgeCount,
 }) => {
-  const handleCheckboxChange = (key: keyof GraphFilters) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const _handleCheckboxChange = (key: keyof GraphFilters) => (e: React.ChangeEvent<HTMLInputElement>) => {
     onFilterChange({
       ...filters,
       [key]: e.target.checked,
     });
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const _handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFilterChange({
       ...filters,
       searchQuery: e.target.value,
@@ -96,7 +96,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({
           <input
             type="checkbox"
             checked={filters.showManifests}
-            onChange={handleCheckboxChange("showManifests")}
+            onChange={_handleCheckboxChange("showManifests")}
           />
           <span className="node-indicator manifest" />
           Manifests
@@ -105,7 +105,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({
           <input
             type="checkbox"
             checked={filters.showFiles}
-            onChange={handleCheckboxChange("showFiles")}
+            onChange={_handleCheckboxChange("showFiles")}
           />
           <span className="node-indicator file" />
           Files
@@ -114,7 +114,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({
           <input
             type="checkbox"
             checked={filters.showModules}
-            onChange={handleCheckboxChange("showModules")}
+            onChange={_handleCheckboxChange("showModules")}
           />
           <span className="node-indicator module" />
           Modules
@@ -123,7 +123,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({
           <input
             type="checkbox"
             checked={filters.showArtifacts}
-            onChange={handleCheckboxChange("showArtifacts")}
+            onChange={_handleCheckboxChange("showArtifacts")}
           />
           <span className="node-indicator artifact" />
           Artifacts

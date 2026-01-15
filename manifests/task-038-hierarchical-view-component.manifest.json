@@ -9,36 +9,8 @@
     "file": "webview-ui/src/components/HierarchicalView/HierarchicalView.tsx",
     "contains": [
       {
-        "type": "interface",
-        "name": "HierarchicalViewProps"
-      },
-      {
         "type": "function",
         "name": "HierarchicalView"
-      },
-      {
-        "type": "function",
-        "name": "getViewModeOptions",
-        "returns": {
-          "type": "ViewModeOption[]"
-        }
-      },
-      {
-        "type": "function",
-        "name": "filterNodesByLevel",
-        "args": [
-          {
-            "name": "nodes",
-            "type": "HierarchicalNode[]"
-          },
-          {
-            "name": "level",
-            "type": "number"
-          }
-        ],
-        "returns": {
-          "type": "HierarchicalNode[]"
-        }
       }
     ]
   },

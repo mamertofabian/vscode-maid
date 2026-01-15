@@ -9,10 +9,6 @@
     "file": "src/utils.ts",
     "contains": [
       {
-        "type": "interface",
-        "name": "ExecError"
-      },
-      {
         "type": "function",
         "name": "checkMaidCliInstalled"
       },
@@ -22,81 +18,15 @@
       },
       {
         "type": "function",
-        "name": "debounce",
-        "args": [
-          {
-            "name": "fn",
-            "type": "T"
-          },
-          {
-            "name": "delay",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "fn",
-            "type": "T"
-          },
-          {
-            "name": "delay",
-            "type": "number"
-          }
-        ]
+        "name": "debounce"
       },
       {
         "type": "function",
-        "name": "executeCommand",
-        "args": [
-          {
-            "name": "command",
-            "type": "string"
-          },
-          {
-            "name": "cwd",
-            "type": "string"
-          },
-          {
-            "name": "timeout"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "command",
-            "type": "string"
-          },
-          {
-            "name": "cwd",
-            "type": "string"
-          },
-          {
-            "name": "timeout"
-          }
-        ]
+        "name": "executeCommand"
       },
       {
         "type": "function",
-        "name": "executeMaidCommand",
-        "args": [
-          {
-            "name": "args",
-            "type": "string"
-          },
-          {
-            "name": "cwd",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "args",
-            "type": "string"
-          },
-          {
-            "name": "cwd",
-            "type": "string"
-          }
-        ]
+        "name": "executeMaidCommand"
       },
       {
         "type": "function",
@@ -108,19 +38,7 @@
       },
       {
         "type": "function",
-        "name": "getMaidRoot",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          }
-        ]
+        "name": "getMaidRoot"
       },
       {
         "type": "function",
@@ -140,117 +58,29 @@
       },
       {
         "type": "function",
-        "name": "isManifestFile",
-        "args": [
-          {
-            "name": "uri",
-            "type": "vscode.Uri"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "uri",
-            "type": "vscode.Uri"
-          }
-        ]
+        "name": "isManifestFile"
       },
       {
         "type": "function",
-        "name": "isManifestPath",
-        "args": [
-          {
-            "name": "path",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "path",
-            "type": "string"
-          }
-        ]
+        "name": "isManifestPath"
       },
       {
         "type": "function",
-        "name": "log",
-        "args": [
-          {
-            "name": "message",
-            "type": "string"
-          },
-          {
-            "name": "level",
-            "type": "LogLevel"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "message",
-            "type": "string"
-          },
-          {
-            "name": "level",
-            "type": "LogLevel"
-          }
-        ]
+        "name": "log"
       },
       {
         "type": "function",
-        "name": "runValidation",
-        "args": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestPath",
-            "type": "string"
-          }
-        ]
+        "name": "runValidation"
       },
       {
         "type": "function",
-        "name": "setOutputChannel",
-        "args": [
-          {
-            "name": "channel",
-            "type": "vscode.OutputChannel"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "channel",
-            "type": "vscode.OutputChannel"
-          }
-        ]
+        "name": "setOutputChannel"
       },
       {
         "type": "function",
-        "name": "throttle",
-        "args": [
-          {
-            "name": "fn",
-            "type": "T"
-          },
-          {
-            "name": "limit",
-            "type": "number"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "fn",
-            "type": "T"
-          },
-          {
-            "name": "limit",
-            "type": "number"
-          }
-        ]
+        "name": "throttle"
       }
     ]
   },
-  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_002_utils.test.ts"]
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/task-002-snapshot-utils.spec.ts"]
 }

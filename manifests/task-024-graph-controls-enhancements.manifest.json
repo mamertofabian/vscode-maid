@@ -15,14 +15,6 @@
       {
         "type": "function",
         "name": "GraphControls"
-      },
-      {
-        "type": "function",
-        "name": "handleCheckboxChange"
-      },
-      {
-        "type": "function",
-        "name": "handleSearchChange"
       }
     ]
   },

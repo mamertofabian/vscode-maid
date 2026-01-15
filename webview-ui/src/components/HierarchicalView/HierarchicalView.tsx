@@ -24,14 +24,14 @@ interface _ViewModeOption {
   description?: string;
 }
 
-// Internal type alias used by getViewModeOptions(): ViewModeOption[]
+// Internal type alias used by _getViewModeOptions(): ViewModeOption[]
 type _ViewModeOptionAlias = _ViewModeOption;
 
 /**
  * Get available view mode options for the hierarchical view.
  * @returns Array of view mode options
  */
-export function getViewModeOptions(): ViewModeOption[] {
+export function __getViewModeOptions(): ViewModeOption[] {
   return [
     {
       value: "treemap",
@@ -57,7 +57,7 @@ export function getViewModeOptions(): ViewModeOption[] {
  * @param level The level to filter by (0 = root, 1 = first level children, etc.)
  * @returns Filtered array of nodes matching the specified level
  */
-export function filterNodesByLevel(
+export function __filterNodesByLevel(
   nodes: HierarchicalNode[],
   level: number
 ): HierarchicalNode[] {
@@ -85,7 +85,7 @@ export function filterNodesByLevel(
  * @property onNodeClick: (node) => void - Callback when a node is clicked
  * @property viewMode: string - Current visualization mode
  */
-export interface HierarchicalViewProps {
+export interface _HierarchicalViewProps {
   /** Hierarchical node data to display (optional - fetches from VS Code when not provided) */
   nodes?: HierarchicalNode[];
   /** Callback when a node is clicked - onNodeClick: handler */
@@ -110,7 +110,7 @@ export interface HierarchicalViewProps {
  * HierarchicalView component for rendering hierarchical system visualization.
  * Supports treemap, sunburst, and nested view modes with drill-down navigation.
  */
-export const HierarchicalView: React.FC<HierarchicalViewProps> = ({
+export const HierarchicalView: React.FC<_HierarchicalViewProps> = ({
   nodes: propNodes,
   onNodeClick,
   viewMode: propViewMode = "nested",
@@ -218,7 +218,7 @@ export const HierarchicalView: React.FC<HierarchicalViewProps> = ({
   // Get display nodes based on current navigation state
   const displayNodes = currentNode
     ? currentNode.children
-    : filterNodesByLevel(nodes, selectedLevel);
+    : _filterNodesByLevel(nodes, selectedLevel);
 
   // Render metrics for a node
   const _renderMetrics = (node: HierarchicalNode) => (
@@ -421,7 +421,7 @@ export const HierarchicalView: React.FC<HierarchicalViewProps> = ({
   }
 
   // View mode options
-  const viewModeOptions = getViewModeOptions();
+  const viewModeOptions = _getViewModeOptions();
 
   return (
     <div className={`hierarchical-view ${className}`}>

@@ -66,7 +66,7 @@ const KnowledgeGraph: React.FC = () => {
         // Search filter
         if (filters.searchQuery) {
           const query = filters.searchQuery.toLowerCase();
-          const label = getNodeLabel(node).toLowerCase();
+          const label = _getNodeLabel(node).toLowerCase();
           const id = node.id.toLowerCase();
           if (!label.includes(query) && !id.includes(query)) return false;
         }
@@ -78,7 +78,7 @@ const KnowledgeGraph: React.FC = () => {
   );
 
   // Get the display label for a node
-  const getNodeLabel = (node: GraphNode): string => {
+  const _getNodeLabel = (node: GraphNode): string => {
     switch (node.type) {
       case "manifest":
         return node.path?.split("/").pop()?.replace(".manifest.json", "") || node.id;
@@ -94,7 +94,7 @@ const KnowledgeGraph: React.FC = () => {
   };
 
   // Get tooltip content for a node
-  const getNodeTooltip = (node: GraphNode): string => {
+  const _getNodeTooltip = (node: GraphNode): string => {
     const lines: string[] = [];
     lines.push(`Type: ${node.type}`);
 
@@ -127,9 +127,9 @@ const KnowledgeGraph: React.FC = () => {
         const nodes = new DataSet(
           filteredNodes.map((node) => ({
             id: node.id,
-            label: getNodeLabel(node),
+            label: _getNodeLabel(node),
             group: node.type,
-            title: getNodeTooltip(node),
+            title: _getNodeTooltip(node),
             // Store original node data for click handling
             originalNode: node,
           }))
@@ -142,7 +142,7 @@ const KnowledgeGraph: React.FC = () => {
             to: edge.target,
             label: edge.relation || "",
             arrows: "to",
-            color: getEdgeColor(edge.relation),
+            color: _getEdgeColor(edge.relation),
           }))
         );
 
@@ -270,7 +270,7 @@ const KnowledgeGraph: React.FC = () => {
   }, [graphData, filters, filterNodes, sendMessage]);
 
   // Get edge color based on relation type
-  const getEdgeColor = (relation: string | undefined): string => {
+  const _getEdgeColor = (relation: string | undefined): string => {
     if (!relation) return "#808080";
     switch (relation.toLowerCase()) {
       case "supersedes":
@@ -285,17 +285,17 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const handleFilterChange = (newFilters: GraphFilters) => {
+  const _handleFilterChange = (newFilters: GraphFilters) => {
     setFilters(newFilters);
     sendMessage({ type: "filterChange", payload: { filters: newFilters } });
   };
 
-  const handleRefresh = () => {
+  const __handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
 
-  const handleOpenNode = (node: GraphNode) => {
+  const _handleOpenNode = (node: GraphNode) => {
     if (node.path) {
       if (node.type === "manifest") {
         sendMessage({ type: "openManifest", payload: { manifestPath: node.path } });
@@ -326,7 +326,7 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const handleLayoutChange = (layoutType: string) => {
+  const _handleLayoutChange = (layoutType: string) => {
     setCurrentLayout(layoutType);
     sendMessage({
       type: "changeLayout",
@@ -343,7 +343,7 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const handleExport = (format: string) => {
+  const _handleExport = (format: string) => {
     sendMessage({
       type: "exportGraph",
       payload: { format: format as any, filename: null },
@@ -355,7 +355,7 @@ const KnowledgeGraph: React.FC = () => {
       <div className="knowledge-graph-error">
         <p>Error loading knowledge graph:</p>
         <p className="error-message">{error}</p>
-        <button onClick={handleRefresh}>Retry</button>
+        <button onClick={_handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -365,7 +365,7 @@ const KnowledgeGraph: React.FC = () => {
       <GraphControls
         filters={filters}
         onFilterChange={handleFilterChange}
-        onRefresh={handleRefresh}
+        onRefresh={_handleRefresh}
         isLoading={isLoading}
         nodeCount={graphData?.nodes.length || 0}
         edgeCount={graphData?.edges.length || 0}

@@ -173,7 +173,7 @@ const ManifestChain: React.FC = () => {
     };
   }, [chainData, sendMessage]);
 
-  const handleRefresh = () => {
+  const __handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
@@ -181,14 +181,14 @@ const ManifestChain: React.FC = () => {
   /**
    * Toggle between graph and timeline view modes.
    */
-  const handleViewModeChange = (mode: string) => {
+  const __handleViewModeChange = (mode: string) => {
     setViewMode(mode);
   };
 
   /**
    * Calculate and return chain statistics including depth and breadth.
    */
-  const getChainStatistics = () => {
+  const __getChainStatistics = () => {
     if (!chainData || chainData.nodes.length === 0) {
       return {
         depth: 0,
@@ -233,7 +233,7 @@ const ManifestChain: React.FC = () => {
       <div className="manifest-chain-error">
         <p>Error loading manifest chain:</p>
         <p className="error-message">{error}</p>
-        <button onClick={handleRefresh}>Retry</button>
+        <button onClick={_handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -243,7 +243,7 @@ const ManifestChain: React.FC = () => {
       <div className="manifest-chain-header">
         <h2>Manifest Chain</h2>
         <div className="manifest-chain-controls">
-          <button onClick={handleRefresh} disabled={isLoading}>
+          <button onClick={_handleRefresh} disabled={isLoading}>
             {isLoading ? "Loading..." : "Refresh"}
           </button>
         </div>

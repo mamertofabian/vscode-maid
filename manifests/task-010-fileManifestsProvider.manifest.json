@@ -1,6 +1,6 @@
 {
   "goal": "Snapshot of existing code in src/fileManifestsProvider.ts",
-  "taskType": "create",
+  "taskType": "snapshot",
   "supersedes": [],
   "creatableFiles": ["src/fileManifestsProvider.ts"],
   "editableFiles": [],
@@ -13,69 +13,8 @@
         "name": "FileManifestTreeItem"
       },
       {
-        "type": "interface",
-        "name": "ExtendedFileManifestTreeItem"
-      },
-      {
         "type": "class",
         "name": "FileManifestsTreeDataProvider"
-      },
-      {
-        "type": "function",
-        "name": "getCategoryLabel",
-        "class": "FileManifestTreeItem",
-        "args": [
-          {
-            "name": "category",
-            "type": "FileReferenceCategory"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "category",
-            "type": "FileReferenceCategory"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "getContextValue",
-        "class": "FileManifestTreeItem"
-      },
-      {
-        "type": "function",
-        "name": "getDescription",
-        "class": "FileManifestTreeItem"
-      },
-      {
-        "type": "function",
-        "name": "getIcon",
-        "class": "FileManifestTreeItem"
-      },
-      {
-        "type": "function",
-        "name": "getTooltip",
-        "class": "FileManifestTreeItem"
-      },
-      {
-        "type": "function",
-        "name": "_onDidChangeTreeData",
-        "class": "FileManifestsTreeDataProvider"
-      },
-      {
-        "type": "function",
-        "name": "currentFile",
-        "class": "FileManifestsTreeDataProvider"
-      },
-      {
-        "type": "function",
-        "name": "debouncedRefresh",
-        "class": "FileManifestsTreeDataProvider"
-      },
-      {
-        "type": "function",
-        "name": "disposables",
-        "class": "FileManifestsTreeDataProvider"
       },
       {
         "type": "function",
@@ -84,59 +23,13 @@
       },
       {
         "type": "function",
-        "name": "fileReferences",
+        "name": "getChildren",
         "class": "FileManifestsTreeDataProvider"
       },
       {
         "type": "function",
-        "name": "getCategoryLabel",
-        "class": "FileManifestsTreeDataProvider",
-        "args": [
-          {
-            "name": "category",
-            "type": "FileReferenceCategory"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "category",
-            "type": "FileReferenceCategory"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "getChildren",
-        "class": "FileManifestsTreeDataProvider",
-        "args": [
-          {
-            "name": "element",
-            "type": "FileManifestTreeItem"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "element",
-            "type": "FileManifestTreeItem"
-          }
-        ]
-      },
-      {
-        "type": "function",
         "name": "getTreeItem",
-        "class": "FileManifestsTreeDataProvider",
-        "args": [
-          {
-            "name": "element",
-            "type": "FileManifestTreeItem"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "element",
-            "type": "FileManifestTreeItem"
-          }
-        ]
+        "class": "FileManifestsTreeDataProvider"
       },
       {
         "type": "function",
@@ -151,40 +44,11 @@
       {
         "type": "function",
         "name": "setCurrentFile",
-        "class": "FileManifestsTreeDataProvider",
-        "args": [
-          {
-            "name": "filePath",
-            "type": "string | undefined"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "filePath",
-            "type": "string | undefined"
-          }
-        ]
+        "class": "FileManifestsTreeDataProvider"
       },
       {
         "type": "function",
         "name": "setManifestIndex",
-        "class": "FileManifestsTreeDataProvider",
-        "args": [
-          {
-            "name": "manifestIndex",
-            "type": "ManifestIndex"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "manifestIndex",
-            "type": "ManifestIndex"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "updateFileReferences",
         "class": "FileManifestsTreeDataProvider"
       }
     ]

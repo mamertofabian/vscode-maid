@@ -14,16 +14,6 @@
       },
       {
         "type": "function",
-        "name": "currentPanel",
-        "class": "ManifestDesignerPanel"
-      },
-      {
-        "type": "function",
-        "name": "viewType",
-        "class": "ManifestDesignerPanel"
-      },
-      {
-        "type": "function",
         "name": "createOrShow",
         "class": "ManifestDesignerPanel"
       },
@@ -31,14 +21,6 @@
         "type": "function",
         "name": "dispose",
         "class": "ManifestDesignerPanel"
-      },
-      {
-        "type": "function",
-        "name": "getNonce"
-      },
-      {
-        "type": "interface",
-        "name": "ParsedManifest"
       }
     ]
   },

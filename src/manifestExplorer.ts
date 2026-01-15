@@ -21,7 +21,7 @@ import type { ManifestIndex } from "./manifestIndex";
 /**
  * Extended properties for ManifestTreeItem when used as a category
  */
-interface ExtendedManifestTreeItem extends ManifestTreeItem {
+interface _ExtendedManifestTreeItem extends ManifestTreeItem {
   categoryType?:
     | "chain"
     | "supersedes"
@@ -47,14 +47,14 @@ interface ExtendedManifestTreeItem extends ManifestTreeItem {
 /**
  * Extended ManifestInfo with chain information
  */
-interface ManifestInfoWithChain extends ManifestInfo {
+interface _ManifestInfoWithChain extends ManifestInfo {
   chainInfo?: ChainInfo;
 }
 
 /**
  * Extended properties for TrackedFileTreeItem when used as a category
  */
-interface ExtendedTrackedFileTreeItem extends TrackedFileTreeItem {
+interface _ExtendedTrackedFileTreeItem extends TrackedFileTreeItem {
   categoryType?: "undeclared" | "registered" | "tracked" | "private_impl";
   files?: string[] | Array<{ file: string; issues: string[] }>;
 }
@@ -63,7 +63,7 @@ interface ExtendedTrackedFileTreeItem extends TrackedFileTreeItem {
  * Extracts the file path from a string that may contain command prefixes.
  * For example: "pytest tests/test.py" -> "tests/test.py"
  */
-function extractFilePath(arg: string): string {
+function _extractFilePath(arg: string): string {
   // Common test command prefixes to strip
   const commandPrefixes = [
     /^pytest\s+/,
@@ -92,7 +92,7 @@ function extractFilePath(arg: string): string {
 /**
  * Type guard to check if a value is a valid ParsedManifestJson
  */
-function isParsedManifestJson(value: unknown): value is ParsedManifestJson {
+function _isParsedManifestJson(value: unknown): value is ParsedManifestJson {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -100,11 +100,11 @@ function isParsedManifestJson(value: unknown): value is ParsedManifestJson {
  * Safely parses JSON content into a ParsedManifestJson
  * This function handles the unsafe JSON.parse result and validates it
  */
-function parseManifestJson(content: Uint8Array): ParsedManifestJson {
+function _parseManifestJson(content: Uint8Array): ParsedManifestJson {
   try {
     const jsonString = Buffer.from(content).toString();
     const parsedContent: unknown = JSON.parse(jsonString);
-    if (isParsedManifestJson(parsedContent)) {
+    if (_isParsedManifestJson(parsedContent)) {
       // Type guard ensures parsedContent is ParsedManifestJson
       // The type guard narrows the type correctly, so we can return it directly
       // TypeScript's type system recognizes the type guard
@@ -119,7 +119,7 @@ function parseManifestJson(content: Uint8Array): ParsedManifestJson {
 /**
  * Safely gets a property from a ParsedManifestJson object
  */
-function getManifestProperty<T>(
+function _getManifestProperty<T>(
   manifest: ParsedManifestJson,
   property: keyof ParsedManifestJson
 ): T | undefined {
@@ -135,7 +135,7 @@ function getManifestProperty<T>(
  * Resolves a file path relative to the MAID root directory and returns
  * both the full path and the display path (relative to workspace root).
  */
-function resolveFilePath(
+function _resolveFilePath(
   filePath: string,
   maidRoot: string | undefined,
   workspaceRoot: string | undefined
@@ -296,7 +296,7 @@ export class ManifestTreeItem extends vscode.TreeItem {
 
           // Add chain info if available
           if (this.manifestInfo && "chainInfo" in this.manifestInfo) {
-            const manifestInfoWithChain = this.manifestInfo as ManifestInfoWithChain;
+            const manifestInfoWithChain = this.manifestInfo as _ManifestInfoWithChain;
             const chainInfo: unknown = manifestInfoWithChain.chainInfo;
             if (chainInfo) {
               // Type guard to ensure chainInfo has the expected structure
@@ -416,7 +416,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         if (this.manifestIndex) {
           try {
             const chain = this.manifestIndex.getSupersessionChain(file.fsPath);
-            const infoWithChain: ManifestInfoWithChain = {
+            const infoWithChain: _ManifestInfoWithChain = {
               ...info,
               chainInfo: {
                 parents: chain.parents.length,
@@ -534,10 +534,10 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
     if (element.resourceUri) {
       try {
         const content = await vscode.workspace.fs.readFile(element.resourceUri);
-        // parseManifestJson returns ParsedManifestJson, which is safe to assign
+        // _parseManifestJson returns ParsedManifestJson, which is safe to assign
         // The function handles all type safety internally with proper type guards
         // The return type is explicitly ParsedManifestJson, so the assignment is type-safe
-        const manifest: ParsedManifestJson = parseManifestJson(content);
+        const manifest: ParsedManifestJson = _parseManifestJson(content);
         const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
         // Get MAID root (where the manifests/ folder is located)
@@ -561,7 +561,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
                 "git-branch",
                 new vscode.ThemeColor("charts.blue")
               );
-              const chainCategoryExtended = chainCategory as ExtendedManifestTreeItem;
+              const chainCategoryExtended = chainCategory as _ExtendedManifestTreeItem;
               chainCategoryExtended.categoryType = "chain";
               chainCategoryExtended.chain = chain;
               chainCategoryExtended.workspaceRoot = workspaceRoot;
@@ -573,7 +573,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show supersedes if present
-        const supersedes = getManifestProperty<string[]>(manifest, "supersedes");
+        const supersedes = _getManifestProperty<string[]>(manifest, "supersedes");
         if (supersedes && Array.isArray(supersedes) && supersedes.length > 0) {
           const supersedesCategory = new ManifestTreeItem(
             `Supersedes (${supersedes.length})`,
@@ -584,7 +584,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             "references",
             new vscode.ThemeColor("charts.red")
           );
-          const supersedesCategoryExtended = supersedesCategory as ExtendedManifestTreeItem;
+          const supersedesCategoryExtended = supersedesCategory as _ExtendedManifestTreeItem;
           supersedesCategoryExtended.categoryType = "supersedes";
           supersedesCategoryExtended.items = supersedes;
           supersedesCategoryExtended.workspaceRoot = workspaceRoot;
@@ -593,7 +593,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show creatable files
-        const creatableFiles = getManifestProperty<string[]>(manifest, "creatableFiles");
+        const creatableFiles = _getManifestProperty<string[]>(manifest, "creatableFiles");
         if (creatableFiles && Array.isArray(creatableFiles) && creatableFiles.length > 0) {
           const creatableCategory = new ManifestTreeItem(
             `Creatable Files (${creatableFiles.length})`,
@@ -604,7 +604,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             "new-file",
             new vscode.ThemeColor("charts.green")
           );
-          const creatableCategoryExtended = creatableCategory as ExtendedManifestTreeItem;
+          const creatableCategoryExtended = creatableCategory as _ExtendedManifestTreeItem;
           creatableCategoryExtended.categoryType = "creatableFiles";
           creatableCategoryExtended.items = creatableFiles;
           creatableCategoryExtended.workspaceRoot = workspaceRoot;
@@ -613,7 +613,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show editable files
-        const editableFiles = getManifestProperty<string[]>(manifest, "editableFiles");
+        const editableFiles = _getManifestProperty<string[]>(manifest, "editableFiles");
         if (editableFiles && Array.isArray(editableFiles) && editableFiles.length > 0) {
           const editableCategory = new ManifestTreeItem(
             `Editable Files (${editableFiles.length})`,
@@ -624,7 +624,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             "edit",
             new vscode.ThemeColor("charts.blue")
           );
-          const editableCategoryExtended = editableCategory as ExtendedManifestTreeItem;
+          const editableCategoryExtended = editableCategory as _ExtendedManifestTreeItem;
           editableCategoryExtended.categoryType = "editableFiles";
           editableCategoryExtended.items = editableFiles;
           editableCategoryExtended.workspaceRoot = workspaceRoot;
@@ -633,7 +633,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show readonly files
-        const readonlyFiles = getManifestProperty<string[]>(manifest, "readonlyFiles");
+        const readonlyFiles = _getManifestProperty<string[]>(manifest, "readonlyFiles");
         if (readonlyFiles && Array.isArray(readonlyFiles) && readonlyFiles.length > 0) {
           const readonlyCategory = new ManifestTreeItem(
             `Read-only Files (${readonlyFiles.length})`,
@@ -644,7 +644,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             "lock",
             new vscode.ThemeColor("charts.yellow")
           );
-          const readonlyCategoryExtended = readonlyCategory as ExtendedManifestTreeItem;
+          const readonlyCategoryExtended = readonlyCategory as _ExtendedManifestTreeItem;
           readonlyCategoryExtended.categoryType = "readonlyFiles";
           readonlyCategoryExtended.items = readonlyFiles;
           readonlyCategoryExtended.workspaceRoot = workspaceRoot;
@@ -653,7 +653,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show expected artifacts
-        const expectedArtifacts = getManifestProperty<ExpectedArtifact | ExpectedArtifact[]>(
+        const expectedArtifacts = _getManifestProperty<ExpectedArtifact | ExpectedArtifact[]>(
           manifest,
           "expectedArtifacts"
         );
@@ -672,7 +672,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
               "symbol-file",
               new vscode.ThemeColor("charts.purple")
             );
-            const artifactsCategoryExtended = artifactsCategory as ExtendedManifestTreeItem;
+            const artifactsCategoryExtended = artifactsCategory as _ExtendedManifestTreeItem;
             artifactsCategoryExtended.categoryType = "expectedArtifacts";
             artifactsCategoryExtended.items = artifacts;
             artifactsCategoryExtended.workspaceRoot = workspaceRoot;
@@ -682,12 +682,12 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Show test files from validation command
-        const validationCommand = getManifestProperty<string[]>(manifest, "validationCommand");
+        const validationCommand = _getManifestProperty<string[]>(manifest, "validationCommand");
         if (validationCommand && Array.isArray(validationCommand) && validationCommand.length > 0) {
           // Extract test files from validation command (files that look like paths)
           const testFiles = validationCommand
             .filter((arg): arg is string => typeof arg === "string")
-            .map((arg: string) => extractFilePath(arg))
+            .map((arg: string) => _extractFilePath(arg))
             .filter((filePath: string) => {
               // Look for arguments that look like file paths (contain / or \ or end with test extensions)
               return (
@@ -719,7 +719,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
               "beaker",
               new vscode.ThemeColor("terminal.ansiCyan")
             );
-            const testFilesCategoryExtended = testFilesCategory as ExtendedManifestTreeItem;
+            const testFilesCategoryExtended = testFilesCategory as _ExtendedManifestTreeItem;
             testFilesCategoryExtended.categoryType = "testFiles";
             testFilesCategoryExtended.items = testFiles;
             testFilesCategoryExtended.workspaceRoot = workspaceRoot;
@@ -729,14 +729,14 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
         }
 
         // Legacy support: Show tasks if available (for older manifest formats)
-        const tasks = getManifestProperty<ManifestTask[]>(manifest, "tasks");
+        const tasks = _getManifestProperty<ManifestTask[]>(manifest, "tasks");
         if (tasks && Array.isArray(tasks)) {
           const tasksCategory = new ManifestTreeItem(
             `Tasks (${tasks.length})`,
             "category",
             vscode.TreeItemCollapsibleState.Collapsed
           );
-          const tasksCategoryExtended = tasksCategory as ExtendedManifestTreeItem;
+          const tasksCategoryExtended = tasksCategory as _ExtendedManifestTreeItem;
           tasksCategoryExtended.categoryType = "tasks";
           tasksCategoryExtended.tasks = tasks;
           tasksCategoryExtended.parentUri = element.resourceUri;
@@ -760,7 +760,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
 
   private getCategoryChildren(element: ManifestTreeItem): ManifestTreeItem[] {
     const items: ManifestTreeItem[] = [];
-    const extendedElement = element as ExtendedManifestTreeItem;
+    const extendedElement = element as _ExtendedManifestTreeItem;
     const categoryType = extendedElement.categoryType;
     const categoryItems = extendedElement.items;
 
@@ -782,7 +782,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
               "arrow-up",
               new vscode.ThemeColor("charts.green")
             );
-            const parentsCategoryExtended = parentsCategory as ExtendedManifestTreeItem;
+            const parentsCategoryExtended = parentsCategory as _ExtendedManifestTreeItem;
             parentsCategoryExtended.categoryType = "chainManifests";
             parentsCategoryExtended.items = chain.parents;
             parentsCategoryExtended.workspaceRoot = chainWorkspaceRoot;
@@ -800,7 +800,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
               "arrow-down",
               new vscode.ThemeColor("charts.orange")
             );
-            const childrenCategoryExtended = childrenCategory as ExtendedManifestTreeItem;
+            const childrenCategoryExtended = childrenCategory as _ExtendedManifestTreeItem;
             childrenCategoryExtended.categoryType = "chainManifests";
             childrenCategoryExtended.items = chain.children;
             childrenCategoryExtended.workspaceRoot = chainWorkspaceRoot;
@@ -835,7 +835,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
           const supersedesWorkspaceRoot = extendedElement.workspaceRoot;
           for (const superseded of categoryItems) {
             if (typeof superseded !== "string") continue;
-            const { fullPath, displayPath } = resolveFilePath(
+            const { fullPath, displayPath } = _resolveFilePath(
               superseded,
               supersedesMaidRoot,
               supersedesWorkspaceRoot
@@ -858,7 +858,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
           const creatableWorkspaceRoot = extendedElement.workspaceRoot;
           for (const file of categoryItems) {
             if (typeof file !== "string") continue;
-            const { fullPath, displayPath } = resolveFilePath(
+            const { fullPath, displayPath } = _resolveFilePath(
               file,
               creatableMaidRoot,
               creatableWorkspaceRoot
@@ -881,7 +881,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
           const editableWorkspaceRoot = extendedElement.workspaceRoot;
           for (const file of categoryItems) {
             if (typeof file !== "string") continue;
-            const { fullPath, displayPath } = resolveFilePath(
+            const { fullPath, displayPath } = _resolveFilePath(
               file,
               editableMaidRoot,
               editableWorkspaceRoot
@@ -904,7 +904,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
           const readonlyWorkspaceRoot = extendedElement.workspaceRoot;
           for (const file of categoryItems) {
             if (typeof file !== "string") continue;
-            const { fullPath, displayPath } = resolveFilePath(
+            const { fullPath, displayPath } = _resolveFilePath(
               file,
               readonlyMaidRoot,
               readonlyWorkspaceRoot
@@ -938,7 +938,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             let displayPath = "Unknown file";
 
             if (expectedArtifact.file) {
-              const { fullPath, displayPath: dp } = resolveFilePath(
+              const { fullPath, displayPath: dp } = _resolveFilePath(
                 expectedArtifact.file,
                 artifactsMaidRoot,
                 artifactsWorkspaceRoot
@@ -957,7 +957,7 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
             );
             // Store contains for child expansion
             if (hasContains && expectedArtifact.contains) {
-              const artifactItemExtended = artifactItem as ExtendedManifestTreeItem;
+              const artifactItemExtended = artifactItem as _ExtendedManifestTreeItem;
               artifactItemExtended.categoryType = "artifactContains";
               artifactItemExtended.items = expectedArtifact.contains;
             }
@@ -994,8 +994,8 @@ export class ManifestTreeDataProvider implements vscode.TreeDataProvider<Manifes
           for (const file of categoryItems) {
             if (typeof file !== "string") continue;
             // Extract clean file path (in case it still contains command prefixes)
-            const cleanPath = extractFilePath(file);
-            const { fullPath, displayPath } = resolveFilePath(
+            const cleanPath = _extractFilePath(file);
+            const { fullPath, displayPath } = _resolveFilePath(
               cleanPath,
               testFilesMaidRoot,
               testFilesWorkspaceRoot
@@ -1300,13 +1300,13 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
         timeout: 30000,
       });
 
-      interface FilesData {
+      interface _FilesData {
         undeclared: { file: string; issues: string[] }[];
         registered: { file: string; issues: string[] }[];
         tracked: string[];
         private_impl: string[];
       }
-      this.filesData = JSON.parse(stdout) as FilesData;
+      this.filesData = JSON.parse(stdout) as _FilesData;
       log(
         `[TrackedFiles] Loaded from ${cwd}: undeclared=${this.filesData?.undeclared?.length || 0}, registered=${this.filesData?.registered?.length || 0}, tracked=${this.filesData?.tracked?.length || 0}, private_impl=${this.filesData?.private_impl?.length || 0}`
       );
@@ -1358,7 +1358,7 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
         "warning",
         new vscode.ThemeColor("editorWarning.foreground")
       );
-      const undeclaredCategoryExtended = undeclaredCategory as ExtendedTrackedFileTreeItem;
+      const undeclaredCategoryExtended = undeclaredCategory as _ExtendedTrackedFileTreeItem;
       undeclaredCategoryExtended.categoryType = "undeclared";
       undeclaredCategoryExtended.files = this.filesData.undeclared;
       items.push(undeclaredCategoryExtended);
@@ -1375,7 +1375,7 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
         "circle-outline",
         new vscode.ThemeColor("editorInfo.foreground")
       );
-      const registeredCategoryExtended = registeredCategory as ExtendedTrackedFileTreeItem;
+      const registeredCategoryExtended = registeredCategory as _ExtendedTrackedFileTreeItem;
       registeredCategoryExtended.categoryType = "registered";
       registeredCategoryExtended.files = this.filesData.registered;
       items.push(registeredCategoryExtended);
@@ -1392,7 +1392,7 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
         "check",
         new vscode.ThemeColor("testing.iconPassed")
       );
-      const trackedCategoryExtended = trackedCategory as ExtendedTrackedFileTreeItem;
+      const trackedCategoryExtended = trackedCategory as _ExtendedTrackedFileTreeItem;
       trackedCategoryExtended.categoryType = "tracked";
       trackedCategoryExtended.files = this.filesData.tracked;
       items.push(trackedCategoryExtended);
@@ -1406,7 +1406,7 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
         vscode.TreeItemCollapsibleState.Collapsed
       );
       privateCategory.iconPath = new vscode.ThemeIcon("lock");
-      const privateCategoryExtended = privateCategory as ExtendedTrackedFileTreeItem;
+      const privateCategoryExtended = privateCategory as _ExtendedTrackedFileTreeItem;
       privateCategoryExtended.categoryType = "private_impl";
       privateCategoryExtended.files = this.filesData.private_impl;
       items.push(privateCategoryExtended);
@@ -1426,7 +1426,7 @@ export class TrackedFilesTreeDataProvider implements vscode.TreeDataProvider<Tra
   }
 
   private getCategoryChildren(element: TrackedFileTreeItem): TrackedFileTreeItem[] {
-    const extendedElement = element as ExtendedTrackedFileTreeItem;
+    const extendedElement = element as _ExtendedTrackedFileTreeItem;
     const categoryType = extendedElement.categoryType;
     const files = extendedElement.files;
 

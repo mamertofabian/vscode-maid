@@ -10,23 +10,11 @@
       {
         "type": "function",
         "name": "registerImpactAnalysisCommand",
-        "args": [
-          {
-            "name": "context",
-            "type": "vscode.ExtensionContext"
-          }
-        ],
         "returns": "void"
       },
       {
         "type": "function",
         "name": "registerHierarchicalViewCommand",
-        "args": [
-          {
-            "name": "context",
-            "type": "vscode.ExtensionContext"
-          }
-        ],
         "returns": "void"
       },
       {

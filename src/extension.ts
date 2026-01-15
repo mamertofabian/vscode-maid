@@ -43,11 +43,11 @@ import { FileManifestsTreeDataProvider } from "./fileManifestsProvider";
 // Imports kept for future re-enablement
 import {
   // ImpactAnalysisPanel, // Uncomment when re-enabling feature
-  setSharedManifestIndex as setImpactAnalysisManifestIndex,
+  _setSharedManifestIndex as setImpactAnalysisManifestIndex,
 } from "./webview/impactAnalysisPanel";
 import {
   // HierarchicalViewPanel, // Uncomment when re-enabling feature
-  setSharedManifestIndex as setHierarchicalViewManifestIndex,
+  _setSharedManifestIndex as setHierarchicalViewManifestIndex,
 } from "./webview/hierarchicalViewPanel";
 
 // Module-level state
@@ -71,7 +71,7 @@ const DISMISSED_VERSION_KEY = "maidLsp.dismissedVersion";
 /**
  * Fetch the latest version from PyPI.
  */
-async function getLatestVersion(): Promise<string | null> {
+async function __getLatestVersion(): Promise<string | null> {
   return new Promise((resolve) => {
     log(`Fetching latest version from PyPI: ${PYPI_API_URL}`);
     https
@@ -109,7 +109,7 @@ async function getLatestVersion(): Promise<string | null> {
  * Compare two semver version strings.
  * Returns true if newVersion > currentVersion
  */
-function isNewerVersion(currentVersion: string, newVersion: string): boolean {
+function __isNewerVersion(currentVersion: string, newVersion: string): boolean {
   const current = currentVersion.split(".").map(Number);
   const latest = newVersion.split(".").map(Number);
 
@@ -124,7 +124,7 @@ function isNewerVersion(currentVersion: string, newVersion: string): boolean {
  * Detect how maid-lsp was installed.
  * Returns the appropriate upgrade command.
  */
-async function detectInstallationMethod(): Promise<string> {
+async function __detectInstallationMethod(): Promise<string> {
   log("Detecting maid-lsp installation method...");
 
   const { exec } = await import("child_process");
@@ -163,7 +163,7 @@ async function detectInstallationMethod(): Promise<string> {
 /**
  * Check for updates and show notification if available.
  */
-async function checkForUpdates(context: vscode.ExtensionContext, force = false): Promise<void> {
+async function __checkForUpdates(context: vscode.ExtensionContext, force = false): Promise<void> {
   // Check if we should skip (unless forced)
   if (!force) {
     const lastCheck = context.globalState.get<number>(LAST_VERSION_CHECK_KEY);
@@ -178,7 +178,7 @@ async function checkForUpdates(context: vscode.ExtensionContext, force = false):
     return; // Can't determine installed version
   }
 
-  const latestVersion = await getLatestVersion();
+  const latestVersion = await __getLatestVersion();
   if (!latestVersion) {
     if (force) {
       vscode.window.showWarningMessage(
@@ -198,7 +198,7 @@ async function checkForUpdates(context: vscode.ExtensionContext, force = false):
   }
 
   // Check if update is available
-  if (isNewerVersion(installedVersion, latestVersion)) {
+  if (__isNewerVersion(installedVersion, latestVersion)) {
     const choice = await vscode.window.showInformationMessage(
       `maid-lsp ${latestVersion} is available (you have ${installedVersion})`,
       "Update Now",
@@ -208,7 +208,7 @@ async function checkForUpdates(context: vscode.ExtensionContext, force = false):
 
     if (choice === "Update Now") {
       // Detect installation method and use appropriate command
-      const updateCommand = await detectInstallationMethod();
+      const updateCommand = await __detectInstallationMethod();
       const terminal = vscode.window.createTerminal("MAID Updater");
       terminal.sendText(updateCommand);
       terminal.show();
@@ -226,7 +226,7 @@ async function checkForUpdates(context: vscode.ExtensionContext, force = false):
 /**
  * Prompt user to install maid-lsp with helpful options.
  */
-async function promptMaidLspInstall(): Promise<void> {
+async function __promptMaidLspInstall(): Promise<void> {
   log("Prompting user to install maid-lsp...");
   const choice = await vscode.window.showInformationMessage(
     "MAID LSP server not found. How would you like to install it?",
@@ -261,10 +261,116 @@ async function promptMaidLspInstall(): Promise<void> {
   );
 }
 
+// Private middleware handlers for LSP client
+function _initializationFailedHandler(error: Error): boolean {
+  log(`LSP initialization failed: ${error}`, "error");
+  return false;
+}
+
+async function _didOpen(
+  document: vscode.TextDocument,
+  next: (document: vscode.TextDocument) => Promise<void>
+): Promise<void> {
+  log(`[LSP Middleware] Document opened: ${document.uri.toString()}`);
+  log(`[LSP Middleware] Language ID: ${document.languageId}`);
+  log(`[LSP Middleware] File size: ${document.getText().length} bytes`);
+  log(`[LSP Middleware] First 100 chars: ${document.getText().substring(0, 100)}`);
+  return next(document);
+}
+
+async function _didChange(
+  event: vscode.TextDocumentChangeEvent,
+  next: (event: vscode.TextDocumentChangeEvent) => Promise<void>
+): Promise<void> {
+  log(`[LSP Middleware] Document changed: ${event.document.uri.toString()}`);
+  log(`[LSP Middleware] Changes: ${event.contentChanges.length} change(s)`);
+  return next(event);
+}
+
+async function _didSave(
+  document: vscode.TextDocument,
+  next: (document: vscode.TextDocument) => Promise<void>
+): Promise<void> {
+  log(`[LSP Middleware] Document saved: ${document.uri.toString()}`);
+  const result = await next(document);
+
+  // Force re-send the document to trigger validation after save
+  // This works around the server not supporting workspace/didChangeWatchedFiles
+  if (client) {
+    try {
+      log(`[LSP Middleware] Sending close notification for re-validation`);
+      await client.sendNotification("textDocument/didClose", {
+        textDocument: { uri: document.uri.toString() },
+      });
+
+      log(`[LSP Middleware] Sending open notification with updated content`);
+      await client.sendNotification("textDocument/didOpen", {
+        textDocument: {
+          uri: document.uri.toString(),
+          languageId: document.languageId,
+          version: document.version,
+          text: document.getText(),
+        },
+      });
+      log(`[LSP Middleware] Re-validation triggered successfully`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      log(`[LSP Middleware] Failed to trigger re-validation: ${message}`, "error");
+    }
+  } else {
+    log(`[LSP Middleware] No client available for re-validation`, "warn");
+  }
+
+  return result;
+}
+
+function _handleDiagnostics(
+  uri: vscode.Uri,
+  diagnostics: vscode.Diagnostic[],
+  next: (uri: vscode.Uri, diagnostics: vscode.Diagnostic[]) => void
+): void {
+  log(
+    `[LSP Middleware] Received diagnostics for ${uri.toString()}: ${diagnostics.length} issue(s)`
+  );
+
+  // Update status bar with diagnostics
+  if (statusBar) {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
+      const errors = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Error
+      ).length;
+      const warnings = diagnostics.filter(
+        (d) => d.severity === vscode.DiagnosticSeverity.Warning
+      ).length;
+      statusBar.updateStatus(errors, warnings);
+    }
+  }
+
+  if (diagnostics.length > 0) {
+    diagnostics.forEach((diag, index) => {
+      const severityText =
+        diag.severity === vscode.DiagnosticSeverity.Error
+          ? "ERROR"
+          : diag.severity === vscode.DiagnosticSeverity.Warning
+            ? "WARNING"
+            : diag.severity === vscode.DiagnosticSeverity.Information
+              ? "INFO"
+              : "HINT";
+      log(
+        `  [${index + 1}] Line ${diag.range.start.line + 1}, Col ${diag.range.start.character}: ${severityText} - ${diag.message}`
+      );
+    });
+  } else {
+    log(`  No issues found by LSP server`);
+  }
+  return next(uri, diagnostics);
+}
+
 /**
  * Start the LSP client.
  */
-function startLanguageClient(context: vscode.ExtensionContext): void {
+function __startLanguageClient(context: vscode.ExtensionContext): void {
   log("Starting MAID LSP client...");
 
   const outputChannel = getOutputChannel();
@@ -299,94 +405,12 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
     outputChannel: outputChannel,
     initializationOptions: {},
     // Ensure the client sends save notifications
-    initializationFailedHandler: (error) => {
-      log(`LSP initialization failed: ${error}`, "error");
-      return false;
-    },
+    initializationFailedHandler: _initializationFailedHandler,
     middleware: {
-      didOpen: (document, next) => {
-        log(`[LSP Middleware] Document opened: ${document.uri.toString()}`);
-        log(`[LSP Middleware] Language ID: ${document.languageId}`);
-        log(`[LSP Middleware] File size: ${document.getText().length} bytes`);
-        log(`[LSP Middleware] First 100 chars: ${document.getText().substring(0, 100)}`);
-        return next(document);
-      },
-      didChange: (event, next) => {
-        log(`[LSP Middleware] Document changed: ${event.document.uri.toString()}`);
-        log(`[LSP Middleware] Changes: ${event.contentChanges.length} change(s)`);
-        return next(event);
-      },
-      didSave: async (document, next) => {
-        log(`[LSP Middleware] Document saved: ${document.uri.toString()}`);
-        const result = await next(document);
-
-        // Force re-send the document to trigger validation after save
-        // This works around the server not supporting workspace/didChangeWatchedFiles
-        if (client) {
-          try {
-            log(`[LSP Middleware] Sending close notification for re-validation`);
-            await client.sendNotification("textDocument/didClose", {
-              textDocument: { uri: document.uri.toString() },
-            });
-
-            log(`[LSP Middleware] Sending open notification with updated content`);
-            await client.sendNotification("textDocument/didOpen", {
-              textDocument: {
-                uri: document.uri.toString(),
-                languageId: document.languageId,
-                version: document.version,
-                text: document.getText(),
-              },
-            });
-            log(`[LSP Middleware] Re-validation triggered successfully`);
-          } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : String(error);
-            log(`[LSP Middleware] Failed to trigger re-validation: ${message}`, "error");
-          }
-        } else {
-          log(`[LSP Middleware] No client available for re-validation`, "warn");
-        }
-
-        return result;
-      },
-      handleDiagnostics: (uri, diagnostics, next) => {
-        log(
-          `[LSP Middleware] Received diagnostics for ${uri.toString()}: ${diagnostics.length} issue(s)`
-        );
-
-        // Update status bar with diagnostics
-        if (statusBar) {
-          const activeEditor = vscode.window.activeTextEditor;
-          if (activeEditor && activeEditor.document.uri.toString() === uri.toString()) {
-            const errors = diagnostics.filter(
-              (d) => d.severity === vscode.DiagnosticSeverity.Error
-            ).length;
-            const warnings = diagnostics.filter(
-              (d) => d.severity === vscode.DiagnosticSeverity.Warning
-            ).length;
-            statusBar.updateStatus(errors, warnings);
-          }
-        }
-
-        if (diagnostics.length > 0) {
-          diagnostics.forEach((diag, index) => {
-            const severityText =
-              diag.severity === vscode.DiagnosticSeverity.Error
-                ? "ERROR"
-                : diag.severity === vscode.DiagnosticSeverity.Warning
-                  ? "WARNING"
-                  : diag.severity === vscode.DiagnosticSeverity.Information
-                    ? "INFO"
-                    : "HINT";
-            log(
-              `  [${index + 1}] Line ${diag.range.start.line + 1}, Col ${diag.range.start.character}: ${severityText} - ${diag.message}`
-            );
-          });
-        } else {
-          log(`  No issues found by LSP server`);
-        }
-        return next(uri, diagnostics);
-      },
+      didOpen: _didOpen,
+      didChange: _didChange,
+      didSave: _didSave,
+      handleDiagnostics: _handleDiagnostics,
     },
   };
 
@@ -473,7 +497,7 @@ function startLanguageClient(context: vscode.ExtensionContext): void {
 /**
  * Check installation status and show result to user.
  */
-async function checkInstallationStatus(): Promise<void> {
+async function __checkInstallationStatus(): Promise<void> {
   const isInstalled = await checkMaidLspInstalled();
   if (isInstalled) {
     const version = await getInstalledVersion();
@@ -483,14 +507,14 @@ async function checkInstallationStatus(): Promise<void> {
       vscode.window.showInformationMessage("MAID LSP is installed");
     }
   } else {
-    await promptMaidLspInstall();
+    await __promptMaidLspInstall();
   }
 }
 
 /**
  * Register all TreeView providers.
  */
-function registerTreeViews(context: vscode.ExtensionContext): void {
+function __registerTreeViews(context: vscode.ExtensionContext): void {
   log("Registering TreeView providers...");
 
   // Manifest explorer
@@ -537,18 +561,18 @@ function registerTreeViews(context: vscode.ExtensionContext): void {
 /**
  * Register all commands.
  */
-function registerCommands(context: vscode.ExtensionContext): void {
+function __registerCommands(context: vscode.ExtensionContext): void {
   log("Registering commands...");
 
   // Installation check
   context.subscriptions.push(
-    vscode.commands.registerCommand("vscode-maid.checkInstallation", checkInstallationStatus)
+    vscode.commands.registerCommand("vscode-maid.checkInstallation", __checkInstallationStatus)
   );
 
   // Update check
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.checkForUpdates", () =>
-      checkForUpdates(context, true)
+      __checkForUpdates(context, true)
     )
   );
 
@@ -754,7 +778,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 /**
  * Register workspace event listeners.
  */
-function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
+function __registerWorkspaceListeners(context: vscode.ExtensionContext): void {
   log("Registering workspace listeners...");
 
   // Document open listener
@@ -822,7 +846,7 @@ function registerWorkspaceListeners(context: vscode.ExtensionContext): void {
 /**
  * Register definition and reference providers for navigation.
  */
-async function registerNavigationProviders(context: vscode.ExtensionContext): Promise<void> {
+async function __registerNavigationProviders(context: vscode.ExtensionContext): Promise<void> {
   log("Registering navigation providers...");
 
   // Create and initialize the manifest index
@@ -1045,7 +1069,7 @@ async function registerNavigationProviders(context: vscode.ExtensionContext): Pr
 
           // Get file extension to determine language
           const ext = path.extname(filePath).toLowerCase();
-          const position = findArtifactPosition(content, artifactName, artifactType, ext);
+          const position = __findArtifactPosition(content, artifactName, artifactType, ext);
 
           if (position) {
             const editor = await vscode.window.showTextDocument(document);
@@ -1076,7 +1100,7 @@ async function registerNavigationProviders(context: vscode.ExtensionContext): Pr
 /**
  * Find the position of an artifact definition in file content.
  */
-function findArtifactPosition(
+function __findArtifactPosition(
   content: string,
   name: string,
   type: string,
@@ -1318,10 +1342,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(statusBar);
 
   // Register TreeViews (always available)
-  registerTreeViews(context);
+  __registerTreeViews(context);
 
   // Register commands (always available)
-  registerCommands(context);
+  __registerCommands(context);
   registerImpactAnalysisCommand(context);
   registerHierarchicalViewCommand(context);
 
@@ -1330,7 +1354,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   if (!isInstalled) {
     log("maid-lsp is not installed, prompting user for installation");
     statusBar.setNotInstalled();
-    await promptMaidLspInstall();
+    await __promptMaidLspInstall();
     log("Skipping LSP client activation until maid-lsp is installed");
     // Don't activate the client yet - user needs to install first
     return;
@@ -1339,17 +1363,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   log("maid-lsp is installed, proceeding with activation");
 
   // Register workspace listeners
-  registerWorkspaceListeners(context);
+  __registerWorkspaceListeners(context);
 
   // Register navigation providers (Go to Definition, Find References)
-  await registerNavigationProviders(context);
+  await __registerNavigationProviders(context);
 
   // Start the language client
-  void startLanguageClient(context);
+  void __startLanguageClient(context);
 
   // Check for updates automatically (throttled to once per day)
   log("Checking for maid-lsp updates...");
-  void checkForUpdates(context, false);
+  void __checkForUpdates(context, false);
 
   log("MAID Extension activation complete");
 }

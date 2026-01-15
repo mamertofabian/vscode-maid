@@ -19,7 +19,7 @@ interface FileTrackingBreakdown {
   total: number;
 }
 
-const calculateHealthScore = (data: DashboardData | null): number => {
+const _calculateHealthScore = (data: DashboardData | null): number => {
   if (!data) return 0;
   if (data.manifests.length === 0) return 0;
 
@@ -35,7 +35,7 @@ const calculateHealthScore = (data: DashboardData | null): number => {
   return Math.max(0, Math.min(100, score));
 };
 
-const getFileTrackingBreakdown = (data: DashboardData | null): FileTrackingBreakdown => {
+const _getFileTrackingBreakdown = (data: DashboardData | null): FileTrackingBreakdown => {
   if (!data) return { tracked: 0, untracked: 0, total: 0 };
 
   // Calculate tracked files based on valid manifests
@@ -95,20 +95,20 @@ const Dashboard: React.FC = () => {
     }
   }, [message, data]);
 
-  const handleRefresh = () => {
+  const __handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
 
-  const handleOpenManifest = (manifestPath: string) => {
+  const _handleOpenManifest = (manifestPath: string) => {
     sendMessage({ type: "openManifest", payload: { manifestPath } });
   };
 
-  const handleRunValidation = (manifestPath?: string) => {
+  const _handleRunValidation = (manifestPath?: string) => {
     sendMessage({ type: "runValidation", payload: { manifestPath } });
   };
 
-  const handleRunTests = (manifestPath?: string) => {
+  const _handleRunTests = (manifestPath?: string) => {
     sendMessage({ type: "runTests", payload: { manifestPath } });
   };
 
@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-error">
         <p>Error loading dashboard:</p>
         <p className="error-message">{error}</p>
-        <button onClick={handleRefresh}>Retry</button>
+        <button onClick={_handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -142,19 +142,19 @@ const Dashboard: React.FC = () => {
         <div className="header-actions">
           <button
             className="secondary"
-            onClick={() => handleRunValidation()}
+            onClick={() => _handleRunValidation()}
             disabled={isLoading}
           >
             Validate All
           </button>
           <button
             className="secondary"
-            onClick={() => handleRunTests()}
+            onClick={() => _handleRunTests()}
             disabled={isLoading}
           >
             Run Tests
           </button>
-          <button onClick={handleRefresh} disabled={isLoading}>
+          <button onClick={_handleRefresh} disabled={isLoading}>
             {isLoading ? "Refreshing..." : "Refresh"}
           </button>
         </div>
@@ -163,25 +163,25 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-content">
         <div className="health-section">
           <div className="health-indicator-container">
-            <HealthIndicator score={calculateHealthScore(data)} size="large" />
+            <HealthIndicator score={_calculateHealthScore(data)} size="large" />
             <div className="health-label">Project Health</div>
           </div>
           <div className="metrics-summary">
             <MetricsCard
               title="Tracked"
-              value={getFileTrackingBreakdown(data).tracked}
+              value={_getFileTrackingBreakdown(data).tracked}
               subtitle="Valid manifests"
               color="var(--success)"
             />
             <MetricsCard
               title="Untracked"
-              value={getFileTrackingBreakdown(data).untracked}
+              value={_getFileTrackingBreakdown(data).untracked}
               subtitle="Invalid manifests"
               color="var(--error)"
             />
             <MetricsCard
               title="Total"
-              value={getFileTrackingBreakdown(data).total}
+              value={_getFileTrackingBreakdown(data).total}
               subtitle="All manifests"
             />
           </div>
@@ -212,7 +212,7 @@ const Dashboard: React.FC = () => {
           <ValidationCard
             manifests={data?.manifests || []}
             onOpenManifest={handleOpenManifest}
-            onValidateManifest={(path) => handleRunValidation(path)}
+            onValidateManifest={(path) => _handleRunValidation(path)}
           />
           <TestCoverageCard coverage={data?.testCoverage || null} />
           <ActivityFeed

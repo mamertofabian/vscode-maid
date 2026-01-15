@@ -14,8 +14,8 @@ import { log, getMaidRoot } from "../utils";
  * Manages the Knowledge Graph Visualizer webview panel.
  */
 export class KnowledgeGraphPanel {
-  public static currentPanel: KnowledgeGraphPanel | undefined;
-  public static readonly viewType = "maidKnowledgeGraph";
+  public static _currentPanel: KnowledgeGraphPanel | undefined;
+  public static readonly _viewType = "maidKnowledgeGraph";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -32,14 +32,14 @@ export class KnowledgeGraphPanel {
       : undefined;
 
     // If we already have a panel, show it
-    if (KnowledgeGraphPanel.currentPanel) {
-      KnowledgeGraphPanel.currentPanel._panel.reveal(column);
-      return KnowledgeGraphPanel.currentPanel;
+    if (KnowledgeGraphPanel._currentPanel) {
+      KnowledgeGraphPanel._currentPanel._panel.reveal(column);
+      return KnowledgeGraphPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      KnowledgeGraphPanel.viewType,
+      KnowledgeGraphPanel._viewType,
       "MAID Knowledge Graph",
       column || vscode.ViewColumn.One,
       {
@@ -49,8 +49,8 @@ export class KnowledgeGraphPanel {
       }
     );
 
-    KnowledgeGraphPanel.currentPanel = new KnowledgeGraphPanel(panel, extensionUri);
-    return KnowledgeGraphPanel.currentPanel;
+    KnowledgeGraphPanel._currentPanel = new KnowledgeGraphPanel(panel, extensionUri);
+    return KnowledgeGraphPanel._currentPanel;
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -444,7 +444,7 @@ export class KnowledgeGraphPanel {
     );
 
     // Use a nonce to only allow specific scripts to be run
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -472,7 +472,7 @@ export class KnowledgeGraphPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    KnowledgeGraphPanel.currentPanel = undefined;
+    KnowledgeGraphPanel._currentPanel = undefined;
 
     // Clean up resources
     this._panel.dispose();
@@ -491,7 +491,7 @@ export class KnowledgeGraphPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

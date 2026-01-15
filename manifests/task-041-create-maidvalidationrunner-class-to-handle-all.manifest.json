@@ -20,35 +20,17 @@
       {
         "type": "function",
         "name": "runValidation",
-        "class": "MaidValidationRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidValidationRunner"
       },
       {
         "type": "function",
         "name": "runCoherenceValidation",
-        "class": "MaidValidationRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidValidationRunner"
       },
       {
         "type": "function",
         "name": "runChainValidation",
-        "class": "MaidValidationRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidValidationRunner"
       },
       {
         "type": "function",

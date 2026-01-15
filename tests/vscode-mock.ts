@@ -181,6 +181,12 @@ export const mockVscode = {
   ThemeColor: class ThemeColor {
     constructor(public id: string) {}
   },
+  ThemeIcon: class ThemeIcon {
+    constructor(
+      public id: string,
+      public color?: { id: string }
+    ) {}
+  },
   TreeItem: class TreeItem {
     label?: string;
     collapsibleState?: number;

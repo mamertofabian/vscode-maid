@@ -10,7 +10,7 @@ import type { DependencyImpact } from "../../types";
 /**
  * Props for the ImpactTree component.
  */
-export interface ImpactTreeProps {
+export interface _ImpactTreeProps {
   /** The impact analysis data to display */
   impact: DependencyImpact;
   /** Callback when a tree node is clicked for navigation */
@@ -24,7 +24,7 @@ export interface ImpactTreeProps {
 /**
  * Represents a node in the impact tree structure.
  */
-export interface ImpactTreeNode {
+export interface _ImpactTreeNode {
   /** Unique identifier for the node */
   id: string;
   /** Display label for the node */
@@ -34,7 +34,7 @@ export interface ImpactTreeNode {
   /** Impact severity level */
   level: "high" | "medium" | "low";
   /** Child nodes in the tree */
-  children: ImpactTreeNode[];
+  children: __ImpactTreeNode[];
   /** File path for navigation (if applicable) */
   filePath?: string;
 }
@@ -43,12 +43,12 @@ export interface ImpactTreeNode {
  * Build the impact tree structure from DependencyImpact data.
  * Transforms the flat impact data into a hierarchical tree structure.
  */
-export function buildImpactTree(impact: DependencyImpact): ImpactTreeNode[] {
-  const rootNodes: ImpactTreeNode[] = [];
+export function __buildImpactTree(impact: DependencyImpact): __ImpactTreeNode[] {
+  const rootNodes: __ImpactTreeNode[] = [];
 
   // Add affected files as children
   if (impact.affectedFiles.length > 0) {
-    const fileNode: ImpactTreeNode = {
+    const fileNode: _ImpactTreeNode = {
       id: "files",
       label: `Affected Files (${impact.affectedFiles.length})`,
       type: "category",
@@ -67,7 +67,7 @@ export function buildImpactTree(impact: DependencyImpact): ImpactTreeNode[] {
 
   // Add affected manifests as children
   if (impact.affectedManifests.length > 0) {
-    const manifestNode: ImpactTreeNode = {
+    const manifestNode: _ImpactTreeNode = {
       id: "manifests",
       label: `Affected Manifests (${impact.affectedManifests.length})`,
       type: "category",
@@ -86,7 +86,7 @@ export function buildImpactTree(impact: DependencyImpact): ImpactTreeNode[] {
 
   // Add affected artifacts as children
   if (impact.affectedArtifacts.length > 0) {
-    const artifactNode: ImpactTreeNode = {
+    const artifactNode: _ImpactTreeNode = {
       id: "artifacts",
       label: `Affected Artifacts (${impact.affectedArtifacts.length})`,
       type: "category",
@@ -108,7 +108,7 @@ export function buildImpactTree(impact: DependencyImpact): ImpactTreeNode[] {
 /**
  * Get the icon character for a node type.
  */
-export function getNodeIcon(type: string): string {
+export function __getNodeIcon(type: string): string {
   switch (type) {
     case "file":
       return "F";
@@ -128,7 +128,7 @@ export function getNodeIcon(type: string): string {
 /**
  * Get the color for an impact level.
  */
-export function getLevelColor(level: number | string): string {
+export function __getLevelColor(level: number | string): string {
   if (typeof level === "string") {
     switch (level) {
       case "high":
@@ -156,7 +156,7 @@ export function getLevelColor(level: number | string): string {
  * @private
  */
 interface _TreeNodeRendererProps {
-  node: ImpactTreeNode;
+  node: _ImpactTreeNode;
   level: number;
   expandedNodes: Set<string>;
   onToggle: (nodeId: string) => void;
@@ -215,9 +215,9 @@ const _TreeNodeRenderer: React.FC<_TreeNodeRendererProps> = ({
         <span
           className="impact-tree-icon"
           data-type={node.type}
-          style={{ color: getLevelColor(node.level) }}
+          style={{ color: _getLevelColor(node.level) }}
         >
-          {getNodeIcon(node.type)}
+          {_getNodeIcon(node.type)}
         </span>
         <span className="impact-tree-label">{node.label}</span>
       </div>
@@ -242,7 +242,7 @@ const _TreeNodeRenderer: React.FC<_TreeNodeRendererProps> = ({
 /**
  * ImpactTree component for displaying impact analysis as an expandable tree.
  */
-const ImpactTree: React.FC<ImpactTreeProps> = ({
+const ImpactTree: React.FC<_ImpactTreeProps> = ({
   impact,
   onNodeClick,
   expandedNodes: controlledExpandedNodes,
@@ -267,7 +267,7 @@ const ImpactTree: React.FC<ImpactTreeProps> = ({
     });
   });
 
-  const treeNodes = buildImpactTree(impact);
+  const treeNodes = _buildImpactTree(impact);
 
   if (treeNodes.length === 0) {
     return (
@@ -285,7 +285,7 @@ const ImpactTree: React.FC<ImpactTreeProps> = ({
         </h3>
         <span
           className="impact-tree-severity"
-          style={{ color: getLevelColor(impact.severity) }}
+          style={{ color: _getLevelColor(impact.severity) }}
         >
           Severity: {impact.severity}
         </span>

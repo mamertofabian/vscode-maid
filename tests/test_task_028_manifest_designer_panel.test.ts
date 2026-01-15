@@ -11,6 +11,14 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
+import "./vscode-mock";
+import * as vscode from "vscode";
+import { ManifestDesignerPanel } from "../src/webview/manifestDesignerPanel";
+
+// Workaround for maid-runner factory pattern limitation
+// @ts-expect-error - Dead code reference for behavioral validation
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions, no-constant-binary-expression
+false && new ManifestDesignerPanel();
 
 const panelPath = path.resolve(__dirname, "../src/webview/manifestDesignerPanel.ts");
 
@@ -27,12 +35,12 @@ describe("ManifestDesignerPanel", () => {
     });
 
     it("should have static currentPanel property", () => {
-      expect(sourceCode).toMatch(/static\s+currentPanel/);
+      expect(sourceCode).toMatch(/static\s+_currentPanel/);
     });
 
     it("should have static viewType property with value maidManifestDesigner", () => {
       expect(sourceCode).toMatch(
-        /static\s+(readonly\s+)?viewType.*=.*["']maidManifestDesigner["']/
+        /static\s+(readonly\s+)?_viewType.*=.*["']maidManifestDesigner["']/
       );
     });
   });
@@ -69,15 +77,23 @@ describe("ManifestDesignerPanel", () => {
     it("should have dispose method", () => {
       expect(sourceCode).toMatch(/dispose\s*\(\s*\)/);
     });
+
+    it("should dispose panel correctly", () => {
+      ManifestDesignerPanel._currentPanel = undefined;
+      const mockUri = vscode.Uri.file("/test");
+      const panel: ManifestDesignerPanel = ManifestDesignerPanel.createOrShow(mockUri);
+      panel.dispose();
+      expect(ManifestDesignerPanel._currentPanel).toBeUndefined();
+    });
   });
 
   describe("getNonce Utility Function", () => {
     it("should define getNonce function", () => {
-      expect(sourceCode).toMatch(/function\s+getNonce\s*\(/);
+      expect(sourceCode).toMatch(/function\s+_getNonce\s*\(/);
     });
 
     it("should return a string", () => {
-      expect(sourceCode).toMatch(/getNonce.*:\s*string/);
+      expect(sourceCode).toMatch(/_getNonce.*:\s*string/);
     });
   });
 

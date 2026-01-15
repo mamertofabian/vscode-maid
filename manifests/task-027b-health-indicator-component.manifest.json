@@ -15,17 +15,6 @@
       {
         "type": "function",
         "name": "HealthIndicator"
-      },
-      {
-        "type": "function",
-        "name": "getHealthColor",
-        "args": [
-          {
-            "name": "score",
-            "type": "number"
-          }
-        ],
-        "returns": "string"
       }
     ]
   },

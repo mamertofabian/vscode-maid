@@ -67,4 +67,28 @@ describe("ManifestIndex", () => {
     manifestIndex.dispose();
     expect(() => manifestIndex.dispose()).not.toThrow();
   });
+
+  it("should build index when buildIndex is called", async () => {
+    await manifestIndex.initialize(mockChannel);
+    await manifestIndex.buildIndex();
+    expect(vscode.workspace.findFiles).toHaveBeenCalled();
+  });
+
+  it("should return empty array when no manifests reference an artifact", async () => {
+    await manifestIndex.initialize(mockChannel);
+    const references = manifestIndex.getManifestsReferencingArtifact("nonExistentArtifact");
+    expect(references).toEqual([]);
+  });
+
+  it("should return undefined when manifest entry not found", async () => {
+    await manifestIndex.initialize(mockChannel);
+    const entry = manifestIndex.getManifestEntry("/nonexistent.manifest.json");
+    expect(entry).toBeUndefined();
+  });
+
+  it("should return all manifests", async () => {
+    await manifestIndex.initialize(mockChannel);
+    const manifests = manifestIndex.getAllManifests();
+    expect(Array.isArray(manifests)).toBe(true);
+  });
 });

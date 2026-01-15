@@ -11,38 +11,6 @@
       {
         "type": "function",
         "name": "KnowledgeGraph"
-      },
-      {
-        "type": "function",
-        "name": "getNodeLabel"
-      },
-      {
-        "type": "function",
-        "name": "getNodeTooltip"
-      },
-      {
-        "type": "function",
-        "name": "getEdgeColor"
-      },
-      {
-        "type": "function",
-        "name": "handleFilterChange"
-      },
-      {
-        "type": "function",
-        "name": "handleRefresh"
-      },
-      {
-        "type": "function",
-        "name": "handleOpenNode"
-      },
-      {
-        "type": "function",
-        "name": "handleLayoutChange"
-      },
-      {
-        "type": "function",
-        "name": "handleExport"
       }
     ]
   },

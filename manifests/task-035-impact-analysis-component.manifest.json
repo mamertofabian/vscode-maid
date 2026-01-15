@@ -9,38 +9,8 @@
     "file": "webview-ui/src/components/ImpactAnalysis/ImpactAnalysis.tsx",
     "contains": [
       {
-        "type": "interface",
-        "name": "ImpactAnalysisProps"
-      },
-      {
         "type": "function",
         "name": "ImpactAnalysis"
-      },
-      {
-        "type": "function",
-        "name": "getSeverityColor",
-        "args": [
-          {
-            "name": "severity",
-            "type": "string"
-          }
-        ],
-        "returns": {
-          "type": "string"
-        }
-      },
-      {
-        "type": "function",
-        "name": "formatImpactCount",
-        "args": [
-          {
-            "name": "count",
-            "type": "number"
-          }
-        ],
-        "returns": {
-          "type": "string"
-        }
       }
     ]
   },

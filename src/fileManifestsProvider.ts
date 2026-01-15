@@ -266,11 +266,11 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
           undefined,
           category
         );
-        interface ExtendedFileManifestTreeItem extends FileManifestTreeItem {
+        interface _ExtendedFileManifestTreeItem extends FileManifestTreeItem {
           categoryType?: string;
           references?: FileReference[];
         }
-        const categoryItemExtended = categoryItem as ExtendedFileManifestTreeItem;
+        const categoryItemExtended = categoryItem as _ExtendedFileManifestTreeItem;
         categoryItemExtended.categoryType = category;
         categoryItemExtended.references = refs;
         categoryItems.push(categoryItemExtended);
@@ -283,11 +283,11 @@ export class FileManifestsTreeDataProvider implements vscode.TreeDataProvider<Fi
 
     // Category level - show manifests
     if (element.itemType === "category") {
-      interface ExtendedFileManifestTreeItem extends FileManifestTreeItem {
+      interface _ExtendedFileManifestTreeItem extends FileManifestTreeItem {
         categoryType?: string;
         references?: FileReference[];
       }
-      const extendedElement = element as ExtendedFileManifestTreeItem;
+      const extendedElement = element as _ExtendedFileManifestTreeItem;
       const references: FileReference[] = extendedElement.references || [];
 
       const manifestItems: FileManifestTreeItem[] = [];

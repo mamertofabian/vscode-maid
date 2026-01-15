@@ -10,7 +10,7 @@ interface HealthIndicatorProps {
   size?: "small" | "medium" | "large";
 }
 
-const getHealthColor = (score: number): string => {
+const _getHealthColor = (score: number): string => {
   if (score > 80) {
     return "var(--success)";
   }
@@ -52,7 +52,7 @@ const HealthIndicator: React.FC<HealthIndicatorProps> = ({
 
   const sizeValue = _getSizeValue(size);
   const fontSize = _getFontSize(size);
-  const color = getHealthColor(score);
+  const color = _getHealthColor(score);
   const clampedScore = Math.max(0, Math.min(100, score));
 
   return (

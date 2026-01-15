@@ -12,7 +12,7 @@ import { log, debounce, getMaidRoot } from "./utils";
 /**
  * Extended properties for GraphTreeItem when used as a category
  */
-interface ExtendedGraphTreeItem extends GraphTreeItem {
+interface _ExtendedGraphTreeItem extends GraphTreeItem {
   categoryType?: "manifest" | "file" | "module" | "artifact";
   nodes?: GraphNode[];
 }
@@ -310,7 +310,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "file-code",
         new vscode.ThemeColor("charts.blue")
       );
-      const manifestCategoryExtended = manifestCategory as ExtendedGraphTreeItem;
+      const manifestCategoryExtended = manifestCategory as _ExtendedGraphTreeItem;
       manifestCategoryExtended.categoryType = "manifest";
       manifestCategoryExtended.nodes = manifests;
       items.push(manifestCategoryExtended);
@@ -324,7 +324,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         vscode.TreeItemCollapsibleState.Collapsed
       );
       fileCategory.iconPath = new vscode.ThemeIcon("files");
-      const fileCategoryExtended = fileCategory as ExtendedGraphTreeItem;
+      const fileCategoryExtended = fileCategory as _ExtendedGraphTreeItem;
       fileCategoryExtended.categoryType = "file";
       fileCategoryExtended.nodes = files;
       items.push(fileCategoryExtended);
@@ -341,7 +341,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "package",
         new vscode.ThemeColor("charts.purple")
       );
-      const moduleCategoryExtended = moduleCategory as ExtendedGraphTreeItem;
+      const moduleCategoryExtended = moduleCategory as _ExtendedGraphTreeItem;
       moduleCategoryExtended.categoryType = "module";
       moduleCategoryExtended.nodes = modules;
       items.push(moduleCategoryExtended);
@@ -358,7 +358,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
         "symbol-misc",
         new vscode.ThemeColor("charts.green")
       );
-      const artifactCategoryExtended = artifactCategory as ExtendedGraphTreeItem;
+      const artifactCategoryExtended = artifactCategory as _ExtendedGraphTreeItem;
       artifactCategoryExtended.categoryType = "artifact";
       artifactCategoryExtended.nodes = artifacts;
       items.push(artifactCategoryExtended);
@@ -378,7 +378,7 @@ export class KnowledgeGraphTreeDataProvider implements vscode.TreeDataProvider<G
   }
 
   private getCategoryChildren(element: GraphTreeItem): GraphTreeItem[] {
-    const extendedElement = element as ExtendedGraphTreeItem;
+    const extendedElement = element as _ExtendedGraphTreeItem;
     const nodes: GraphNode[] | undefined = extendedElement.nodes;
 
     if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {

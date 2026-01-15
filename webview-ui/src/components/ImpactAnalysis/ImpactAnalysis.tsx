@@ -11,7 +11,7 @@ import Spinner from "../shared/Spinner";
 /**
  * Props for the ImpactAnalysis component (optional - for standalone use).
  */
-export interface ImpactAnalysisProps {
+export interface _ImpactAnalysisProps {
   // Optional props - component manages its own state when used standalone
   targetFile?: string;
   impact?: ImpactAnalysisData["impact"];
@@ -25,7 +25,7 @@ export interface ImpactAnalysisProps {
 /**
  * Get the color associated with a severity level.
  */
-export const getSeverityColor = (severity: string): string => {
+export const _getSeverityColor = (severity: string): string => {
   switch (severity?.toLowerCase()) {
     case "critical":
       return "#dc2626"; // Red 600
@@ -45,7 +45,7 @@ export const getSeverityColor = (severity: string): string => {
 /**
  * Format an impact count for display.
  */
-export const formatImpactCount = (count: number): string => {
+export const _formatImpactCount = (count: number): string => {
   if (count === 0) {
     return "None";
   }
@@ -58,7 +58,7 @@ export const formatImpactCount = (count: number): string => {
 /**
  * ImpactAnalysis component - standalone page for impact analysis.
  */
-export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
+export const ImpactAnalysis: React.FC<_ImpactAnalysisProps> = () => {
   const message = useVsCodeMessages();
   const sendMessage = useSendMessage();
 
@@ -158,7 +158,7 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
     );
   }
 
-  const severityColor = getSeverityColor(impact.severity);
+  const severityColor = _getSeverityColor(impact.severity);
 
   return (
     <div className="impact-analysis">
@@ -185,13 +185,13 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
           <span className="severity-label">{impact.severity.toUpperCase()}</span>
         </div>
         <p className="total-impact">
-          Total Impact: {formatImpactCount(impact.totalImpact)}
+          Total Impact: {_formatImpactCount(impact.totalImpact)}
         </p>
       </div>
 
       {/* Affected Files List */}
       <div className="impact-analysis-section affected-files-section">
-        <h3>Affected Files ({formatImpactCount(impact.affectedFiles.length)})</h3>
+        <h3>Affected Files ({_formatImpactCount(impact.affectedFiles.length)})</h3>
         {impact.affectedFiles.length > 0 ? (
           <ul className="affected-files-list">
             {impact.affectedFiles.map((file, index) => (
@@ -212,7 +212,7 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
 
       {/* Affected Manifests List */}
       <div className="impact-analysis-section affected-manifests-section">
-        <h3>Affected Manifests ({formatImpactCount(impact.affectedManifests.length)})</h3>
+        <h3>Affected Manifests ({_formatImpactCount(impact.affectedManifests.length)})</h3>
         {impact.affectedManifests.length > 0 ? (
           <ul className="affected-manifests-list">
             {impact.affectedManifests.map((manifest, index) => (
@@ -233,7 +233,7 @@ export const ImpactAnalysis: React.FC<ImpactAnalysisProps> = () => {
 
       {/* Affected Artifacts List */}
       <div className="impact-analysis-section affected-artifacts-section">
-        <h3>Affected Artifacts ({formatImpactCount(impact.affectedArtifacts.length)})</h3>
+        <h3>Affected Artifacts ({_formatImpactCount(impact.affectedArtifacts.length)})</h3>
         {impact.affectedArtifacts.length > 0 ? (
           <ul className="affected-artifacts-list">
             {impact.affectedArtifacts.map((artifact, index) => (

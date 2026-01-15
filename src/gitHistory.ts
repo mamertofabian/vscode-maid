@@ -41,7 +41,7 @@ export async function getGitRoot(workspacePath: string): Promise<string | null> 
 /**
  * Get the relative path of a file from the Git root.
  */
-function getGitRelativePath(filePath: string, gitRoot: string): string {
+function _getGitRelativePath(filePath: string, gitRoot: string): string {
   // Ensure both arguments are strings
   if (typeof filePath !== "string" || typeof gitRoot !== "string") {
     log(
@@ -122,7 +122,7 @@ export async function getManifestHistory(
   }
 
   try {
-    const relativePath = getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = _getGitRelativePath(manifestPath, gitRoot);
     log(`Getting Git history for: ${relativePath}`);
 
     // Git log format: hash|author|email|date|message
@@ -156,7 +156,7 @@ export async function getManifestHistory(
         const shortHash = hash.substring(0, 7);
 
         // Get diff stats for this commit
-        const stats = await getCommitStats(gitRoot, hash, relativePath);
+        const stats = await _getCommitStats(gitRoot, hash, relativePath);
 
         commits.push({
           hash,
@@ -185,7 +185,7 @@ export async function getManifestHistory(
 /**
  * Get diff statistics for a commit (added/removed lines).
  */
-async function getCommitStats(
+async function _getCommitStats(
   gitRoot: string,
   commitHash: string,
   relativePath: string
@@ -264,7 +264,7 @@ export async function getCommitDiff(
   }
 
   try {
-    const relativePath = getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = _getGitRelativePath(manifestPath, gitRoot);
 
     // Get parent commit
     const parentResult = await executeCommand(`git rev-parse ${commitHash}^`, gitRoot, 5000);
@@ -321,7 +321,7 @@ export async function getFileAtCommit(
   }
 
   try {
-    const relativePath = getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = _getGitRelativePath(manifestPath, gitRoot);
 
     const result = await executeCommand(`git show ${commitHash}:${relativePath}`, gitRoot, 10000);
 
@@ -361,7 +361,7 @@ export async function getDiffBetweenCommits(
   }
 
   try {
-    const relativePath = getGitRelativePath(manifestPath, gitRoot);
+    const relativePath = _getGitRelativePath(manifestPath, gitRoot);
 
     const result = await executeCommand(
       `git diff ${commitHash1} ${commitHash2} -- "${relativePath}"`,

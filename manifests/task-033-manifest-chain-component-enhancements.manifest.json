@@ -10,29 +10,7 @@
     "contains": [
       {
         "type": "function",
-        "name": "ManifestChain",
-        "description": "Main React functional component for manifest chain visualization"
-      },
-      {
-        "type": "function",
-        "name": "handleRefresh",
-        "description": "Handler for refreshing chain data"
-      },
-      {
-        "type": "function",
-        "name": "handleViewModeChange",
-        "description": "Toggle between graph and timeline view modes",
-        "args": [
-          {
-            "name": "mode",
-            "type": "string"
-          }
-        ]
-      },
-      {
-        "type": "function",
-        "name": "getChainStatistics",
-        "description": "Calculate and return chain statistics including depth and breadth"
+        "name": "ManifestChain"
       }
     ]
   },

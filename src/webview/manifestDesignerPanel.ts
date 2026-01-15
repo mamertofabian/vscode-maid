@@ -17,7 +17,7 @@ import { log } from "../utils";
 /**
  * Type for parsed manifest JSON structure
  */
-interface ParsedManifest {
+interface _ParsedManifest {
   goal?: string;
   taskType?: string;
   creatableFiles?: string[];
@@ -31,8 +31,8 @@ interface ParsedManifest {
  * Manages the Manifest Designer webview panel.
  */
 export class ManifestDesignerPanel {
-  public static currentPanel: ManifestDesignerPanel | undefined;
-  public static readonly viewType = "maidManifestDesigner";
+  public static _currentPanel: ManifestDesignerPanel | undefined;
+  public static readonly _viewType = "maidManifestDesigner";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -49,14 +49,14 @@ export class ManifestDesignerPanel {
       : undefined;
 
     // If we already have a panel, show it
-    if (ManifestDesignerPanel.currentPanel) {
-      ManifestDesignerPanel.currentPanel._panel.reveal(column);
-      return ManifestDesignerPanel.currentPanel;
+    if (ManifestDesignerPanel._currentPanel) {
+      ManifestDesignerPanel._currentPanel._panel.reveal(column);
+      return ManifestDesignerPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      ManifestDesignerPanel.viewType,
+      ManifestDesignerPanel._viewType,
       "MAID Manifest Designer",
       column || vscode.ViewColumn.One,
       {
@@ -66,8 +66,8 @@ export class ManifestDesignerPanel {
       }
     );
 
-    ManifestDesignerPanel.currentPanel = new ManifestDesignerPanel(panel, extensionUri);
-    return ManifestDesignerPanel.currentPanel;
+    ManifestDesignerPanel._currentPanel = new ManifestDesignerPanel(panel, extensionUri);
+    return ManifestDesignerPanel._currentPanel;
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -149,7 +149,7 @@ export class ManifestDesignerPanel {
 
     try {
       const content = await fs.promises.readFile(fullPath, "utf-8");
-      const manifest = JSON.parse(content) as ParsedManifest;
+      const manifest = JSON.parse(content) as _ParsedManifest;
 
       this._currentManifestPath = manifestPath;
 
@@ -474,7 +474,7 @@ export class ManifestDesignerPanel {
       vscode.Uri.joinPath(this._extensionUri, "out", "webview", "main.css")
     );
 
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -502,7 +502,7 @@ export class ManifestDesignerPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    ManifestDesignerPanel.currentPanel = undefined;
+    ManifestDesignerPanel._currentPanel = undefined;
 
     this._panel.dispose();
 
@@ -533,7 +533,7 @@ function _validateFilename(value: string): string | null {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

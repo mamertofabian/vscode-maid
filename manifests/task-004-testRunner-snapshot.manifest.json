@@ -25,19 +25,7 @@
       {
         "type": "function",
         "name": "extractUri",
-        "class": "MaidTestRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidTestRunner"
       },
       {
         "type": "function",
@@ -52,53 +40,17 @@
       {
         "type": "function",
         "name": "runChainValidation",
-        "class": "MaidTestRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidTestRunner"
       },
       {
         "type": "function",
         "name": "runCoherenceValidation",
-        "class": "MaidTestRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidTestRunner"
       },
       {
         "type": "function",
         "name": "runTestsForManifest",
-        "class": "MaidTestRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidTestRunner"
       },
       {
         "type": "function",
@@ -108,19 +60,7 @@
       {
         "type": "function",
         "name": "runValidation",
-        "class": "MaidTestRunner",
-        "args": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ],
-        "parameters": [
-          {
-            "name": "arg",
-            "type": "unknown"
-          }
-        ]
+        "class": "MaidTestRunner"
       },
       {
         "type": "function",

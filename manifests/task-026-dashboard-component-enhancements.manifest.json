@@ -17,46 +17,8 @@
         "name": "Dashboard"
       },
       {
-        "type": "function",
-        "name": "calculateHealthScore",
-        "args": [
-          {
-            "name": "data",
-            "type": "DashboardData | null"
-          }
-        ],
-        "returns": "number"
-      },
-      {
-        "type": "function",
-        "name": "getFileTrackingBreakdown",
-        "args": [
-          {
-            "name": "data",
-            "type": "DashboardData | null"
-          }
-        ],
-        "returns": "FileTrackingBreakdown"
-      },
-      {
         "type": "interface",
         "name": "FileTrackingBreakdown"
-      },
-      {
-        "type": "function",
-        "name": "handleRefresh"
-      },
-      {
-        "type": "function",
-        "name": "handleOpenManifest"
-      },
-      {
-        "type": "function",
-        "name": "handleRunValidation"
-      },
-      {
-        "type": "function",
-        "name": "handleRunTests"
       }
     ]
   },

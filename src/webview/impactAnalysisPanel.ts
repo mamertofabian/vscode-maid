@@ -19,7 +19,7 @@ let _sharedManifestIndex: ManifestIndex | undefined;
 /**
  * Set the shared ManifestIndex instance for all ImpactAnalysisPanel instances.
  */
-export function setSharedManifestIndex(index: ManifestIndex): void {
+export function _setSharedManifestIndex(index: ManifestIndex): void {
   _sharedManifestIndex = index;
 }
 
@@ -27,8 +27,8 @@ export function setSharedManifestIndex(index: ManifestIndex): void {
  * Manages the Impact Analysis webview panel.
  */
 export class ImpactAnalysisPanel {
-  public static currentPanel: ImpactAnalysisPanel | undefined;
-  public static readonly viewType = "maidImpactAnalysis";
+  public static _currentPanel: ImpactAnalysisPanel | undefined;
+  public static readonly _viewType = "maidImpactAnalysis";
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -45,14 +45,14 @@ export class ImpactAnalysisPanel {
       : undefined;
 
     // If we already have a panel, show it
-    if (ImpactAnalysisPanel.currentPanel) {
-      ImpactAnalysisPanel.currentPanel._panel.reveal(column);
-      return ImpactAnalysisPanel.currentPanel;
+    if (ImpactAnalysisPanel._currentPanel) {
+      ImpactAnalysisPanel._currentPanel._panel.reveal(column);
+      return ImpactAnalysisPanel._currentPanel;
     }
 
     // Otherwise, create a new panel
     const panel = vscode.window.createWebviewPanel(
-      ImpactAnalysisPanel.viewType,
+      ImpactAnalysisPanel._viewType,
       "MAID Impact Analysis",
       column || vscode.ViewColumn.One,
       {
@@ -62,8 +62,8 @@ export class ImpactAnalysisPanel {
       }
     );
 
-    ImpactAnalysisPanel.currentPanel = new ImpactAnalysisPanel(panel, extensionUri);
-    return ImpactAnalysisPanel.currentPanel;
+    ImpactAnalysisPanel._currentPanel = new ImpactAnalysisPanel(panel, extensionUri);
+    return ImpactAnalysisPanel._currentPanel;
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -398,7 +398,7 @@ export class ImpactAnalysisPanel {
     );
 
     // Use a nonce to only allow specific scripts to be run
-    const nonce = getNonce();
+    const nonce = _getNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -426,7 +426,7 @@ export class ImpactAnalysisPanel {
    * Dispose of the panel and its resources.
    */
   public dispose(): void {
-    ImpactAnalysisPanel.currentPanel = undefined;
+    ImpactAnalysisPanel._currentPanel = undefined;
 
     // Clean up resources
     this._panel.dispose();
@@ -445,7 +445,7 @@ export class ImpactAnalysisPanel {
 /**
  * Generate a nonce for script security.
  */
-function getNonce(): string {
+function _getNonce(): string {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 32; i++) {

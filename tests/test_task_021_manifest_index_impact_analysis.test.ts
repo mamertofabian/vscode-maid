@@ -83,6 +83,55 @@ describe("ManifestIndex Impact Analysis Methods", () => {
     manifestIndex = new ManifestIndex(mockContext);
   });
 
+  describe("buildIndex", () => {
+    it("should build the manifest index", async () => {
+      await manifestIndex.initialize(mockChannel);
+      await manifestIndex.buildIndex();
+      expect(vscode.workspace.findFiles).toHaveBeenCalled();
+    });
+  });
+
+  describe("getManifestsReferencingFile", () => {
+    it("should return empty array when file is not referenced", async () => {
+      await manifestIndex.initialize(mockChannel);
+      const refs = manifestIndex.getManifestsReferencingFile("/nonexistent.ts");
+      expect(refs).toEqual([]);
+    });
+  });
+
+  describe("getManifestsReferencingArtifact", () => {
+    it("should return empty array when artifact is not referenced", async () => {
+      await manifestIndex.initialize(mockChannel);
+      const refs = manifestIndex.getManifestsReferencingArtifact("nonExistentArtifact");
+      expect(refs).toEqual([]);
+    });
+  });
+
+  describe("getSupersessionChain", () => {
+    it("should return chain with empty parents and children for unknown manifest", async () => {
+      await manifestIndex.initialize(mockChannel);
+      const chain = manifestIndex.getSupersessionChain("/unknown.manifest.json");
+      expect(chain).toBeDefined();
+      expect(chain.parents).toEqual([]);
+      expect(chain.children).toEqual([]);
+    });
+  });
+
+  describe("getManifestEntry", () => {
+    it("should return undefined for unknown manifest", async () => {
+      await manifestIndex.initialize(mockChannel);
+      const entry = manifestIndex.getManifestEntry("/unknown.manifest.json");
+      expect(entry).toBeUndefined();
+    });
+  });
+
+  describe("dispose", () => {
+    it("should dispose resources without throwing", async () => {
+      await manifestIndex.initialize(mockChannel);
+      expect(() => manifestIndex.dispose()).not.toThrow();
+    });
+  });
+
   describe("getDependencyImpact", () => {
     it("should return DependencyImpact object with correct structure", async () => {
       // Setup: create a manifest that references a file

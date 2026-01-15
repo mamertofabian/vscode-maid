@@ -11,7 +11,7 @@ import type {
   GraphLayout,
   ManifestDesignerState,
 } from "../types";
-import type { ManifestChainData } from "./manifestChainPanel";
+import type { _ManifestChainData } from "./manifestChainPanel";
 
 /**
  * Graph filter options for the Knowledge Graph Visualizer
@@ -129,7 +129,7 @@ export type ExtensionToWebviewMessage =
   | { type: "graphData"; payload: KnowledgeGraphResult }
   | { type: "dashboardData"; payload: DashboardData }
   | { type: "historyData"; payload: HistoryPanelData }
-  | { type: "chainData"; payload: ManifestChainData }
+  | { type: "chainData"; payload: _ManifestChainData }
   | { type: "commitDiff"; payload: { commitHash: string; diff: string } }
   | { type: "fileAtCommit"; payload: { commitHash: string; content: string } }
   | {

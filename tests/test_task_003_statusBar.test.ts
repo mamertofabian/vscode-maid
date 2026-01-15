@@ -63,6 +63,32 @@ describe("MaidStatusBar", () => {
     expect(state).toBe("hidden");
   });
 
+  it("should show status bar when show is called", () => {
+    statusBar.show();
+    // Should not throw
+    expect(() => statusBar.show()).not.toThrow();
+  });
+
+  it("should set status to valid when setValid is called", () => {
+    statusBar.setValid();
+    const state = statusBar.getState();
+    expect(state).toBe("valid");
+  });
+
+  it("should set status to errors when setErrors is called with count", () => {
+    const count = 5;
+    statusBar.setErrors(count);
+    const state = statusBar.getState();
+    expect(state).toBe("errors");
+  });
+
+  it("should set status to warnings when setWarnings is called with count", () => {
+    const count = 3;
+    statusBar.setWarnings(count);
+    const state = statusBar.getState();
+    expect(state).toBe("warnings");
+  });
+
   it("should dispose resources when dispose is called", () => {
     statusBar.dispose();
     // Should not throw

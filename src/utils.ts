@@ -69,13 +69,13 @@ export async function executeCommand(
       exitCode: 0,
     };
   } catch (error: unknown) {
-    interface ExecError {
+    interface _ExecError {
       message?: string;
       stdout?: string;
       stderr?: string;
       code?: number;
     }
-    const execError = error as ExecError;
+    const execError = error as _ExecError;
     const errorMessage = execError.message || String(error);
     log(`Command failed: ${errorMessage}`, "error");
     return {
