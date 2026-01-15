@@ -1,6 +1,6 @@
 /**
- * Test Runner for the MAID VS Code extension.
- * Executes MAID tests from VS Code.
+ * Validation Runner for the MAID VS Code extension.
+ * Executes MAID validation operations from VS Code.
  */
 
 import * as vscode from "vscode";
@@ -9,9 +9,9 @@ import { log, getWorkspaceRoot, isManifestFile, getMaidRoot } from "./utils";
 import { ManifestTreeItem } from "./manifestExplorer";
 
 /**
- * Manages test execution for MAID manifests.
+ * Manages validation execution for MAID manifests.
  */
-export class MaidTestRunner {
+export class MaidValidationRunner {
   private _terminal: vscode.Terminal | undefined;
   private _disposables: vscode.Disposable[] = [];
 
@@ -27,7 +27,7 @@ export class MaidTestRunner {
   }
 
   /**
-   * Get or create the MAID test terminal.
+   * Get or create the MAID validation terminal.
    */
   private _getTerminal(): vscode.Terminal {
     if (this._terminal && this._terminal.exitStatus === undefined) {
@@ -35,7 +35,7 @@ export class MaidTestRunner {
     }
 
     this._terminal = vscode.window.createTerminal({
-      name: "MAID Tests",
+      name: "MAID Validation",
       cwd: getWorkspaceRoot(),
     });
 
@@ -81,9 +81,9 @@ export class MaidTestRunner {
   }
 
   /**
-   * Run all tests in the workspace.
+   * Run validation for all manifests in the workspace.
    */
-  runAllTests(): void {
+  runAllValidation(): void {
     const workspaceRoot = getWorkspaceRoot();
     if (!workspaceRoot) {
       vscode.window.showErrorMessage(
@@ -92,34 +92,16 @@ export class MaidTestRunner {
       return;
     }
 
-    log("[TestRunner] Running all tests");
+    log("[ValidationRunner] Running validation for all manifests");
     const terminal = this._getTerminal();
-    terminal.sendText("maid test");
+    terminal.sendText("maid validate");
     terminal.show();
   }
 
   /**
-   * Run tests in watch mode for all manifests.
+   * Run validation for a specific manifest.
    */
-  runTestsWatch(): void {
-    const workspaceRoot = getWorkspaceRoot();
-    if (!workspaceRoot) {
-      vscode.window.showErrorMessage(
-        "No workspace folder open. Please open a folder with MAID manifests."
-      );
-      return;
-    }
-
-    log("[TestRunner] Running tests in watch-all mode");
-    const terminal = this._getTerminal();
-    terminal.sendText("maid test --watch-all");
-    terminal.show();
-  }
-
-  /**
-   * Run tests for a specific manifest file.
-   */
-  runTestsForManifest(arg?: unknown): void {
+  runValidation(arg?: unknown): void {
     // Try to extract URI from argument
     let manifestUri = this._extractUri(arg);
 
@@ -143,12 +125,90 @@ export class MaidTestRunner {
     // Get relative path from MAID root
     const relativeManifestPath = path.relative(maidRoot, manifestPath);
 
-    log(`[TestRunner] Running tests from MAID root: ${maidRoot}`);
-    log(`[TestRunner] Running tests for manifest: ${relativeManifestPath}`);
+    log(`[ValidationRunner] Running validation from MAID root: ${maidRoot}`);
+    log(`[ValidationRunner] Running validation for manifest: ${relativeManifestPath}`);
 
     const terminal = this._getTerminal();
     // Change to MAID root, then run the command with relative path
-    terminal.sendText(`cd "${maidRoot}" && maid test --manifest "${relativeManifestPath}"`);
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain`
+    );
+    terminal.show();
+  }
+
+  /**
+   * Run coherence validation for a specific manifest.
+   */
+  runCoherenceValidation(arg?: unknown): void {
+    // Try to extract URI from argument
+    let manifestUri = this._extractUri(arg);
+
+    // If no URI provided, try to get from active editor
+    if (!manifestUri) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && isManifestFile(activeEditor.document.uri)) {
+        manifestUri = activeEditor.document.uri;
+      }
+    }
+
+    if (!manifestUri) {
+      vscode.window.showErrorMessage(
+        "No manifest file selected. Please open or select a .manifest.json file."
+      );
+      return;
+    }
+
+    const manifestPath = manifestUri.fsPath;
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
+
+    log(`[ValidationRunner] Running coherence validation from MAID root: ${maidRoot}`);
+    log(`[ValidationRunner] Running coherence validation for manifest: ${relativeManifestPath}`);
+
+    const terminal = this._getTerminal();
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --coherence --json-output`
+    );
+    terminal.show();
+  }
+
+  /**
+   * Run manifest chain validation for a specific manifest.
+   */
+  runChainValidation(arg?: unknown): void {
+    // Try to extract URI from argument
+    let manifestUri = this._extractUri(arg);
+
+    // If no URI provided, try to get from active editor
+    if (!manifestUri) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && isManifestFile(activeEditor.document.uri)) {
+        manifestUri = activeEditor.document.uri;
+      }
+    }
+
+    if (!manifestUri) {
+      vscode.window.showErrorMessage(
+        "No manifest file selected. Please open or select a .manifest.json file."
+      );
+      return;
+    }
+
+    const manifestPath = manifestUri.fsPath;
+    const maidRoot = getMaidRoot(manifestPath);
+    // Get relative path from MAID root
+    const relativeManifestPath = path.relative(maidRoot, manifestPath);
+
+    log(`[ValidationRunner] Running chain validation from MAID root: ${maidRoot}`);
+    log(`[ValidationRunner] Running chain validation for manifest: ${relativeManifestPath}`);
+
+    const terminal = this._getTerminal();
+    // Change to MAID root, then run the command with relative path
+    terminal.sendText(
+      `cd "${maidRoot}" && maid validate "${relativeManifestPath}" --use-manifest-chain --json-output`
+    );
     terminal.show();
   }
 
@@ -162,6 +222,6 @@ export class MaidTestRunner {
     this._disposables.forEach((d: vscode.Disposable) => {
       d.dispose();
     });
-    log("[TestRunner] Disposed");
+    log("[ValidationRunner] Disposed");
   }
 }

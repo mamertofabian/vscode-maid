@@ -12,11 +12,12 @@ vi.mock("../src/utils", async () => {
   return {
     ...actual,
     getWorkspaceRoot: vi.fn(() => "/workspace"),
+    getMaidRoot: vi.fn(() => "/workspace"),
+    isManifestFile: vi.fn(() => false),
   };
 });
 
 describe("MaidTestRunner", () => {
-  let testRunner: MaidTestRunner;
   let mockTerminal: vscode.Terminal;
   let sendTextMock: ReturnType<typeof vi.fn>;
   let showMock: ReturnType<typeof vi.fn>;
@@ -31,22 +32,37 @@ describe("MaidTestRunner", () => {
       exitStatus: undefined,
     } as unknown as vscode.Terminal;
     vi.mocked(vscode.window.createTerminal).mockReturnValue(mockTerminal);
-    testRunner = new MaidTestRunner();
   });
 
-  it("should create terminal when runAllTests is called", () => {
+  it("should execute maid test command when runAllTests is called", () => {
+    const testRunner = new MaidTestRunner();
     testRunner.runAllTests();
-    const createTerminalMock = vi.mocked(vscode.window.createTerminal);
-    expect(createTerminalMock).toHaveBeenCalled();
+    expect(vscode.window.createTerminal).toHaveBeenCalled();
     expect(sendTextMock).toHaveBeenCalledWith("maid test");
     expect(showMock).toHaveBeenCalled();
   });
 
-  it("should handle terminal creation correctly", () => {
-    expect(testRunner).toBeDefined();
+  it("should execute maid test watch command when runTestsWatch is called", () => {
+    const testRunner = new MaidTestRunner();
+    testRunner.runTestsWatch();
+    expect(vscode.window.createTerminal).toHaveBeenCalled();
+    expect(sendTextMock).toHaveBeenCalledWith("maid test --watch-all");
+    expect(showMock).toHaveBeenCalled();
   });
 
-  it("should dispose resources when dispose is called", () => {
+  it("should execute test command for specific manifest when runTestsForManifest is called", () => {
+    const testRunner = new MaidTestRunner();
+    const mockUri = vscode.Uri.file("/workspace/manifests/test.manifest.json");
+    testRunner.runTestsForManifest(mockUri);
+    expect(sendTextMock).toHaveBeenCalled();
+    expect(showMock).toHaveBeenCalled();
+    const commandCall = sendTextMock.mock.calls[0]?.[0] as string;
+    expect(commandCall).toContain("maid test");
+    expect(commandCall).toContain("test.manifest.json");
+  });
+
+  it("should clean up resources when dispose is called", () => {
+    const testRunner = new MaidTestRunner();
     testRunner.dispose();
     expect(() => testRunner.dispose()).not.toThrow();
   });

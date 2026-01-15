@@ -1,6 +1,6 @@
 {
   "goal": "Snapshot of existing code in src/testRunner.ts",
-  "taskType": "create",
+  "taskType": "snapshot",
   "supersedes": [],
   "creatableFiles": ["src/testRunner.ts"],
   "editableFiles": [],

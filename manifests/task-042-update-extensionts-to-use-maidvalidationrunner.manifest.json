@@ -1,0 +1,13 @@
+{
+  "goal": "Update extension.ts to use MaidValidationRunner for validation commands instead of MaidTestRunner",
+  "taskType": "edit",
+  "supersedes": [],
+  "creatableFiles": [],
+  "editableFiles": ["src/extension.ts"],
+  "readonlyFiles": ["src/validationRunner.ts"],
+  "expectedArtifacts": {
+    "file": "src/extension.ts",
+    "contains": []
+  },
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_042_extension.test.ts"]
+}

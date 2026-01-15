@@ -1,0 +1,67 @@
+{
+  "goal": "Create MaidValidationRunner class to handle all MAID validation operations, separating validation logic from test execution",
+  "taskType": "create",
+  "supersedes": [],
+  "creatableFiles": ["src/validationRunner.ts"],
+  "editableFiles": [],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/validationRunner.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "MaidValidationRunner"
+      },
+      {
+        "type": "function",
+        "name": "runAllValidation",
+        "class": "MaidValidationRunner"
+      },
+      {
+        "type": "function",
+        "name": "runValidation",
+        "class": "MaidValidationRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runCoherenceValidation",
+        "class": "MaidValidationRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "runChainValidation",
+        "class": "MaidValidationRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "MaidValidationRunner"
+      }
+    ]
+  },
+  "validationCommand": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/test_task_041_validationRunner.test.ts"
+  ]
+}

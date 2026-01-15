@@ -30,6 +30,7 @@ import { ManifestTreeDataProvider, TrackedFilesTreeDataProvider } from "./manife
 import { KnowledgeGraphTreeDataProvider } from "./knowledgeGraph";
 import { ManifestHistoryTreeDataProvider } from "./manifestHistory";
 import { MaidTestRunner } from "./testRunner";
+import { MaidValidationRunner } from "./validationRunner";
 import { ManifestIndex } from "./manifestIndex";
 import { ManifestDefinitionProvider } from "./definitionProvider";
 import { ManifestReferenceProvider, FileReferenceProvider } from "./referenceProvider";
@@ -58,6 +59,7 @@ let knowledgeGraphProvider: KnowledgeGraphTreeDataProvider | undefined;
 let historyProvider: ManifestHistoryTreeDataProvider | undefined;
 let fileManifestsProvider: FileManifestsTreeDataProvider | undefined;
 let testRunner: MaidTestRunner | undefined;
+let validationRunner: MaidValidationRunner | undefined;
 let manifestIndex: ManifestIndex | undefined;
 
 // Constants for version checking
@@ -609,6 +611,9 @@ function registerCommands(context: vscode.ExtensionContext): void {
   testRunner = new MaidTestRunner();
   context.subscriptions.push(testRunner);
 
+  validationRunner = new MaidValidationRunner();
+  context.subscriptions.push(validationRunner);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.runTests", () => {
       void testRunner?.runAllTests();
@@ -629,19 +634,25 @@ function registerCommands(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateManifest", (arg?: unknown) => {
-      void testRunner?.runValidation(arg);
+      void validationRunner?.runValidation(arg);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("vscode-maid.validateAll", () => {
+      void validationRunner?.runAllValidation();
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateCoherence", (arg?: unknown) => {
-      void testRunner?.runCoherenceValidation(arg);
+      void validationRunner?.runCoherenceValidation(arg);
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-maid.validateManifestChain", (arg?: unknown) => {
-      void testRunner?.runChainValidation(arg);
+      void validationRunner?.runChainValidation(arg);
     })
   );
 
@@ -1389,6 +1400,10 @@ export function deactivate(): Thenable<void> | undefined {
   if (testRunner) {
     testRunner.dispose();
     testRunner = undefined;
+  }
+  if (validationRunner) {
+    validationRunner.dispose();
+    validationRunner = undefined;
   }
 
   // Dispose manifest index

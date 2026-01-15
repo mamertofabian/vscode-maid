@@ -1,0 +1,44 @@
+{
+  "goal": "Remove validation methods from MaidTestRunner as they have been moved to MaidValidationRunner",
+  "taskType": "edit",
+  "supersedes": ["manifests/task-004-testRunner-snapshot.manifest.json"],
+  "creatableFiles": [],
+  "editableFiles": ["src/testRunner.ts"],
+  "readonlyFiles": [],
+  "expectedArtifacts": {
+    "file": "src/testRunner.ts",
+    "contains": [
+      {
+        "type": "class",
+        "name": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runAllTests",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runTestsWatch",
+        "class": "MaidTestRunner"
+      },
+      {
+        "type": "function",
+        "name": "runTestsForManifest",
+        "class": "MaidTestRunner",
+        "args": [
+          {
+            "name": "arg",
+            "type": "unknown"
+          }
+        ]
+      },
+      {
+        "type": "function",
+        "name": "dispose",
+        "class": "MaidTestRunner"
+      }
+    ]
+  },
+  "validationCommand": ["pnpm", "exec", "vitest", "run", "tests/test_task_004_testRunner.test.ts"]
+}
