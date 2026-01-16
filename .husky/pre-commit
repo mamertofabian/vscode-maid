@@ -1,5 +1,8 @@
 npx lint-staged
 
+# Stage any files that were modified by lint-staged (formatting, linting fixes)
+git add -u
+
 # Run MAID validation if maid command is available
 if command -v maid >/dev/null 2>&1; then
   echo "Running maid validate..."
