@@ -2,6 +2,14 @@
 
 All notable changes to the "MAID for VS Code" extension will be documented in this file.
 
+## [0.5.1] - 2026-01-16
+
+### Fixed
+
+- Webview components (Dashboard, Knowledge Graph Visualizer, Manifest Chain) not loading due to undefined function references
+- Invalid test files and duplicate tests cleaned up
+- Separated validation logic from test runner for better maintainability
+
 ## [0.5.0] - 2026-01-14
 
 ### Added
