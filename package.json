@@ -510,6 +510,8 @@
     "check-types": "npm run check-types:src && npm run check-types:tests",
     "check-types:src": "tsc --noEmit --project tsconfig.src.json",
     "check-types:tests": "tsc --noEmit --project tsconfig.test.json",
+    "check-types:webview": "cd webview-ui && npx tsc --noEmit",
+    "check-types:all": "npm run check-types && npm run check-types:webview",
     "watch": "node esbuild.js --watch",
     "package": "npm run check-types && node esbuild.js --production",
     "test": "vitest run",

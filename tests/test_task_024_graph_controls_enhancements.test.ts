@@ -61,7 +61,7 @@ describe("GraphControls Component", () => {
 
     it("should contain handleSearchChange function", () => {
       expect(sourceCode).toMatch(
-        /const _handleSearchChange\s*=\s*\(e:\s*React\.ChangeEvent<HTMLInputElement>\)/
+        /const handleSearchChange\s*=\s*\(e:\s*React\.ChangeEvent<HTMLInputElement>\)/
       );
     });
   });

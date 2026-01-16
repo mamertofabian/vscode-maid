@@ -45,7 +45,7 @@ describe("ManifestChain Component Enhancements", () => {
 
   describe("Existing Functions (preserved)", () => {
     it("should contain handleRefresh function", () => {
-      expect(sourceCode).toMatch(/const _+handleRefresh\s*=\s*\(\)/);
+      expect(sourceCode).toMatch(/const handleRefresh\s*=\s*\(\)/);
     });
   });
 

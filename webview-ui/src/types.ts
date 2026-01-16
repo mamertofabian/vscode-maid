@@ -162,6 +162,21 @@ export type ExtensionToWebviewMessage =
   | { type: "loading"; payload: { isLoading: boolean } }
   | { type: "error"; payload: { message: string } };
 
+export type GraphLayoutType = "force-directed" | "hierarchical" | "circular" | "timeline";
+
+export interface LayoutChangePayload {
+  layout: {
+    type: GraphLayoutType;
+    options: Record<string, unknown>;
+  };
+  animate: boolean;
+}
+
+export interface ExportPayload {
+  format: "json" | "dot" | "png" | "svg";
+  filename: string | null;
+}
+
 export type WebviewToExtensionMessage =
   | { type: "ready" }
   | { type: "refresh" }
@@ -175,4 +190,6 @@ export type WebviewToExtensionMessage =
   | { type: "loadCommit"; payload: { manifestPath: string; commitHash: string } }
   | { type: "compareCommits"; payload: { manifestPath: string; commitHash1: string; commitHash2: string } }
   | { type: "openAtCommit"; payload: { manifestPath: string; commitHash: string } }
-  | { type: "setManifest"; payload: { manifestPath: string } };
+  | { type: "setManifest"; payload: { manifestPath: string } }
+  | { type: "changeLayout"; payload: LayoutChangePayload }
+  | { type: "exportGraph"; payload: ExportPayload };

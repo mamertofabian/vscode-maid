@@ -81,17 +81,19 @@ const ManifestChain: React.FC = () => {
 
     // Create edges dataset
     const edges = new DataSet(
-      chainData.edges.map((edge) => ({
+      chainData.edges.map((edge, index) => ({
+        id: `edge-${index}`,
         from: edge.from,
         to: edge.to,
         arrows: edge.arrows,
         label: edge.label || "",
         color: { color: "#808080", highlight: "#404040" },
-        font: { align: "middle", size: 12 },
+        font: { align: "middle" as const, size: 12 },
       }))
     );
 
-    const data: Data = { nodes, edges };
+    // Use type assertion for vis-network compatibility
+    const data: Data = { nodes, edges: edges as unknown as Data["edges"] };
 
     // Network options
     const options: Options = {
@@ -123,6 +125,7 @@ const ManifestChain: React.FC = () => {
       edges: {
         width: 2,
         smooth: {
+          enabled: true,
           type: "continuous",
           roundness: 0.5,
         },
@@ -173,7 +176,7 @@ const ManifestChain: React.FC = () => {
     };
   }, [chainData, sendMessage]);
 
-  const __handleRefresh = () => {
+  const handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
@@ -233,7 +236,7 @@ const ManifestChain: React.FC = () => {
       <div className="manifest-chain-error">
         <p>Error loading manifest chain:</p>
         <p className="error-message">{error}</p>
-        <button onClick={_handleRefresh}>Retry</button>
+        <button onClick={handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -243,7 +246,7 @@ const ManifestChain: React.FC = () => {
       <div className="manifest-chain-header">
         <h2>Manifest Chain</h2>
         <div className="manifest-chain-controls">
-          <button onClick={_handleRefresh} disabled={isLoading}>
+          <button onClick={handleRefresh} disabled={isLoading}>
             {isLoading ? "Loading..." : "Refresh"}
           </button>
         </div>

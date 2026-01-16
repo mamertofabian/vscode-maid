@@ -95,20 +95,20 @@ const Dashboard: React.FC = () => {
     }
   }, [message, data]);
 
-  const __handleRefresh = () => {
+  const handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
 
-  const _handleOpenManifest = (manifestPath: string) => {
+  const handleOpenManifest = (manifestPath: string) => {
     sendMessage({ type: "openManifest", payload: { manifestPath } });
   };
 
-  const _handleRunValidation = (manifestPath?: string) => {
+  const handleRunValidation = (manifestPath?: string) => {
     sendMessage({ type: "runValidation", payload: { manifestPath } });
   };
 
-  const _handleRunTests = (manifestPath?: string) => {
+  const handleRunTests = (manifestPath?: string) => {
     sendMessage({ type: "runTests", payload: { manifestPath } });
   };
 
@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
       <div className="dashboard-error">
         <p>Error loading dashboard:</p>
         <p className="error-message">{error}</p>
-        <button onClick={_handleRefresh}>Retry</button>
+        <button onClick={handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -142,19 +142,19 @@ const Dashboard: React.FC = () => {
         <div className="header-actions">
           <button
             className="secondary"
-            onClick={() => _handleRunValidation()}
+            onClick={() => handleRunValidation()}
             disabled={isLoading}
           >
             Validate All
           </button>
           <button
             className="secondary"
-            onClick={() => _handleRunTests()}
+            onClick={() => handleRunTests()}
             disabled={isLoading}
           >
             Run Tests
           </button>
-          <button onClick={_handleRefresh} disabled={isLoading}>
+          <button onClick={handleRefresh} disabled={isLoading}>
             {isLoading ? "Refreshing..." : "Refresh"}
           </button>
         </div>
@@ -212,7 +212,7 @@ const Dashboard: React.FC = () => {
           <ValidationCard
             manifests={data?.manifests || []}
             onOpenManifest={handleOpenManifest}
-            onValidateManifest={(path) => _handleRunValidation(path)}
+            onValidateManifest={(path) => handleRunValidation(path)}
           />
           <TestCoverageCard coverage={data?.testCoverage || null} />
           <ActivityFeed

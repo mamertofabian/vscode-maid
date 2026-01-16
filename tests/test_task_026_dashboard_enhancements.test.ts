@@ -175,19 +175,19 @@ describe("Dashboard Component Enhancements", () => {
     });
 
     it("should still have handleRefresh function", () => {
-      expect(sourceCode).toMatch(/const _+handleRefresh\s*=/);
+      expect(sourceCode).toMatch(/const handleRefresh\s*=/);
     });
 
     it("should still have handleOpenManifest function", () => {
-      expect(sourceCode).toMatch(/const _handleOpenManifest\s*=/);
+      expect(sourceCode).toMatch(/const handleOpenManifest\s*=/);
     });
 
     it("should still have handleRunValidation function", () => {
-      expect(sourceCode).toMatch(/const _handleRunValidation\s*=/);
+      expect(sourceCode).toMatch(/const handleRunValidation\s*=/);
     });
 
     it("should still have handleRunTests function", () => {
-      expect(sourceCode).toMatch(/const _handleRunTests\s*=/);
+      expect(sourceCode).toMatch(/const handleRunTests\s*=/);
     });
   });
 });

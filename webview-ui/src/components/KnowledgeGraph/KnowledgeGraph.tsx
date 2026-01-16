@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Network, Options, Data } from "vis-network";
 import { DataSet } from "vis-data";
 import { useVsCodeMessages, useSendMessage, usePersistedState } from "../../hooks/useVsCodeApi";
-import type { KnowledgeGraphResult, GraphNode, GraphFilters, ExtensionToWebviewMessage } from "../../types";
+import type { KnowledgeGraphResult, GraphNode, GraphFilters, ExtensionToWebviewMessage, GraphLayoutType } from "../../types";
 import GraphControls from "./GraphControls";
 import NodeDetails from "./NodeDetails";
 import Spinner from "../shared/Spinner";
@@ -202,6 +202,7 @@ const KnowledgeGraph: React.FC = () => {
             smooth: {
               enabled: true,
               type: "continuous",
+              roundness: 0.5,
             },
             font: {
               size: 10,
@@ -221,7 +222,7 @@ const KnowledgeGraph: React.FC = () => {
         networkRef.current.on("click", (params) => {
           if (params.nodes.length > 0) {
             const nodeId = params.nodes[0];
-            const nodeData = nodes.get(nodeId) as { originalNode: GraphNode } | null;
+            const nodeData = nodes.get(nodeId) as unknown as { originalNode: GraphNode } | null;
             if (nodeData?.originalNode) {
               setSelectedNode(nodeData.originalNode);
               sendMessage({
@@ -241,7 +242,7 @@ const KnowledgeGraph: React.FC = () => {
         networkRef.current.on("doubleClick", (params) => {
           if (params.nodes.length > 0) {
             const nodeId = params.nodes[0];
-            const nodeData = nodes.get(nodeId) as { originalNode: GraphNode } | null;
+            const nodeData = nodes.get(nodeId) as unknown as { originalNode: GraphNode } | null;
             if (nodeData?.originalNode) {
               const node = nodeData.originalNode;
               if (node.path) {
@@ -285,17 +286,17 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const _handleFilterChange = (newFilters: GraphFilters) => {
+  const handleFilterChange = (newFilters: GraphFilters) => {
     setFilters(newFilters);
     sendMessage({ type: "filterChange", payload: { filters: newFilters } });
   };
 
-  const __handleRefresh = () => {
+  const handleRefresh = () => {
     setIsLoading(true);
     sendMessage({ type: "refresh" });
   };
 
-  const _handleOpenNode = (node: GraphNode) => {
+  const handleOpenNode = (node: GraphNode) => {
     if (node.path) {
       if (node.type === "manifest") {
         sendMessage({ type: "openManifest", payload: { manifestPath: node.path } });
@@ -326,12 +327,12 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const _handleLayoutChange = (layoutType: string) => {
+  const handleLayoutChange = (layoutType: GraphLayoutType) => {
     setCurrentLayout(layoutType);
     sendMessage({
       type: "changeLayout",
       payload: {
-        layout: { type: layoutType as any, options: {} },
+        layout: { type: layoutType, options: {} },
         animate: true,
       },
     });
@@ -343,10 +344,10 @@ const KnowledgeGraph: React.FC = () => {
     }
   };
 
-  const _handleExport = (format: string) => {
+  const handleExport = (format: "json" | "dot" | "png" | "svg") => {
     sendMessage({
       type: "exportGraph",
-      payload: { format: format as any, filename: null },
+      payload: { format, filename: null },
     });
   };
 
@@ -355,7 +356,7 @@ const KnowledgeGraph: React.FC = () => {
       <div className="knowledge-graph-error">
         <p>Error loading knowledge graph:</p>
         <p className="error-message">{error}</p>
-        <button onClick={_handleRefresh}>Retry</button>
+        <button onClick={handleRefresh}>Retry</button>
       </div>
     );
   }
@@ -365,13 +366,10 @@ const KnowledgeGraph: React.FC = () => {
       <GraphControls
         filters={filters}
         onFilterChange={handleFilterChange}
-        onRefresh={_handleRefresh}
+        onRefresh={handleRefresh}
         isLoading={isLoading}
         nodeCount={graphData?.nodes.length || 0}
         edgeCount={graphData?.edges.length || 0}
-        currentLayout={currentLayout}
-        onLayoutChange={handleLayoutChange}
-        onExport={handleExport}
       />
       <div className="knowledge-graph-main">
         <div className="network-container">

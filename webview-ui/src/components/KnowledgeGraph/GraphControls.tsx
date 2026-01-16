@@ -39,7 +39,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({
     });
   };
 
-  const _handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFilterChange({
       ...filters,
       searchQuery: e.target.value,
